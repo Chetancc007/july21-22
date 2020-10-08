@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @package Amasty_Stockstatus
+ */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontAmastyCheckChangeConfigurableDefaultStatusTest">
+        <annotations>
+            <title value="Check the default status change for the configurable product."/>
+            <description value="Set module's configuration and attributes. Set different statuses for parent and child products. Check it on a storefront."/>
+            <testCaseId value="CSS-8"/>
+            <severity value="CRITICAL"/>
+            <group value="Stockstatus"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminCreateApiConfigurableProductActionGroup" stepKey="createConfigurableProduct"/>
+        </before>
+        <after>
+            <deleteData createDataKey="createConfigProductCreateConfigurableProduct" stepKey="deleteConfigProduct"/>
+            <deleteData createDataKey="createConfigProductAttributeCreateConfigurableProduct" stepKey="deleteConfigProductAttribute"/>
+            <deleteData createDataKey="createConfigChildProduct1CreateConfigurableProduct" stepKey="deleteConfigChildProduct1"/>
+            <deleteData createDataKey="createConfigChildProduct2CreateConfigurableProduct" stepKey="deleteConfigChildProduct2"/>
+            <actionGroup ref="OpenProductAttributeFromSearchResultInGridActionGroup" stepKey="openProductAttribute4">
+                <argument name="productAttributeCode" value="custom_stock_status"/>
+            </actionGroup>
+            <actionGroup ref="AdminAmastyDeleteStockStatusOptionActionGroup" stepKey="deleteAddedOptionA2">
+                <argument name="am_test_option" value="amastySecondOption"/>
+            </actionGroup>
+            <click selector="{{AdminMainActionsSection.saveAndEdit}}" stepKey="saveAndContinueEdit"/>
+            <actionGroup ref="AdminAmastyDeleteStockStatusOptionActionGroup" stepKey="deleteAddedOptionA1">
+                <argument name="am_test_option" value="amastyFirstOption"/>
+            </actionGroup>
+            <actionGroup ref="ClickSaveButtonActionGroup" stepKey="clickSaveProductGroupAttributeAfterDelete">
+                <argument name="message" value="You saved the product attribute."/>
+            </actionGroup>
+        </after>
+
+        <magentoCLI command="config:set amstockstatus/configurable_products/change_custom_configurable_status 1" stepKey="configEnableChangeConfigurableStatus"/>
+        <magentoCLI command="cache:clean" stepKey="cacheClean"/>
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+        <actionGroup ref="OpenProductAttributeFromSearchResultInGridActionGroup" stepKey="openProductAttribute1">
+            <argument name="productAttributeCode" value="custom_stock_status"/>
+        </actionGroup>
+        <actionGroup ref="AdminAmastyAddStockStatusOptionActionGroup" stepKey="addNewOption1">
+            <argument name="am_test_option" value="amastyFirstOption"/>
+        </actionGroup>
+        <actionGroup ref="AdminAmastyAddStockStatusOptionActionGroup" stepKey="addNewOption2">
+            <argument name="am_test_option" value="amastySecondOption"/>
+        </actionGroup>
+        <actionGroup ref="ClickSaveButtonActionGroup" stepKey="clickSaveAttribute">
+            <argument name="message" value="You saved the product attribute."/>
+        </actionGroup>
+        <amOnPage url="{{AdminProductEditPage.url($createConfigProductCreateConfigurableProduct.id$)}}" stepKey="goToEditConfigurableProduct"/>
+        <waitForAjaxLoad stepKey="waitForAjaxLoadConfigurableProductEditPage"/>
+        <actionGroup ref="AdminAmastyAssignStockStatusActionGroup" stepKey="setStockStatusToCreatedConfigurableProduct">
+            <argument name="am_test_option" value="amastyFirstOption"/>
+        </actionGroup>
+        <actionGroup ref="saveProductForm" stepKey="saveConfigurableProduct"/>
+        <amOnPage url="{{AdminProductEditPage.url($createConfigChildProduct2CreateConfigurableProduct.id$)}}" stepKey="goToEditChildProduct"/>
+        <waitForAjaxLoad stepKey="waitForAjaxLoadChildProductEditPage"/>
+        <actionGroup ref="AdminAmastyAssignStockStatusActionGroup" stepKey="setStockStatusToCreatedChildProduct">
+            <argument name="am_test_option" value="amastySecondOption"/>
+        </actionGroup>
+        <actionGroup ref="saveProductForm" stepKey="saveProduct"/>
+        <actionGroup ref="OpenStoreFrontProductPageActionGroup" stepKey="goToTheConfigurableProduct">
+            <argument name="productUrlKey" value="$createConfigProductCreateConfigurableProduct.custom_attributes[url_key]$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAmastyCheckStockStatusOnlyTextActionGroup" stepKey="checkStockStatusToCreatedConfigurableProduct">
+            <argument name="am_test_option" value="amastyFirstOption"/>
+        </actionGroup>
+        <selectOption selector="{{StorefrontProductInfoMainSection.productOptionSelect($createConfigProductAttributeCreateConfigurableProduct.default_value$)}}" userInput="$getConfigAttributeOption2CreateConfigurableProduct.label$" stepKey="selectSecondOption"/>
+        <wait time="1" stepKey="waitOneSecond"/>
+        <actionGroup ref="StorefrontAmastyCheckStockStatusOnlyTextActionGroup" stepKey="checkStockStatusToCreatedConfigurableChildProduct">
+            <argument name="am_test_option" value="amastySecondOption"/>
+        </actionGroup>
+        <magentoCLI command="cache:clean" stepKey="cacheClean2"/>
+        <magentoCLI command="config:set amstockstatus/configurable_products/change_custom_configurable_status 0" stepKey="configDisableChangeConfigurableStatus"/>
+        <actionGroup ref="OpenStoreFrontProductPageActionGroup" stepKey="goToTheConfigurableProduct2">
+            <argument name="productUrlKey" value="$createConfigProductCreateConfigurableProduct.custom_attributes[url_key]$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAmastyCheckStockStatusOnlyTextActionGroup" stepKey="checkStockStatusToCreatedConfigurableProduct2">
+            <argument name="am_test_option" value="amastyFirstOption"/>
+        </actionGroup>
+        <selectOption selector="{{StorefrontProductInfoMainSection.productOptionSelect($createConfigProductAttributeCreateConfigurableProduct.default_value$)}}" userInput="$getConfigAttributeOption2CreateConfigurableProduct.label$" stepKey="selectSecondOption2"/>
+        <actionGroup ref="StorefrontAmastyCheckStockStatusOnlyTextActionGroup" stepKey="checkStockStatusToCreatedConfigurableChildProduct2">
+            <argument name="am_test_option" value="amastyFirstOption"/>
+        </actionGroup>
+
+    </test>
+</tests>

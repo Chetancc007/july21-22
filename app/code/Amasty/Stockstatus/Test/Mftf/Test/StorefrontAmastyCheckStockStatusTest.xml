@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @package Amasty_Stockstatus
+ */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontAmastyCheckStockStatusWithoutDefaultTest" extends="AdminAmastyCreateStockStatusOptionTest">
+        <annotations>
+            <title value="Display custom stock status without default status."/>
+            <description value="Set module's configuration and attributes. Set stock status for a product. Check display without default status."/>
+            <testCaseId value="CSS-2"/>
+            <severity value="CRITICAL"/>
+            <group value="Stockstatus"/>
+        </annotations>
+        <before>
+            <createData entity="SimpleProductA1" stepKey="createSimpleProductA1"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteSimpleProductA1" createDataKey="createSimpleProductA1"/>
+        </after>
+
+        <magentoCLI command="config:set amstockstatus/general/display_default_status 0" stepKey="configDisplayDefaultStatus"/>
+        <amOnPage url="{{AdminProductEditPage.url($createSimpleProductA1.id$)}}" stepKey="goToEditSimpleProductA1"/>
+        <waitForAjaxLoad stepKey="waitForAjaxLoadProductA1EditPage"/>
+        <actionGroup ref="AdminAmastyAssignStockStatusActionGroup" stepKey="setStockStatusToCreatedProduct">
+            <argument name="am_test_option" value="amastyFirstOption"/>
+        </actionGroup>
+        <actionGroup ref="saveProductForm" stepKey="saveProduct"/>
+        <magentoCLI command="cache:clean" stepKey="cacheClean"/>
+        <actionGroup ref="OpenStoreFrontProductPageActionGroup" stepKey="goToTheProductA1">
+            <argument name="productUrlKey" value="$createSimpleProductA1.custom_attributes[url_key]$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAmastyCheckStockStatusWithoutDefaultActionGroup" stepKey="verifyStockStatus">
+            <argument name="productName" value="$$createSimpleProductA1.name$$"/>
+            <argument name="am_test_option" value="amastyFirstOption"/>
+        </actionGroup>
+    </test>
+
+    <test name="StorefrontAmastyCheckStockStatusWithDefaultTest" extends="AdminAmastyCreateStockStatusOptionTest">
+        <annotations>
+            <title value="Display custom stock status with default status."/>
+            <description value="Set module's configuration and attributes. Set stock status for a product. Check display with default status."/>
+            <testCaseId value="CSS-3"/>
+            <severity value="CRITICAL"/>
+            <group value="Stockstatus"/>
+        </annotations>
+        <before>
+            <createData entity="SimpleProductA1" stepKey="createSimpleProductA1"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteSimpleProductA1" createDataKey="createSimpleProductA1"/>
+            <magentoCLI command="config:set amstockstatus/general/display_default_status 0" stepKey="configDontDisplayDefaultStatus"/>
+        </after>
+
+        <magentoCLI command="config:set amstockstatus/general/display_default_status 1" stepKey="configDisplayDefaultStatus"/>
+        <amOnPage url="{{AdminProductEditPage.url($createSimpleProductA1.id$)}}" stepKey="goToEditSimpleProductA1"/>
+        <waitForAjaxLoad stepKey="waitForAjaxLoadProductA1EditPage"/>
+        <actionGroup ref="AdminAmastyAssignStockStatusActionGroup" stepKey="setStockStatusToCreatedProduct">
+            <argument name="am_test_option" value="amastyFirstOption"/>
+        </actionGroup>
+        <actionGroup ref="saveProductForm" stepKey="saveProduct"/>
+        <magentoCLI command="cache:clean" stepKey="cacheClean"/>
+        <actionGroup ref="OpenStoreFrontProductPageActionGroup" stepKey="goToTheProductA1">
+            <argument name="productUrlKey" value="$createSimpleProductA1.custom_attributes[url_key]$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAmastyCheckStockStatusWithDefaultActionGroup" stepKey="verifyStockStatus">
+            <argument name="productName" value="$$createSimpleProductA1.name$$"/>
+            <argument name="am_test_option" value="amastyFirstOption"/>
+        </actionGroup>
+    </test>
+</tests>

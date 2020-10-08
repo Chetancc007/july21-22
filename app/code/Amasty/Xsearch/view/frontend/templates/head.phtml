@@ -1,0 +1,50 @@
+<?php
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @package Amasty_Xsearch
+ */
+?>
+<?php /** @var \Amasty\Xsearch\Block\Head $block */
+if ($block->getLayoutEnabled()):?>
+    <style>
+        .amsearch-products .amsearch-highlight {
+            background-color: #<?= $block->escapeCss($block->getLayoutHighlight()) ?> !important;
+        }
+
+        .search-autocomplete {
+            border: 1px solid #<?= $block->escapeCss($block->getLayoutBorder()) ?> !important;
+        }
+
+        .amsearch-results {
+            background-color: #<?= $block->escapeCss($block->getLayoutBackground()) ?> !important;
+        }
+
+        .amsearch-products {
+            background-color: #<?= $block->escapeCss($block->getLayoutBackground()) ?> !important;
+        }
+
+        .amsearch-item .item-name,
+        .amsearch-item .product-item-link {
+            color: #<?= $block->escapeCss($block->getLayoutText()) ?> !important;
+        }
+
+        .amsearch-item .item-name:hover {
+            color: #<?= $block->escapeCss($block->getLayoutHoverText()) ?> !important;
+        }
+
+        .amsearch-wrapper-content > .amsearch-item:hover {
+            background-color: #<?= $block->escapeCss($block->getLayoutHover()) ?> !important;
+        }
+    </style>
+<?php endif;?>
+<script>
+    require.config({
+        map: {
+            '*': {
+                'quickSearch-original' : '<?= $block->escapeHtml($block->getOriginalFilePath())?>',
+                'quickSearch' : 'Amasty_Xsearch/js/form-mini'
+            }
+        }
+    });
+</script>

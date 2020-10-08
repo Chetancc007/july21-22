@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @package Amasty_Stockstatus
+ */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminAmastyCreateQtyRuleOptionTest">
+        <annotations>
+            <title value="Create a product group option."/>
+            <description value="Check the product group attribute. Create a new option. Save."/>
+            <testCaseId value="CSS-5"/>
+            <severity value="CRITICAL"/>
+            <group value="Stockstatus"/>
+        </annotations>
+        <before>
+            <createData entity="SimpleProductA1" stepKey="createSimpleProductA1"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteSimpleProductA1" createDataKey="createSimpleProductA1"/>
+            <actionGroup ref="OpenProductAttributeFromSearchResultInGridActionGroup" stepKey="openProductAttribute4">
+                <argument name="productAttributeCode" value="custom_stock_status_qty_rule"/>
+            </actionGroup>
+            <actionGroup ref="AdminAmastyDeleteProductGroupOptionActionGroup" stepKey="deleteAddedOptionA2">
+                <argument name="am_test_group" value="productGroupA2"/>
+            </actionGroup>
+            <click selector="{{AdminMainActionsSection.saveAndEdit}}" stepKey="saveAndContinueEdit"/>
+            <actionGroup ref="AdminAmastyDeleteProductGroupOptionActionGroup" stepKey="deleteAddedOptionA1">
+                <argument name="am_test_group" value="productGroupA1"/>
+            </actionGroup>
+            <actionGroup ref="ClickSaveButtonActionGroup" stepKey="clickSaveProductGroupAttributeAfterDelete">
+                <argument name="message" value="You saved the product attribute."/>
+            </actionGroup>
+            <magentoCLI command="config:set amstockstatus/general/use_range_rules 0" stepKey="configDontUseProductGroups"/>
+        </after>
+
+        <magentoCLI command="cache:clean" stepKey="cacheClean"/>
+        <magentoCLI command="config:set amstockstatus/general/use_range_rules 1" stepKey="configUseProductGroups"/>
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+        <actionGroup ref="OpenProductAttributeFromSearchResultInGridActionGroup" stepKey="openProductAttribute2">
+            <argument name="productAttributeCode" value="custom_stock_status_qty_rule"/>
+        </actionGroup>
+        <actionGroup ref="AdminAmastyAddProductGroupOptionActionGroup" stepKey="addFirstProductGroupOption">
+            <argument name="am_test_group" value="productGroupA1"/>
+        </actionGroup>
+        <actionGroup ref="AdminAmastyAddProductGroupOptionActionGroup" stepKey="addSecondProductGroupOption">
+            <argument name="am_test_group" value="productGroupA2"/>
+        </actionGroup>
+        <actionGroup ref="ClickSaveButtonActionGroup" stepKey="clickSaveProductGroupAttribute">
+            <argument name="message" value="You saved the product attribute."/>
+        </actionGroup>
+        <amOnPage url="{{AdminProductEditPage.url($createSimpleProductA1.id$)}}" stepKey="goToEditSimpleProductA1"/>
+        <waitForAjaxLoad stepKey="waitForAjaxLoadProductA1EditPage"/>
+        <actionGroup ref="AdminAmastyAssignProductGroupActionGroup" stepKey="setProductGroupToCreatedProductA1">
+            <argument name="am_test_group" value="productGroupA1"/>
+        </actionGroup>
+        <actionGroup ref="saveProductForm" stepKey="saveProductA1"/>
+    </test>
+</tests>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @package Amasty_Stockstatus
+ */
+-->
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="AdminProductFormSection">
+        <element name="bulkCustomStockStatus" type="button" selector="//select//option[text()='{{option_name}}']" parameterized="true"/>
+        <element name="toggleUseQtyRanges" type="checkbox" selector="div[data-index='custom_stock_status_qty_based'] div[class*='switch']"/>
+        <element name="productGroupAttribute" type="block" selector="div[data-index='custom_stock_status_qty_rule']"/>
+        <element name="bulkProductGroup" type="button" selector="//select//option[text()='{{group_name}}']" parameterized="true"/>
+    </section>
+</sections>

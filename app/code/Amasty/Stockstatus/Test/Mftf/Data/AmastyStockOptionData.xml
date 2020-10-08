@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @package Amasty_Stockstatus
+ */
+-->
+
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="amastyFirstOption" type="am_test_option">
+        <data key="option_name">amastyFirstTestStockStatus</data>
+        <data key="option_image">1.jpeg</data>
+    </entity>
+
+    <entity name="amastySecondOption" type="am_test_option">
+        <data key="option_name">amastySecondTestStockStatus</data>
+        <data key="option_image">2.png</data>
+
+    </entity>
+</entities>

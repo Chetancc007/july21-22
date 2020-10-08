@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @package Amasty_Stockstatus
+ */
+-->
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontProductInfoMainSection">
+        <element name="textCustomStockStatus" type="block" selector="div[class = 'stock'] span"/>
+        <element name="textDefaultStockStatus" type="block" selector="div[class = 'stock']"/>
+        <element name="imageCustomStockStatus" type="block" selector="div[class = 'stock'] img[alt='{{option_name}}']" parameterized="true"/>
+    </section>
+</sections>

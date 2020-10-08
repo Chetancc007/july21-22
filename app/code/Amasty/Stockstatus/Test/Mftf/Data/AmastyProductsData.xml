@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @package Amasty_Stockstatus
+ */
+-->
+
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="SimpleProductA1" type="am_test_product">
+        <data key="name" >testSimpleProductA1</data>
+        <data key="sku" unique="suffix">testSimpleProductA1</data>
+        <data key="type_id">simple</data>
+        <data key="attribute_set_id">4</data>
+        <data key="visibility">4</data>
+        <data key="price">10.00</data>
+        <requiredEntity type="product_extension_attribute">StockStatus</requiredEntity>
+        <requiredEntity type="custom_attribute">ProductUrl</requiredEntity>
+    </entity>
+
+    <entity name="SimpleProductA2" type="am_test_product" extends="SimpleProductA1">
+        <data key="name">testSimpleProductA2</data>
+        <data key="sku" unique="suffix">testSimpleProductA2</data>
+        <requiredEntity type="custom_attribute">ProductUrlA2</requiredEntity>
+    </entity>
+
+    <entity name="StockStatus" type="product_extension_attribute">
+        <requiredEntity type="stock_item">Qty_100</requiredEntity>
+    </entity>
+
+    <entity name="Qty_100" type="stock_item">
+        <data key="qty">100</data>
+        <data key="is_in_stock">true</data>
+    </entity>
+
+    <entity name="ProductUrl" type="custom_attribute">
+        <data key="attribute_code">url_key</data>
+        <data key="value">test-simple-product-a1</data>
+    </entity>
+
+    <entity name="ProductUrlA2" type="custom_attribute" extends="ProductUrl">
+        <data key="value">test-simple-product-a2</data>
+    </entity>
+</entities>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @package Amasty_Stockstatus
+ */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminAmastyAddStockStatusOptionActionGroup">
+        <arguments>
+            <argument name="am_test_option"/>
+        </arguments>
+        <waitForElementVisible selector="{{AttributePropertiesSection.dropdownAddOptions}}" stepKey="seeAddOptionButton"/>
+        <click selector="{{AttributePropertiesSection.dropdownAddOptions}}" stepKey="clickAddOptionButton"/>
+        <fillField userInput="{{am_test_option.option_name}}" selector="{{AttributePropertiesSection.dropdownLastOptionTitle}}" stepKey="fillOptionNameField"/>
+    </actionGroup>
+
+    <actionGroup name="AdminAmastyAddProductGroupOptionActionGroup">
+        <arguments>
+            <argument name="am_test_group"/>
+        </arguments>
+        <waitForElementVisible selector="{{AttributePropertiesSection.dropdownAddOptions}}" stepKey="seeAddOptionButton"/>
+        <click selector="{{AttributePropertiesSection.dropdownAddOptions}}" stepKey="clickAddOptionButton"/>
+        <fillField userInput="{{am_test_group.group_name}}" selector="{{AttributePropertiesSection.dropdownLastOptionTitle}}" stepKey="fillOptionNameField"/>
+    </actionGroup>
+
+    <actionGroup name="AdminAmastyAddStockStatusImageActionGroup">
+        <arguments>
+            <argument name="am_test_option"/>
+        </arguments>
+        <click selector="{{AttributePropertiesSection.tabManageIcons}}" stepKey="openManageIconTab"/>
+        <see selector="{{AttributePropertiesSection.lastAddedOptionTitle}}" userInput="{{am_test_option.option_name}}" stepKey="seeAddedOption"/>
+        <attachFile userInput="{{am_test_option.option_image}}" selector="{{AttributePropertiesSection.lastAddedOptionImage}}" stepKey="uploadOptionImage"/>
+    </actionGroup>
+
+    <actionGroup name="AdminAmastyDeleteStockStatusOptionActionGroup">
+        <arguments>
+            <argument name="am_test_option"/>
+        </arguments>
+        <click selector="{{AttributePropertiesSection.tabProperties}}" stepKey="openPropertiesTab"/>
+        <seeElement selector="{{AttributePropertiesSection.dropdownLastOptionTitleValue(am_test_option.option_name)}}" stepKey="verifyLastOption"/>
+        <click selector="{{AttributePropertiesSection.dropdownLastOptionDelete}}" stepKey="deleteLastOption"/>
+    </actionGroup>
+
+    <actionGroup name="AdminAmastyDeleteProductGroupOptionActionGroup">
+        <arguments>
+            <argument name="am_test_group"/>
+        </arguments>
+        <seeElement selector="{{AttributePropertiesSection.dropdownLastOptionTitleValue(am_test_group.group_name)}}" stepKey="verifyLastOption"/>
+        <click selector="{{AttributePropertiesSection.dropdownLastOptionDelete}}" stepKey="deleteLastOption"/>
+    </actionGroup>
+
+</actionGroups>
