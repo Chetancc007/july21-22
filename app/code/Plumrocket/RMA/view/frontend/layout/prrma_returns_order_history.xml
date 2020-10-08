@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!--
+
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ -->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <update handle="customer_account"/>
+    <update handle="sales_order_item_price"/>
+    <update handle="sales_order_info_links"/>
+    <head>
+        <css src="Plumrocket_RMA::css/prrma.css" />
+    </head>
+    <body>
+        <referenceContainer name="page.main.title">
+            <block class="Magento\Sales\Block\Order\Info" name="order.status" template="Magento_Sales::order/order_status.phtml"/>
+            <block class="Magento\Sales\Block\Order\Info" name="order.date" template="Magento_Sales::order/order_date.phtml"/>
+            <container name="order.actions.container" htmlTag="div" htmlClass="actions-toolbar order-actions-toolbar">
+                <block class="Magento\Sales\Block\Order\Info\Buttons" as="buttons" name="sales.order.info.buttons" cacheable="false"/>
+            </container>
+        </referenceContainer>
+        <referenceContainer name="sales.order.info.buttons">
+            <block class="Magento\Sales\Block\Order\Info\Buttons\Rss" as="buttons.rss" name="sales.order.info.buttons.rss" cacheable="false"/>
+            <block class="Magento\Sales\Block\Order\Info\Buttons" name="rma.return.button" template="Plumrocket_RMA::sales/order/info/buttons/return.phtml" ifconfig="prrma/general/enabled" />
+        </referenceContainer>
+        <referenceContainer name="content">
+            <block class="Magento\Sales\Block\Order\View" name="order.comments" template="Magento_Sales::order/order_comments.phtml" before="sales.order.info.links"/>
+            <block class="Plumrocket\RMA\Block\Returns\History" name="rma.returns.history" template="returns/order/history.phtml" cacheable="false">
+                <container name="rma.returns.history.info" as="info" label="Returns List Info"/>
+            </block>
+            <block class="Magento\Sales\Block\Order\Info" as="info" name="sales.order.info" after="sales.order.view"/>
+        </referenceContainer>
+        <block class="Magento\Framework\View\Element\Template" name="additional.product.info" template="Magento_Theme::template.phtml"/>
+    </body>
+</page>

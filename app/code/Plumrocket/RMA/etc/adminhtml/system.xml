@@ -1,0 +1,191 @@
+<?xml version="1.0"?>
+<!--
+
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="prrma" translate="label" type="text" sortOrder="10712576" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>RMA</label>
+            <tab>plumrocket</tab>
+            <resource>Plumrocket_RMA::config_prrma</resource>
+
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <attribute type="expanded">1</attribute>
+
+                <field id="version" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <frontend_model>Plumrocket\RMA\Block\Adminhtml\System\Config\Form\Version</frontend_model>
+                </field>
+                <field id="enabled" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Extension</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="serial" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <frontend_model>Plumrocket\Base\Block\Adminhtml\System\Config\Form\Serial</frontend_model>
+                    <label>Serial Key</label>
+                    <hint>RMA</hint>
+                </field>
+                <field id="return_placement" translate="label" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Display Return Information On</label>
+                    <source_model>Plumrocket\RMA\Model\Config\Source\Position</source_model>
+                </field>
+                <field id="store_address" translate="label" type="textarea" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Store Address For Returns</label>
+                </field>
+                <field id="auto_close" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>RMA Auto-Closes In (days)</label>
+                    <comment>RMA will auto-close within specified number of days if RMA status is "Pending" or "Authorized". Enter "0" to disable RMA auto-close functionality.</comment>
+                </field>
+                <field id="tracking_number" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allow Customers to Provide Tracking Numbers</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>If enabled, customers can provide shipping tracking number for returned items in "my account" area.</comment>
+                </field>
+                <field id="shipping_carriers" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Shipping Carriers For Returns</label>
+                    <comment>Comma-separated list of shipping carriers that should be displayed for customers and admins when they enter tracking information.</comment>
+                </field>
+            </group>
+
+            <group id="newrma" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Create New RMA Options</label>
+                <attribute type="expanded">0</attribute>
+                <field id="allow" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allow Customers To Create RMA On Storefront</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="default_manager" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Default Manager For New RMA</label>
+                    <source_model>Plumrocket\RMA\Model\Config\Source\AdminUser</source_model>
+                    <comment>All New RMA's submitted by customers will be automatically assigned to the selected Magento admin user.</comment>
+                    <depends>
+                        <field id="allow">1</field>
+                    </depends>
+                </field>
+                <field id="return_policy" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Require to Agree to Return Policy</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>If enabled, customers will have to agree to "Return Policy" in order to submit RMA.</comment>
+                    <depends>
+                        <field id="allow">1</field>
+                    </depends>
+                </field>
+                <field id="return_policy_block" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Return Policy Text</label>
+                    <source_model>Plumrocket\RMA\Model\Config\Source\StaticBlock</source_model>
+                    <comment>Please select static block with Return Policy Text.</comment>
+                    <depends>
+                        <field id="allow">1</field>
+                        <field id="return_policy">1</field>
+                    </depends>
+                </field>
+                <field id="auto_authorize" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Automatically Authorize Returns</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>If enabled, all RMA's created by customers will be automatically authorized for return, thus saving time for admins.</comment>
+                    <depends>
+                        <field id="allow">1</field>
+                    </depends>
+                </field>
+                <field id="return_success" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>New Return Success Message</label>
+                    <source_model>Plumrocket\RMA\Model\Config\Source\StaticBlock</source_model>
+                    <comment>Please select static block that should be displayed to customers who submitted new return request sucessfully.</comment>
+                    <depends>
+                        <field id="allow">1</field>
+                    </depends>
+                </field>
+                <field id="return_instructions" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Return Instructions Text</label>
+                    <source_model>Plumrocket\RMA\Model\Config\Source\StaticBlock</source_model>
+                    <comment>Please select static block that should contain customer instructions how to return the product. This text is displayed to customers when they viewing return information on the website and email.</comment>
+                    <depends>
+                        <field id="allow">1</field>
+                    </depends>
+                </field>
+            </group>
+
+            <group id="email" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>RMA Emails</label>
+                <attribute type="expanded">0</attribute>
+                <field id="sender_name" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Sender Name</label>
+                </field>
+                <field id="sender_email" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Sender Email</label>
+                </field>
+
+                <group id="email_customer" translate="label" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="30">
+                    <label>Emails Sent To Customers</label>
+                    <attribute type="expanded">0</attribute>
+                    <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
+                    <field id="new_template" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>New RMA Confirmation Template</label>
+                        <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                    </field>
+                    <field id="new_copy" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Send RMA Confirmation Email Copy To</label>
+                        <comment>Comma-separated</comment>
+                    </field>
+                    <field id="update_template" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>RMA Updates Template</label>
+                        <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                    </field>
+                    <field id="update_copy" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Send RMA Updates Email Copy To</label>
+                        <comment>Comma-separated</comment>
+                    </field>
+                </group>
+                <group id="email_manager" translate="label" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="40">
+                    <label>Emails Sent To Managers</label>
+                    <attribute type="expanded">0</attribute>
+                    <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
+                    <field id="new_template" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>New RMA Confirmation Template</label>
+                        <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                    </field>
+                    <field id="new_copy" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Send RMA Confirmation Email Copy To</label>
+                        <comment>Comma-separated</comment>
+                    </field>
+                    <field id="update_template" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>RMA Updates Template</label>
+                        <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                    </field>
+                    <field id="update_copy" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Send RMA Updates Email Copy To</label>
+                        <comment>Comma-separated</comment>
+                    </field>
+                </group>
+            </group>
+
+            <group id="file" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>RMA Files Upload</label>
+                <attribute type="expanded">0</attribute>
+                <field id="type" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allowed File Types</label>
+                    <comment>Comma-separated file extensions. Only these file types will be available for upload by customers and admins.</comment>
+                </field>
+                <field id="size" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max. File Size (Mb)</label>
+                </field>
+                <field id="count" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max. Number Of Attached Files</label>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

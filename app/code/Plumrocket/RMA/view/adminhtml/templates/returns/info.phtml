@@ -1,0 +1,106 @@
+<?php
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+?>
+
+<?php $_entity = $block->getEntity() ?>
+<?php $_order = $block->getOrder() ?>
+<?php
+$orderAdminDate = $block->formatDate(
+    $block->getOrderAdminDate($_order->getCreatedAt()),
+    \IntlDateFormatter::MEDIUM,
+    true
+);
+?>
+
+<div class="admin__page-section-item-title">
+    <span class="title">
+        <?php echo __('Information') ?>
+    </span>
+</div>
+<div class="admin__page-section-item-content">
+    <table class="admin__table-secondary order-information-table">
+        <tr>
+            <th><?php /* @escapeNotVerified */ echo __('RMA Status') ?></th>
+            <td>
+                <span class="<?php echo $this->getDataHelper()->getStatusColor($_entity->getStatus(), true) ?>">
+                    <?php /* @escapeNotVerified */ echo $_entity->getStatusLabel() ?>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th><?php /* @escapeNotVerified */ echo __('Order') ?></th>
+            <td>
+                <a href="<?php /* @escapeNotVerified */ echo $block->getViewUrl($_order->getId()) ?>" target="_blank">
+                    <?php /* @escapeNotVerified */ echo $_order->getRealOrderId()
+                ?></a>
+                (<?php /* @escapeNotVerified */ echo $orderAdminDate ?>)
+            </td>
+        </tr>
+        <tr>
+            <th><?php /* @escapeNotVerified */ echo __('Order Status') ?></th>
+            <td><span id="order_status"><?php /* @escapeNotVerified */ echo $_order->getStatusLabel() ?></span></td>
+        </tr>
+        <?php if ($block->isSingleStoreMode() == false):?>
+            <tr>
+                <th><?php /* @escapeNotVerified */ echo __('Purchased From') ?></th>
+                <td><?php /* @escapeNotVerified */ echo $block->getOrderStoreName() ?></td>
+            </tr>
+        <?php endif; ?>
+        <tr>
+            <th><?php /* @escapeNotVerified */ echo __('Customer Name') ?></th>
+            <td>
+                <?php if ($_customerUrl = $block->getCustomerViewUrl()) : ?>
+                    <a href="<?php /* @escapeNotVerified */ echo $_customerUrl ?>" target="_blank">
+                        <span><?php echo $block->escapeHtml($_order->getCustomerName()) ?></span>
+                    </a>
+                <?php else: ?>
+                    <?php echo $block->escapeHtml($_order->getCustomerName()) ?>
+                <?php endif; ?>
+            </td>
+        </tr>
+        <?php if ($_groupName = $block->getCustomerGroupName()) : ?>
+            <tr>
+                <th><?php /* @escapeNotVerified */ echo __('Customer Group') ?></th>
+                <td><?php /* @escapeNotVerified */ echo $_groupName ?></td>
+            </tr>
+        <?php endif; ?>
+        <tr>
+            <th><?php /* @escapeNotVerified */ echo __('Email') ?></th>
+            <td><a href="mailto:<?php echo $block->escapeHtml($_order->getCustomerEmail()) ?>"><?php echo $block->escapeHtml($_order->getCustomerEmail()) ?></a></td>
+        </tr>
+        <?php foreach ($block->getCustomerAccountData() as $data):?>
+            <tr>
+                <th><?php /* @escapeNotVerified */ echo $data['label'] ?></th>
+                <td><?php /* @escapeNotVerified */ echo $data['value'] ?></td>
+            </tr>
+        <?php endforeach;?>
+        <tr>
+            <th><?php /* @escapeNotVerified */ echo __('RMA Manager') ?></th>
+            <td>
+                <?php echo $block->getAdminUsersSelect()->getElementHtml() ?>
+            </td>
+        </tr>
+        <?php if ($link = $this->getDirectLink()): ?>
+            <tr>
+                <th><?php /* @escapeNotVerified */ echo __('Direct Link for Customer') ?></th>
+                <td>
+                    <input type="text" name="direct_link_for_customer" value="<?php /* @escapeNotVerified */ echo $link; ?>" readonly="readonly" />
+                </td>
+            </tr>
+        <?php endif ?>
+    </table>
+</div>

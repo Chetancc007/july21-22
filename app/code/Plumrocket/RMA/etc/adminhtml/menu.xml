@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!--
+
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Plumrocket_RMA::prrma" title="RMA" translate="title" module="Plumrocket_RMA" parent="Plumrocket_Base::elements" sortOrder="10712576" resource="Plumrocket_RMA::prrma"/>
+
+        <add id="Plumrocket_RMA::returns" title="Pending Returns" translate="title" module="Plumrocket_RMA" parent="Plumrocket_RMA::prrma" sortOrder="10" action="prrma/returns" resource="Plumrocket_RMA::returns"/>
+
+        <add id="Plumrocket_RMA::returnsarchive" title="Archive" translate="title" module="Plumrocket_RMA" parent="Plumrocket_RMA::prrma" sortOrder="20" action="prrma/returnsarchive" resource="Plumrocket_RMA::returnsarchive"/>
+
+        <add id="Plumrocket_RMA::returnrule" title="Return Rules" translate="title" module="Plumrocket_RMA" parent="Plumrocket_RMA::prrma" sortOrder="30" action="prrma/returnrule/" resource="Plumrocket_RMA::returnrule"/>
+
+        <add id="Plumrocket_RMA::reason" title="Return Reasons" translate="title" module="Plumrocket_RMA" parent="Plumrocket_RMA::prrma" sortOrder="40" action="prrma/reason/" resource="Plumrocket_RMA::reason"/>
+
+        <add id="Plumrocket_RMA::resolution" title="Resolutions" translate="title" module="Plumrocket_RMA" parent="Plumrocket_RMA::prrma" sortOrder="50" action="prrma/resolution/" resource="Plumrocket_RMA::resolution"/>
+
+        <add id="Plumrocket_RMA::condition" title="Item Conditions" translate="title" module="Plumrocket_RMA" parent="Plumrocket_RMA::prrma" sortOrder="60" action="prrma/condition/" resource="Plumrocket_RMA::condition"/>
+
+        <add id="Plumrocket_RMA::response" title="Quick Response Templates" translate="title" module="Plumrocket_RMA" parent="Plumrocket_RMA::prrma" sortOrder="70" action="prrma/response/" resource="Plumrocket_RMA::response"/>
+
+        <add id="Plumrocket_RMA::prrma_configuration" title="Configuration" translate="title" module="Plumrocket_RMA" parent="Plumrocket_RMA::prrma" sortOrder="80" action="adminhtml/system_config/edit/section/prrma" resource="Plumrocket_RMA::config_prrma"/>
+
+        <add id="Plumrocket_RMA::prrma_sales" title="RMA" translate="title" module="Plumrocket_RMA" parent="Magento_Sales::sales" sortOrder="10712576" resource="Plumrocket_RMA::prrma"/>
+
+        <add id="Plumrocket_RMA::sales_returns" title="Pending Returns" translate="title" module="Plumrocket_RMA" parent="Plumrocket_RMA::prrma_sales" sortOrder="10" action="prrma/returns" resource="Plumrocket_RMA::returns"/>
+
+        <add id="Plumrocket_RMA::sales_returnsarchive" title="Archive" translate="title" module="Plumrocket_RMA" parent="Plumrocket_RMA::prrma_sales" sortOrder="20" action="prrma/returnsarchive" resource="Plumrocket_RMA::returnsarchive"/>
+    </menu>
+</config>

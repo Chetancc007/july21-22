@@ -1,0 +1,76 @@
+<?php
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+?>
+
+<?php $_entity = $block->getEntity() ?>
+<?php $_order = $block->getOrder(); ?>
+
+<div id="returns-container" class="entry-edit form-inline <?php echo $this->getCssClass() ?>" data-mage-init='{"prrma":{}}'>
+    <form
+        id="returns_form"
+        class="form"
+        action="<?php /* @escapeNotVerified */ echo $block->getActionUrl() ?>"
+        method="post"
+        enctype="multipart/form-data"
+        novalidate="novalidate">
+
+        <?php echo $block->getBlockHtml('formkey')?>
+        <?php if ($_entity->getId()) : ?>
+            <input type="hidden" name="entity_id" value="<?php echo $_entity->getId() ?>" />
+        <?php endif; ?>
+        <input type="hidden" name="order_id" value="<?php echo $_order->getId() ?>" />
+
+        <div id="returns_container_progress">
+            <?php echo $this->getChildHtml('rma.returns.container.progress') ?>
+        </div>
+
+        <section class="admin__page-section order-view-account-information">
+            <div class="admin__page-section-content">
+                <div class="admin__page-section-item order-information">
+                    <?php echo $this->getChildHtml('rma.returns.container.info') ?>
+                </div>
+
+                <div class="admin__page-section-content">
+                    <div class="admin__page-section-item order-shipping-address">
+                        <?php echo $this->getChildHtml('rma.returns.container.address') ?>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div id="returns_container_tracking">
+            <?php echo $this->getChildHtml('rma.returns.container.tracking') ?>
+        </div>
+
+        <div id="returns_container_items">
+            <?php echo $this->getChildHtml('rma.returns.container.items') ?>
+        </div>
+
+        <div id="returns_container_messages">
+            <?php echo $this->getChildHtml('rma.returns.container.messages') ?>
+        </div>
+
+        <div id="returns_container_submit">
+            <?php echo $this->getChildHtml('rma.returns.container.submit') ?>
+        </div>
+
+    </form>
+</div>
+
+<script type="text/javascript">
+    window.rememberFormUrl = '<?php echo $this->escapeJsQuote($block->getRememberFormUrl()); ?>';
+</script>

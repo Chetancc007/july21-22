@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!--
+
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ -->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Plumrocket_RMA::css/prrma.css" />
+        <css src="Plumrocket_RMA::css/uploader.css" />
+        <css src="Plumrocket_RMA::css/jquery-ui.css" />
+    </head>
+    <body>
+        <referenceContainer name="content">
+            <block class="Plumrocket\RMA\Block\Adminhtml\Returns\Edit" name="rma.returns.edit" />
+            <block class="Plumrocket\RMA\Block\Adminhtml\Returns\Template" name="rma.returns.container" template="Plumrocket_RMA::returns/container.phtml">
+                <container name="rma.returns.container.info">
+                    <block class="Plumrocket\RMA\Block\Adminhtml\Returns\Info" name="rma.returns.info" template="Plumrocket_RMA::returns/info.phtml" />
+                </container>
+                <container name="rma.returns.container.address">
+                    <block class="Plumrocket\RMA\Block\Adminhtml\Returns\Info" name="rma.returns.address" template="Plumrocket_RMA::returns/address.phtml" />
+                </container>
+                <container name="rma.returns.container.tracking">
+                    <block class="Plumrocket\RMA\Block\Adminhtml\Returns\Tracking" name="rma.returns.tracking" template="Plumrocket_RMA::returns/tracking.phtml" />
+                    <block class="Plumrocket\RMA\Block\Adminhtml\Returns\ShippingLabel" name="rma.returns.shipping_label" template="Plumrocket_RMA::returns/shipping_label.phtml">
+                        <block class="Plumrocket\RMA\Block\Adminhtml\Returns\ShippingLabel\Uploader" name="rma.returns.shipping_label.uploader" template="Plumrocket_RMA::file/uploader.phtml" />
+                    </block>
+                </container>
+                <container name="rma.returns.container.items">
+                    <block class="Plumrocket\RMA\Block\Adminhtml\Returns\Items" name="rma.returns.items" template="Plumrocket_RMA::returns/items.phtml" />
+                </container>
+                <container name="rma.returns.container.messages">
+                    <block class="Plumrocket\RMA\Block\Adminhtml\Returns\Messages" name="rma.returns.messages" template="Plumrocket_RMA::returns/messages.phtml">
+                        <block class="Plumrocket\RMA\Block\Adminhtml\Returns\Messages\Uploader" name="rma.returns.messages.uploader" template="Plumrocket_RMA::file/uploader.phtml" />
+                    </block>
+                </container>
+                <container name="rma.returns.container.note">
+                    <block class="Plumrocket\RMA\Block\Adminhtml\Returns\Template" name="rma.returns.note" template="Plumrocket_RMA::returns/note.phtml" />
+                </container>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

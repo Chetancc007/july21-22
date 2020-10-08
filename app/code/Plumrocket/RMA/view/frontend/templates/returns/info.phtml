@@ -1,0 +1,83 @@
+<?php
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+?>
+
+<?php $_entity = $block->getEntity() ?>
+<?php $_order = $block->getOrder() ?>
+
+<div id="returns_info_block" class="block">
+
+    <div class="block-content">
+        <div class="box">
+            <div class="box-content">
+                <?php if (! $block->isNewEntity()): ?>
+                    <div>
+                        <strong><?php /* @escapeNotVerified */ echo __('RMA ID') ?>:</strong>
+                        <?php echo $block->escapeHtml($_entity->getIncrementId()) ?>
+                    </div>
+
+                    <div>
+                        <strong><?php /* @escapeNotVerified */ echo __('Status') ?>:</strong>
+                        <span class="<?php echo $this->getDataHelper()->getStatusColor($_entity->getStatus()) ?>">
+                            <?php echo $block->escapeHtml($_entity->getStatusLabel()) ?>
+                        </span>
+                    </div>
+
+                    <div>
+                        <strong><?php /* @escapeNotVerified */ echo __('Order ID') ?>:</strong>
+                        <a href="<?php /* @escapeNotVerified */ echo $block->getOrderViewUrl($_order) ?>" target="_blank">
+                            <?php /* @escapeNotVerified */ echo $_order->getRealOrderId()
+                        ?></a>
+                    </div>
+                <?php endif ?>
+
+                <div>
+                    <strong><?php /* @escapeNotVerified */ echo __('Customer Name') ?>:</strong>
+                    <?php echo $block->escapeHtml($_order->getCustomerName()) ?>
+                </div>
+                <div>
+                    <strong><?php /* @escapeNotVerified */ echo __('Email') ?>:</strong>
+                    <?php echo $block->escapeHtml($_order->getCustomerEmail()) ?>
+                </div>
+
+                <?php if (! $block->isNewEntity()): ?>
+                    <div>
+                        <strong><?php /* @escapeNotVerified */ echo __('Created At') ?>:</strong>
+                        <?php /* @escapeNotVerified */ echo $block->formatDate($_entity->getCreatedAt(), \IntlDateFormatter::MEDIUM, true) ?>
+                    </div>
+                <?php endif ?>
+            </div>
+        </div>
+
+        <?php if ($address = $block->getAddress()): ?>
+            <div class="box box-shipping-address">
+                <strong>
+                    <span><?php /* @escapeNotVerified */ echo __('Customer Address') ?></span>
+                    <?php if ($block->isNewEntity()): ?>
+                        <div class="actions pr-di"><?php /* @escapeNotVerified */ echo $block->getAddressEditLink($address) ?></div>
+                    <?php endif ?>
+                </strong>
+                <div>
+                    <address>
+                        <?php /* @escapeNotVerified */ echo $block->getFormattedAddress($address) ?>
+                    </address>
+                </div>
+            </div>
+        <?php endif ?>
+    </div>
+
+</div>

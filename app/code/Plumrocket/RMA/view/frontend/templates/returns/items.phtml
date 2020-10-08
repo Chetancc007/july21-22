@@ -1,0 +1,104 @@
+<?php
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+?>
+
+<div id="returns_items_block" class="block">
+
+    <div class="block-title">
+        <strong><?php echo __('Items To Return') ?></strong>
+    </div>
+
+    <div class="block-content">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="col-image">&nbsp;</th>
+                    <th class="col-name"><?php echo __('Product Details') ?></th>
+                    <th class="col-params"><?php echo __('RMA Details') ?></th>
+                    <th class="col-status last"><?php echo __('Status') ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($block->getItems() as $item): ?>
+                    <tr>
+                        <td class="col-image">
+                            <img src="<?php echo $this->escapeHtml($block->getImageUrl($item)); ?>" />
+                        </td>
+                        <td class="col-name">
+                            <strong>
+                                <?php echo $this->escapeHtml($item->getOrderItem()->getName()) ?>
+                            </strong>
+
+                            <div class="product-detail">
+                                <strong><?php echo __('SKU') ?>:</strong>
+                                <?php echo $this->escapeHtml($item->getOrderItem()->getSku()) ?>
+                            </div>
+
+                            <?php if ($options = $block->getItemOptions($item)): ?>
+                                <div class="product options">
+                                    <span class="toggle">
+                                        <span><?php echo __('Details') ?></span>
+                                    </span>
+                                    <div class="content">
+                                        <dl>
+                                            <?php foreach ($options as $option): ?>
+                                                <dt><?php echo $this->escapeHtml($option['label']) ?></dt>
+                                                <dd><?php echo $this->escapeHtml($option['value']) ?></dd>
+                                            <?php endforeach ?>
+                                        </dl>
+                                    </div>
+                                </div>
+                            <?php endif ?>
+                        </td>
+                        <td class="col-params">
+                            <div>
+                                <strong><?php echo __('Return Reason') ?>:</strong>
+                                <?php echo $this->escapeHtml($item->getReasonLabel()) ?>
+                            </div>
+                            <?php if ($item->getConditionId()): ?>
+                                <div>
+                                    <strong><?php echo __('Item Condition') ?>:</strong>
+                                    <?php echo $this->escapeHtml($item->getConditionLabel()) ?>
+                                </div>
+                            <?php endif ?>
+                            <div>
+                                <strong><?php echo __('Resolution') ?>:</strong>
+                                <?php echo $this->escapeHtml($item->getResolutionLabel()) ?>
+                            </div>
+
+                            <?php if ($block->showItemNumbers($item)): ?>
+                                <div class="additional-params">
+                                    <?php foreach ($block->getItemNumbers($item) as $option): ?>
+                                        <div>
+                                            <span><?php echo $this->escapeHtml($option['label']) ?>:</span>
+                                            <?php echo $this->escapeHtml($option['value']) ?>
+                                        </div>
+                                    <?php endforeach ?>
+                                </div>
+                            <?php endif ?>
+                        </td>
+                        <td class="col-status last">
+                        	<span class="col-status-text"><?php echo __('Status') ?>:</span>
+                            <span><?php echo $block->getStatusLabel($item) ?></span>
+                        </td>
+                    </tr>
+                <?php endforeach ?>
+            </tbody>
+        </table>
+    </div>
+
+</div>

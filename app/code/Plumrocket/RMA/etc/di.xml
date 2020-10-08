@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!--
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2019 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Plumrocket\RMA\Api\Data\ReturnSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
+    <preference for="Plumrocket\RMA\Api\ReturnListInterface" type="Plumrocket\RMA\Model\ReturnList" />
+    <preference for="Plumrocket\RMA\Api\ReturnInterface" type="Plumrocket\RMA\Model\Returns" />
+    <virtualType name="Plumrocket\RMA\Model\Api\SearchCriteria\CollectionProcessor\FilterProcessor" type="Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor">
+        <arguments>
+            <argument name="fieldMapping" xsi:type="array">
+                <item name="identifier" xsi:type="string">main_table.entity_id</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Plumrocket\RMA\Model\Api\SearchCriteria\CollectionProcessor" type="Magento\Framework\Api\SearchCriteria\CollectionProcessor">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="filters" xsi:type="object">Plumrocket\RMA\Model\Api\SearchCriteria\CollectionProcessor\FilterProcessor</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Plumrocket\RMA\Model\ReturnList">
+        <arguments>
+            <argument name="collectionProcessor" xsi:type="object">Plumrocket\RMA\Model\Api\SearchCriteria\CollectionProcessor</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Quote\Model\Quote">
+        <plugin name="prrma_quote" type="Plumrocket\RMA\Plugin\QuotePlugin" />
+    </type>
+    <type name="Magento\Quote\Model\Cart\Totals\Item">
+        <plugin name="prrma_quote_totals_item" type="Plumrocket\RMA\Plugin\QuoteTotalsItemPlugin" />
+    </type>
+    <type name="Magento\Catalog\Block\Product\View\Attributes">
+        <plugin name="prrma_product_view_attributes" type="Plumrocket\RMA\Plugin\ProductViewAttributes" />
+    </type>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="sales_order_view_returns_grid_data_source" xsi:type="string">Plumrocket\RMA\Model\ResourceModel\Order\Returns\Grid\Collection</item>
+                <item name="prrma_returns_listing_data_source" xsi:type="string">Plumrocket\RMA\Model\ResourceModel\Order\Returns\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Plumrocket\RMA\Controller\AbstractReturns">
+        <arguments>
+            <argument name="fileDriver" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+    <type name="Plumrocket\RMA\Helper\Returnrule">
+        <arguments>
+            <argument name="serializer" xsi:type="object">Magento\Framework\Serialize\Serializer\Serialize</argument>
+        </arguments>
+    </type>
+    <type name="Plumrocket\RMA\Observer\ToHtmlBeforeObserver">
+        <arguments>
+            <argument name="serializer" xsi:type="object">Magento\Framework\Serialize\Serializer\Serialize</argument>
+        </arguments>
+    </type>
+    <type name="Plumrocket\RMA\Model\Returnrule">
+        <arguments>
+            <argument name="serialize" xsi:type="object">Magento\Framework\Serialize\Serializer\Serialize</argument>
+        </arguments>
+    </type>
+</config>

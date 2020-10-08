@@ -1,0 +1,58 @@
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+
+
+.prrma-uploader .progressbar.upload-progress {
+    background-color: #eb5202;
+    height: 2px;
+}
+
+.prrma-uploader .file-row .file-info .file-delete {
+    display: none;
+    float: right;
+}
+
+.prrma-uploader .file-row.done .file-info .file-delete {
+    display: block;
+}
+
+.prrma-uploader {
+    margin: 0 0 2rem;
+}
+
+.prrma-uploader .fileinput-button {
+    cursor: pointer;
+    display: inline-block;
+    float: none;
+    vertical-align: middle;
+}
+
+.prrma-uploader .fileinput-button span {
+    display: none;
+}
+
+.prrma-uploader .fileinput-button input {
+    -moz-transform: none;
+    border: none;
+    opacity: 1;
+    position: static;
+}
+
+.prrma-uploader .file-row {
+    border: 1px solid #adadad;
+    margin: 0.5rem 0;
+    padding: 2px;
+}

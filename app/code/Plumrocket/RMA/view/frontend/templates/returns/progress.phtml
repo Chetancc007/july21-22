@@ -1,0 +1,32 @@
+<?php
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+?>
+
+<div class="inlined">
+    <div class="progress-meter">
+        <div class="track">
+            <span class="progress" style="width: <?php echo ($block->getCurrentStep() - 1) * 33.33 ?>%;"></span>
+        </div>
+        <ol class="progress-points">
+            <?php foreach ($block->getSteps() as $step): ?>
+                <li class="progress-point <?php echo $step['class'] ?>">
+                    <span class="label"><?php echo $step['name'] ?></span>
+                </li>
+            <?php endforeach ?>
+        </ol>
+    </div>
+</div>

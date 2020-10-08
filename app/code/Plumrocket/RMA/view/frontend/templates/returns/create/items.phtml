@@ -1,0 +1,115 @@
+<?php
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+?>
+
+<?php $_entity = $block->getEntity() ?>
+<?php $_order = $block->getOrder() ?>
+
+<div id="returns_items_block" class="block">
+
+    <div class="block-title">
+        <strong><?php echo __('Choose Items To Return') ?></strong>
+    </div>
+
+    <div class="block-content">
+        <table class="table">
+            <tbody>
+                <?php foreach ($block->getItems() as $item): ?>
+                    <tr>
+                        <td class="col-active">
+                            <?php echo $block->getElementHtml($item, 'active') ?>
+                            <?php echo $block->getElementHtml($item, \Plumrocket\RMA\Helper\Returns\Item::ORDER_ITEM_ID) ?>
+                        </td>
+                        <td class="col-image">
+                            <img src="<?php echo $this->escapeHtml($block->getImageUrl($item)); ?>" />
+                        </td>
+                        <td class="col-name">
+                            <strong>
+                                <?php echo $this->escapeHtml($item->getOrderItem()->getName()) ?>
+                            </strong>
+
+                            <div class="product-detail">
+                                <strong><?php echo __('SKU') ?>:</strong>
+                                <?php echo $this->escapeHtml($item->getOrderItem()->getSku()) ?>
+                            </div>
+
+                            <?php if ($options = $block->getItemOptions($item)): ?>
+                                <div class="product options">
+                                    <span class="toggle">
+                                        <span><?php echo __('Details') ?></span>
+                                    </span>
+                                    <div class="content">
+                                        <dl>
+                                            <?php foreach ($options as $option): ?>
+                                                <dt><?php echo $this->escapeHtml($option['label']) ?></dt>
+                                                <dd><?php echo $this->escapeHtml($option['value']) ?></dd>
+                                            <?php endforeach ?>
+                                        </dl>
+                                    </div>
+                                </div>
+                            <?php endif ?>
+                        </td>
+                        <td class="col-params">
+                            <div class="hld">
+                                <?php if ($block->canReturn($item)): ?>
+                                    <fieldset class="fieldset">
+                                        <div class="requested-qty" <?php echo $block->getQtyToReturn($item) <= 1 ? 'style="display: none;"' : '' ?>>
+                                            <?php echo $block->getElementHtml($item, \Plumrocket\RMA\Helper\Returns\Item::QTY_REQUESTED) ?>
+                                            / <?php echo $block->getQtyToReturn($item) ?>
+                                        </div>
+                                        <?php echo $block->getElementHtml($item, \Plumrocket\RMA\Helper\Returns\Item::REASON_ID) ?>
+                                        <div class="payer-hint">
+                                            <span class="payer-owner">
+                                                <?php echo __('%1 will cover your shipping costs', $this->getDataHelper()->getStoreName()) ?>
+                                            </span>
+                                        </div>
+                                        <?php echo $block->getElementHtml($item, \Plumrocket\RMA\Helper\Returns\Item::CONDITION_ID) ?>
+                                        <?php echo $block->getElementHtml($item, \Plumrocket\RMA\Helper\Returns\Item::RESOLUTION_ID) ?>
+                                    </fieldset>
+                                <?php elseif ($block->isExpired($item)): ?>
+                                    <div class="pr-notice expire">
+                                        <div><?php echo __('This product cannot be returned.') ?></div>
+                                        <div><?php echo __('We are sorry, but the return period has been expired.') ?></div>
+                                    </div>
+                                <?php elseif ($returns = $block->getReturnsByItem($item)): ?>
+                                    <div class="pr-notice">
+                                        <div><?php echo __('This product is already returned.') ?></div>
+                                        <div>
+                                            <?php echo __('Existing Return(s)') ?>:
+                                            <?php foreach ($returns as $_return): ?>
+                                                <a href="<?php echo $this->escapeHtml($block->getUrl('*/*/view', ['id' => $_return->getId()])) ?>" target="_blank">
+                                                    <span>#<?php echo $this->escapeHtml($_return->getIncrementId()) ?></span></a>
+                                                    <?php echo next($returns) ? ', ' : '' ?>
+                                            <?php endforeach ?>
+                                        </div>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="pr-notice noreturn"><?php echo __('This product cannot be returned.') ?></div>
+                                <?php endif ?>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach ?>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    window.payerOwnerReasons = <?php echo $this->escapeJsQuote(json_encode($this->getPayerOwnerReasons())) ?>;
+</script>

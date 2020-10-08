@@ -1,0 +1,16 @@
+{
+    "name": "plumrocket/module-plumbase",
+    "description": "N/A",
+    "require": {
+        "php": ">=7.0",
+        "magento/framework": ">=101.0.0"
+    },
+    "type": "magento2-module",
+    "version": "2.3.4",
+    "autoload": {
+        "files": [ "registration.php" ],
+        "psr-4": {
+            "Plumrocket\\Base\\": ""
+        }
+    }
+}

@@ -1,0 +1,44 @@
+<?php
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+?>
+
+<div class="admin__page-section-item-title">
+    <span class="title"><?php /* @escapeNotVerified */ echo __('Upload Shipping Label') ?></span>
+</div>
+
+<div id="returns_shipping_label_block" class="admin__page-section-item-content">
+    <div class="admin__field">
+        <div class="contents-uploader">
+            <?php echo $this->getChildHtml('rma.returns.shipping_label.uploader') ?>
+        </div>
+    </div>
+
+    <?php if ($block->hasShippingLabel()): ?>
+        <div class="shipping-label">
+            <?php echo __('Shipping label attached') ?>
+            <a class="button action print-shipping" href="<?php echo $block->getShippingLabelUrl() ?>" target="_blank">
+                <img src="<?php echo $block->getShippingLabelUrl() ?>" alt="" />
+                <span><?php echo __('Print Shipping Label') ?></span>
+            </a>
+
+            <?php $element = $block->getCheckboxOfDelete() ?>
+            <?php echo $element->getElementHtml() ?>
+            <?php echo $element->getLabelHtml() ?>
+        </div>
+    <?php endif ?>
+
+</div>

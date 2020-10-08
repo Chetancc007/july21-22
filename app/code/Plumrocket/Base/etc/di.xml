@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket_Base
+ * @copyright   Copyright (c) 2020 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Plumrocket\Base\Api\GetModuleVersionInterface" type="Plumrocket\Base\Model\GetModuleVersion" />
+    <preference for="Plumrocket\Base\Api\UsageStatisticCollectorInterface" type="Plumrocket\Base\Model\Statistic\Usage\CompositeCollector" />
+    <preference for="Plumrocket\Base\Api\GetExtensionInformationInterface" type="Plumrocket\Base\Model\Extensions\GetInformation" />
+
+    <!-- Fix for read system config in crontab scope-->
+    <preference for="Magento\Config\Model\Config\Structure\ElementVisibilityInterface" type="Magento\Config\Model\Config\Structure\ElementVisibilityComposite" />
+
+    <type name="Plumrocket\Base\Block\Adminhtml\System\Config\Form\Version">
+        <arguments>
+            <argument name="phpSerializer" xsi:type="object">\Magento\Framework\Serialize\Serializer\Serialize</argument>
+        </arguments>
+    </type>
+    <type name="Plumrocket\Base\Setup\AbstractUninstall">
+        <arguments>
+            <argument name="shell" xsi:type="object">\Magento\Framework\Shell</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="plStatBaseStatus" type="Plumrocket\Base\Model\Statistic\Usage\Status">
+        <arguments>
+            <argument name="xmlPath" xsi:type="string">plumbase</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Plumrocket\Base\Observer\CheckNewConfigUsageStatistic">
+        <arguments>
+            <argument name="statuses" xsi:type="array">
+                <item name="plumbase" xsi:type="object">plStatBaseStatus</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Plumrocket\Base\Model\Statistic\Usage\Collector">
+        <arguments>
+            <argument name="status" xsi:type="object">plStatBaseStatus</argument>
+            <argument name="collectors" xsi:type="array">
+                <item name="config" xsi:type="object">Plumrocket\Base\Model\Statistic\Usage\Config\Collector</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Plumrocket\Base\Model\Statistic\Usage\CompositeCollector">
+        <arguments>
+            <argument name="moduleCollectors" xsi:type="array">
+                <item name="Base" xsi:type="object">Plumrocket\Base\Model\Statistic\Usage\Collector</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Plumrocket\Base\Model\Extensions\Updates\Load">
+        <arguments>
+            <argument name="httpsDriver" xsi:type="object">Magento\Framework\Filesystem\Driver\Http</argument>
+        </arguments>
+    </type>
+</config>

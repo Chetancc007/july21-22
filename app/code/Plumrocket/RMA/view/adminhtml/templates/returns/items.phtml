@@ -1,0 +1,118 @@
+<?php
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+?>
+
+<?php $_entity = $block->getEntity() ?>
+<?php $_order = $block->getOrder() ?>
+
+<!-- <div class="admin__page-section-item-title">
+    <span class="title"><?php /* @escapeNotVerified */ echo __('Items To Return') ?></span>
+</div> -->
+
+<div class="admin__table-wrapper">
+    <table class="data-table admin__table-primary edit-order-tableDEL">
+        <thead>
+            <tr class="headings">
+                <th class="col-image"><span><?php /* @escapeNotVerified */ echo __('Image') ?></span></th>
+                <th class="col-product"><span><?php /* @escapeNotVerified */ echo __('Product') ?></span></th>
+                <?php foreach ($block->getColumns() as $colName => $label): ?>
+                    <th class="col-<?php echo $colName ?>" title="<?php echo $this->escapeHtml($block->getInfo($colName)) ?>">
+                        <span><?php echo $this->escapeHtml($label) ?></span>
+                        <?php if ($block->getInfo($colName)): ?>
+                            <span class="icon-info"></span>
+                        <?php endif; ?>
+                    </th>
+                <?php endforeach; ?>
+
+                <?php if (! $_entity->isClosed()): ?>
+                    <th class="col-action" title="<?php echo $this->escapeHtml($block->getInfo('action')) ?>">
+                        <span><?php /* @escapeNotVerified */ echo __('Action') ?></span>
+                        <span class="icon-info"></span>
+                    </th>
+                <?php endif ?>
+
+                <?php if (! $block->isNewEntity()): ?>
+                    <th class="col-status last"><span><?php /* @escapeNotVerified */ echo __('Status') ?></span></th>
+                <?php endif ?>
+            </tr>
+        </thead>
+
+        <tbody>
+            <?php foreach ($block->getItems() as $item): ?>
+                <tr data-item="<?php echo $block->getRowKey($item) ?>">
+                    <td class="col-image">
+                        <img src="<?php echo $this->escapeHtml($block->getImageUrl($item)); ?>" />
+                    </td>
+                    <td class="col-product">
+                        <a href="<?php echo $this->escapeHtml($block->getProductUrl($item)) ?>" target="_blank">
+                            <?php echo $this->escapeHtml($item->getOrderItem()->getName()) ?></a>
+
+                        <div>
+                            <?php echo __('SKU') ?>: <?php echo $this->escapeHtml($item->getOrderItem()->getSku()) ?><br />
+                            <?php $stockItem = $block->getStockItem($item) ?>
+                            <?php echo __('Availability') ?>: <?php echo $stockItem->getIsInStock() ? __('In Stock') : __('Out of Stock') ?><br />
+                            <?php echo __('Inventory Qty') ?>: <?php echo $this->escapeHtml($stockItem->getQty() ?: '-') ?>
+                        </div>
+
+                        <?php echo $block->getElementHtml($item, \Plumrocket\RMA\Helper\Returns\Item::ENTITY_ID) ?>
+                        <?php echo $block->getElementHtml($item, \Plumrocket\RMA\Helper\Returns\Item::ORDER_ITEM_ID) ?>
+                    </td>
+
+                    <?php foreach ($block->getColumns() as $colName => $label): ?>
+                        <td class="col-<?php echo $colName ?>">
+                            <?php echo $block->getElementHtml($item, $colName) ?>
+
+                            <?php if (\Plumrocket\RMA\Helper\Returns\Item::REASON_ID === $colName): ?>
+                                <div class="payer-hint">
+                                    <span class="payer-owner">
+                                        <?php echo __('%1 will cover shipping costs', $this->getDataHelper()->getStoreName()) ?>
+                                    </span>
+                                    <span class="payer-customer">
+                                        <?php echo __('Customer will cover shipping costs') ?>
+                                    </span>
+                                </div>
+                            <?php endif ?>
+                        </td>
+                    <?php endforeach ?>
+
+                    <?php if (! $_entity->isClosed()): ?>
+                        <td class="col-action">
+                            <?php if ($block->getMaxQty($item)): ?>
+                                <a class="row-clone" href="javascript:void(0)">
+                                    <?php /* @escapeNotVerified */ echo __('Split') ?>
+                                </a>
+                                <a class="row-clone-cancel" href="javascript:void(0)">
+                                    <?php /* @escapeNotVerified */ echo __('Delete Row') ?>
+                                </a>
+                            <?php endif ?>
+                        </td>
+                    <?php endif ?>
+
+                    <?php if (! $block->isNewEntity()): ?>
+                        <td class="col-status last">
+                            <span><?php echo $block->getStatusLabel($item) ?></span>
+                        </td>
+                    <?php endif ?>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+    window.payerOwnerReasons = <?php echo $this->escapeJsQuote(json_encode($this->getPayerOwnerReasons())) ?>;
+</script>

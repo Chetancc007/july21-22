@@ -1,0 +1,125 @@
+<?php
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+?>
+
+<div class="admin__page-section-item-title">
+    <span class="title">
+        <?php echo __('Tracking Information') ?>
+    </span>
+</div>
+
+<div class="admin__page-section-item-content">
+
+    <!-- <div class="block-title">
+        <strong><?php echo __('Tracking Information') ?></strong>
+    </div> -->
+
+    <table id="returns_tracking_table" class="table data-table admin__control-table">
+        <thead>
+            <tr class="headings">
+                <th class="col-carrier"><?php /* @escapeNotVerified */ echo __('Carrier') ?></th>
+                <th class="col-number"><?php /* @escapeNotVerified */ echo __('Tracking Number') ?></th>
+                <th class="col-action last"><?php /* @escapeNotVerified */ echo __('Action') ?></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($block->getTracks() as $index => $track): ?>
+                <tr data-id="<?php echo $this->escapeHtml($track->getId()) ?>"
+                    style="<?php echo $track->getNeedRemove() ? 'display: none;' : ''; ?>">
+
+                    <td class="col-carrier">
+                        <?php echo $this->escapeHtml($track->getCarrierCode()) ?>
+                        <?php if ($track->getIsUnsaved()): ?>
+                            <input type="hidden"
+                                    name="track_add[<?php echo $index ?>][carrier_code]"
+                                    value="<?php echo $this->escapeHtml($track->getCarrierCode()) ?>" />
+                        <?php endif ?>
+                    </td>
+                    <td class="col-number">
+                        <?php echo $this->escapeHtml($track->getTrackNumber()) ?>
+                        <?php if ($track->getIsUnsaved()): ?>
+                            <input type="hidden"
+                                    name="track_add[<?php echo $index ?>][track_number]"
+                                    value="<?php echo $this->escapeHtml($track->getTrackNumber()) ?>" />
+                        <?php endif ?>
+                    </td>
+                    <td class="col-action last">
+                        <?php if ($block->canRemove($track)): ?>
+                            <strong class="button action secondary track-remove">
+                                Remove
+                            </strong>
+
+                            <input type="hidden"
+                                    name="track_remove[<?php echo $this->escapeHtml($track->getId()) ?>]"
+                                    value="<?php echo (int)$track->getNeedRemove() ?>" />
+                        <?php endif ?>
+                    </td>
+                </tr>
+            <?php endforeach ?>
+        </tbody>
+        <?php if ($block->canSubmit()): ?>
+            <tfoot>
+                <tr>
+                    <td class="col-carrier">
+                        <?php echo $block->getCarriersElement()->getElementHtml() ?>
+                    </td>
+                    <td class="col-number">
+                        <?php echo $block->getNumberElement()->getElementHtml() ?>
+                    </td>
+                    <td class="col-action last">
+                        <strong id="track-add" class="button action secondary">Add</strong>
+                    </td>
+                </tr>
+            </tfoot>
+        <?php endif ?>
+    </table>
+
+</div>
+
+
+<?php if ($block->canSubmit()): ?>
+
+<script id="track_row_template" type="text/x-magento-template">
+    <tr>
+        <td class="col-carrier">
+            <%- data.carrier_code %>
+            <input type="hidden" name="track_add[<%- data.index %>][carrier_code]" value="<%- data.carrier_code %>" />
+        </td>
+        <td class="col-number">
+            <%- data.track_number %>
+            <input type="hidden" name="track_add[<%- data.index %>][track_number]" value="<%- data.track_number %>" />
+        </td>
+        <td class="col-action last">
+            <strong class="button action secondary track-remove">
+                Remove
+            </strong>
+        </td>
+    </tr>
+</script>
+
+<script type="text/javascript">
+require([
+    'mage/template',
+    'domReady!',
+], function(mageTemplate) {
+    //<![CDATA[
+    window.trackingRowTemplate = mageTemplate('#track_row_template');
+    //]]>
+})
+</script>
+
+<?php endif ?>

@@ -1,0 +1,84 @@
+<?php
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+?>
+
+<?php $_entity = $block->getEntity() ?>
+<?php $_order = $block->getOrder(); ?>
+
+
+<div class="entry-edit form-inline" data-mage-init='{"prrma":{}}'>
+    <form
+        id="edit_form"
+        action="<?php /* @escapeNotVerified */ echo $block->getSaveUrl() ?>"
+        method="post"
+        enctype="multipart/form-data"
+        novalidate="novalidate">
+
+        <?php echo $block->getBlockHtml('formkey')?>
+        <?php if ($_entity->getId()) : ?>
+            <input type="hidden" name="entity_id" value="<?php echo $_entity->getId() ?>" />
+        <?php endif; ?>
+        <input type="hidden" name="order_id" value="<?php echo $_order->getId() ?>" />
+
+
+        <section class="admin__page-section order-view-account-information">
+            <div class="admin__page-section-content">
+                <div class="admin__page-section-item order-information">
+                    <?php echo $this->getChildHtml('rma.returns.container.info') ?>
+                </div>
+
+                <div class="admin__page-section-content">
+                    <div class="admin__page-section-item order-shipping-address">
+                        <?php echo $this->getChildHtml('rma.returns.container.address') ?>
+                    </div>
+
+                    <div class="admin__page-section-item order-shipping-address">
+                        <?php echo $this->getChildHtml('rma.returns.container.tracking') ?>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="admin__page-section prrma-returns-items">
+            <div class="admin__page-section-title">
+                <span class="title"><?php /* @escapeNotVerified */ echo __('Items To Return') ?></span>
+            </div>
+            <div class="admin__page-section-content">
+                <div class="admin__page-section-item">
+                    <?php echo $this->getChildHtml('rma.returns.container.items') ?>
+                </div>
+            </div>
+        </section>
+
+        <section class="admin__page-section">
+            <div class="admin__page-section-content">
+                <div class="admin__page-section-item order-comments-history">
+                    <?php echo $this->getChildHtml('rma.returns.container.messages') ?>
+                </div>
+
+                <div class="admin__page-section-item order-totals">
+                    <?php echo $this->getChildHtml('rma.returns.container.note') ?>
+                </div>
+            </div>
+        </section>
+
+    </form>
+</div>
+
+<script type="text/javascript">
+    window.rememberFormUrl = '<?php echo $this->escapeJsQuote($block->getRememberFormUrl()); ?>';
+</script>

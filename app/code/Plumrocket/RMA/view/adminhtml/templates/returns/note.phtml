@@ -1,0 +1,42 @@
+<?php
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+?>
+
+<?php $_entity = $block->getEntity() ?>
+<?php $_order = $block->getOrder() ?>
+
+<div class="admin__page-section-item-title">
+    <span class="title"><?php /* @escapeNotVerified */ echo __('RMA Note') ?></span>
+</div>
+<?php //echo $block->getChildHtml('order_totals') ?>
+
+<div class="admin__field">
+    <!-- <label for="history_comment" class="admin__field-label">
+        <?php /* @escapeNotVerified */ echo __('RMA Note') ?>
+    </label> -->
+    <div class="admin__field-control">
+        <textarea name="note"
+                  rows="3"
+                  cols="5"
+                  id="returns_note"
+                  class="admin__control-textarea"><?php echo $this->escapeHtml(null !== $this->dataHelper->getFormData('note') ? $this->dataHelper->getFormData('note') : $_entity->getNote()) ?></textarea>
+
+        <div class="admin__field-note">
+            <span>RMA Notes are not visible to customers.</span>
+        </div>
+    </div>
+</div>

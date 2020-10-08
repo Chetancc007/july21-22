@@ -1,0 +1,122 @@
+<?php
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+?>
+
+<?php $_entity = $block->getEntity() ?>
+<?php $_order = $block->getOrder() ?>
+
+
+<div class="admin__page-section-item-title">
+    <span class="title"><?php /* @escapeNotVerified */ echo __('Messages') ?></span>
+    <?php if ($block->showMarkAsRead()) : ?>
+        <div class="actions">
+            <a id="mark_as_read" href="#">
+                <?php /* @escapeNotVerified */ echo __('Mark all as read') ?>
+            </a>
+        </div>
+    <?php endif; ?>
+</div>
+
+<div id="returns_comments_block" class="edit-order-comments">
+    <div class="order-history-block" id="returns_comments_form">
+
+        <div class="admin__field">
+            <label for="returns_comment_template" class="admin__field-label">
+                <?php /* @escapeNotVerified */ echo __('Use Response Template') ?>
+            </label>
+            <div class="admin__field-control">
+                <select name="comment_template" id="returns_comment_template" class="admin__control-select">
+                    <option value="0"><?php /* @escapeNotVerified */ echo __('Choose Template') ?></option>
+                    <?php foreach ($block->getResponseTemplates() as $_item): ?>
+                        <option value="<?php /* @escapeNotVerified */ echo $_item->getId() ?>"><?php /* @escapeNotVerified */ echo $this->escapeHtml($_item->getTitle()); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+
+        <div class="admin__field">
+            <label for="returns_comment" class="admin__field-label">
+                <?php /* @escapeNotVerified */ echo __('Comment (optional)') ?>
+            </label>
+            <div class="admin__field-control">
+                <?php echo $block->getEditor()->getElementHtml() ?>
+            </div>
+        </div>
+
+        <div class="admin__field">
+            <div class="contents-uploader">
+                <?php echo $this->getChildHtml('rma.returns.messages.uploader') ?>
+            </div>
+
+            <div class="order-history-comments-options">
+                <div class="admin__field admin__field-option">
+                    <?php $element = $block->getCheckboxOfInternal() ?>
+                    <?php echo $element->getElementHtml() ?>
+                    <?php echo $element->getLabelHtml() ?>
+                </div>
+                <div class="admin__field admin__field-option">
+                    <?php $element = $block->getCheckboxOfEmail() ?>
+                    <input type="hidden" name="<?php echo $element->getName() ?>" value="0" />
+                    <?php echo $element->getElementHtml() ?>
+                    <?php echo $element->getLabelHtml() ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ul class="note-list returns-comments-list">
+    <?php foreach ($block->getMessages() as $_item): ?>
+        <li class="comment-item sender-<?php echo $block->escapeHtml($_item->getType()) ?>">
+            <span class="note-list-customer">
+                <span class="note-list-customer-notified">
+                    <?php /* @escapeNotVerified */ echo $block->escapeHtml($_item->getName()) ?>
+                    <?php if ($block->isFromYou($_item)): ?>
+                        (You)
+                    <?php endif; ?>
+
+                    <?php if ($_item->getIsInternal()): ?>
+                        <span class="comment-internal">(Internal)</span>
+                    <?php endif; ?>
+                </span>
+            </span>
+            <span class="note-list-date"><?php /* @noEscape */ echo $block->formatDate($_item->getCreatedAt(), \IntlDateFormatter::MEDIUM) ?></span>
+            <span class="note-list-time"><?php /* @noEscape */ echo $block->formatTime($_item->getCreatedAt(), \IntlDateFormatter::MEDIUM) ?></span>
+            <?php if ($_item->getText()): ?>
+                <div class="note-list-comment">
+                    <?php echo $block->getMessageText($_item) ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($files = $_item->getPreparedFiles()): ?>
+                <div class="comment-files">
+                	<span class="prrma-att-file"></span>
+                    <?php foreach ($files as $file): ?>
+                        <a href="<?php echo $block->escapeHtml($block->getFileUrl($file['filename'])) ?>" target="_blank">
+                            <?php echo $block->escapeHtml($file['name']) ?>
+                        </a><?php echo next($files) ? ', ' : '' ?>
+                    <?php endforeach ?>
+                </div>
+            <?php endif ?>
+        </li>
+    <?php endforeach; ?>
+    </ul>
+
+    <script type="text/javascript">
+        window.markAsReadUrl = '<?php echo $this->escapeJsQuote($block->getMarkAsReadUrl()); ?>';
+        window.responseTemplateUrl = '<?php echo $this->escapeJsQuote($block->getLoadTemplateUrl()); ?>';
+    </script>
+</div>

@@ -1,0 +1,47 @@
+<?php
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+?>
+
+<?php
+$_entity = $block->getEntity();
+$url = $block->getUrl('*/*/view', ['id' => $_entity->getId()]);
+?>
+
+<!-- <h1 class="page-title">
+    <span>
+        <?php echo __(
+            'Your RMA # is: %1',
+            '<a href="' . $url . '" target="_blank">' . $_entity->getIncrementId() . '</a>'
+        ) ?>
+    </span>
+</h1> -->
+
+<div id="returns_success_block" class="block">
+
+    <strong class="box-title">
+        <?php echo __(
+            'Your RMA # is: %1',
+            '<a href="' . $url . '" target="_blank">' . $_entity->getIncrementId() . '</a>'
+        ) ?>
+    </strong>
+
+    <div class="block-content">
+        <?php echo $block->getCmsBlockHtml(
+            $block->getConfigHelper()->getReturnSuccessBlock()
+        ) ?>
+    </div>
+</div>

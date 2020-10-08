@@ -1,0 +1,331 @@
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+
+.admin__page-section-item-title{
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 1.7rem;
+  padding: 1.4rem 0 .5rem;
+}
+
+strong.action.secondary,
+a.action.secondary > span{
+  background-image: none;
+  background: #eee;
+  border: 1px solid #ccc;
+  padding: 7px 15px;
+  display: inline-block;
+  color: #333;
+}
+
+strong.action.secondary{
+  padding: 0 15px;
+  display: inline-block;
+  height: 32px;
+  box-sizing: border-box;
+  line-height: 30px;
+}
+
+strong.action.secondary:hover,
+a.action.secondary:hover > span{
+  background: #e1e1e1;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+/**
+ * Returns grid.
+ */
+.returns-grid-status {
+
+}
+
+/**
+ * Return items.
+ */
+.prrma-returns-items table .icon-info {
+  margin-left: 0;
+  position: relative;
+  z-index: 2;
+  display: inline-block;
+  text-decoration: none;
+}
+.prrma-returns-items table .icon-info:before {
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  line-height: 1;
+  color: #514943;
+  content: '\e633';
+  font-family: 'Admin Icons';
+  vertical-align: middle;
+  display: inline-block;
+  font-weight: normal;
+  overflow: hidden;
+  speak: none;
+  text-align: center;
+}
+
+.prrma-returns-items table td {
+  vertical-align: top;
+}
+
+.prrma-returns-items table input[type="number"] {
+  width: 60px;
+}
+
+.prrma-returns-items table .col-product {
+  max-width: 400px;
+}
+
+.prrma-returns-items table .col-return-reason {
+  max-width: 200px;
+}
+
+.prrma-returns-items table .col-purchased-qty {
+  text-align: center;
+}
+
+.prrma-returns-items table .col-action {
+  width: 100px;
+}
+
+.prrma-returns-items table .col-action a.row-clone-cancel {
+  display: none;
+}
+
+.prrma-returns-items table tr.row-cloned .col-action a.row-clone-cancel {
+  display: inherit;
+}
+
+.prrma-returns-items table tr.row-cloned .col-action a.row-clone {
+  display: none;
+}
+
+.prrma-returns-items table .payer-hint {
+  display: none;
+}
+
+.order-information-table input[type="text"],
+.order-information-table select{
+  min-width: 250px;
+  min-height: 31px;
+}
+
+.order-information-table input[type="text"]{
+  width: 100%;
+}
+
+.order-shipping-address input[type="text"]{
+  min-height: 31px;
+  width: 100%;
+}
+
+.prrma-uploader .file-row.comment-file {
+  display: block;
+  position: relative;
+  margin: 10px 0 0 0;
+  background: #e1f5ff;
+  border: 1px solid #b5c6d0;
+  border-radius: 4px;
+  color: #333;
+  line-height: 25px;
+  padding: 0 85px 0 10px;
+}
+
+.prrma-uploader .file-row.comment-file .file-delete {
+  background: none;
+  border: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: #1979c3;
+  padding: 0 10px;
+}
+
+#returns_shipping_label_block .print-shipping {
+  display: inline-block;
+  margin: 0 10px;
+}
+
+#returns_shipping_label_block .print-shipping img {
+  height: auto;
+  max-width: 22px;
+  display: inline-block;
+  vertical-align: middle;
+  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.34);
+}
+
+.payer-hint {
+  margin-top: 3px;
+  padding: 2px 0;
+  color: #6b6b6b;
+}
+
+/**
+ * Return messages.
+ */
+.order-comments-history .admin__page-section-item-title .actions{
+  float: right;
+}
+
+#returns_comments_form.comment-internal #returns_comment {
+  background-color: rgb(230, 246, 253);
+}
+
+#returns_comments_form.comment-internal label[for="returns_comment_internal"] {
+  color: red;
+}
+
+.returns-comments-list .comment-internal {
+  color: red;
+}
+
+.note-list-customer {
+  border-left: none;
+  padding: 0;
+}
+
+.note-list-date {
+  border-left: 1px solid #a6a6a6;
+  padding: 0 1rem;
+}
+
+#mark_as_read:before{
+  -webkit-font-smoothing: antialiased;
+  font-size: 13px;
+  line-height: 1;
+  color: #514943;
+  content: '\e60f';
+  font-family: 'Admin Icons';
+  vertical-align: middle;
+  display: inline-block;
+  font-weight: normal;
+  overflow: hidden;
+  speak: none;
+  text-align: center;
+  margin-top: -1px;
+}
+
+.returns-comments-list .comment-item{
+  background: #f4feff;
+  border: 1px solid #a2d7e1;
+  border-radius: 6px;
+  padding: 15px 10px;
+  margin-bottom: 15px;
+  position: relative;
+  width: 90%;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  clear: both;
+}
+
+.returns-comments-list .comment-item .note-list-customer{
+  padding: 0;
+  border: 0;
+}
+
+.returns-comments-list .comment-item .note-list-comment{
+  margin: 10px 0 0 0;
+}
+
+.returns-comments-list .comment-item.sender-customer{
+  background: #f6fff4;
+  border: 1px solid #b5eaab;
+  float: right;
+}
+
+.returns-comments-list .comment-item .comment-customer{
+  font-weight: 700;
+}
+
+.returns-comments-list .comment-item .comment-date,
+.returns-comments-list .comment-item .comment-time{
+  color: #9e9e9e;
+  float: right;
+  font-size: 13px;
+}
+.returns-comments-list .comment-item .note-list-date,
+.returns-comments-list .comment-item .note-list-time{
+  color: #9e9e9e;
+  float: right;
+  font-size: 12px;
+  padding: 0 0 0 5px;
+  border: 0;
+}
+
+.returns-comments-list .comment-item .comment-text{
+  clear: both;
+}
+
+.page-title-wrapper .page-title{
+  margin-bottom: 10px;
+}
+
+.prrma-status {
+  display: inline-block;
+  padding: 0 15px;
+  color: #fff;
+  background: #cccccc;
+  border-radius: 12px;
+  text-transform: uppercase;
+  font-size: 10px;
+  text-align: center;
+  line-height: 19px;
+}
+
+.prrma-status-rejected,
+.prrma-status-rejected_part { background-color:#cb260a }
+.prrma-status-closed { background-color:#7f7f7f }
+.prrma-status-processed_closed,
+.prrma-status-approved_part { background-color:#48981b }
+.prrma-status-authorized_part,
+.prrma-status-authorized { background-color:#b5ca61 }
+.prrma-status-received_part,
+.prrma-status-received { background-color:#cd64f5 }
+.prrma-status-new { background-color:#1796ff }
+
+.returns-comments-list .comment-files{
+  margin: 0;
+  padding: 0;
+}
+
+.returns-comments-list .comment-files a {
+  display: inline-block;
+  border-radius: 4px;
+  line-height: 25px;
+  padding: 0 5px 0 2px;
+  font-size: 1.2rem;
+}
+
+.prrma-att-file:before{
+  -webkit-font-smoothing: antialiased;
+  font-size: 13px;
+  line-height: 25px;
+  color: #8f8f8f;
+  content: '\e643';
+  font-family: 'Admin Icons';
+  margin: 0;
+  vertical-align: top;
+  display: inline-block;
+  font-weight: normal;
+  overflow: hidden;
+  speak: none;
+  text-align: center;
+  min-width: 25px;
+}
+
+.prrma-replied td div {
+  font-weight: bold;
+}

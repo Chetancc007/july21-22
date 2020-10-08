@@ -1,0 +1,54 @@
+<?php
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+
+// @codingStandardsIgnoreFile
+?>
+
+<div id="<?php echo $block->getHtmlId() ?>" class="prrma-uploader uploader"
+    data-mage-init='{
+        "Plumrocket_RMA/js/uploader" : {
+            "fieldName": "<?php /* @escapeNotVerified */ echo $block->getConfig()->getFileField() ?>",
+            "maxFileSize": <?php /* @escapeNotVerified */ echo $block->getMaxFileSize() ?>,
+            "maxFilesCount": <?php /* @escapeNotVerified */ echo $block->getMaxFilesCount() ?>,
+            "maxWidth":<?php /* @escapeNotVerified */ echo \Magento\Framework\File\Uploader::MAX_IMAGE_WIDTH ?> ,
+            "maxHeight": <?php /* @escapeNotVerified */ echo \Magento\Framework\File\Uploader::MAX_IMAGE_HEIGHT ?>,
+            "fileList": <?php /* @escapeNotVerified */ echo json_encode($block->getFileList()) ?>
+        }
+    }'
+>
+    <div class="fileinput-button form-buttons button">
+        <span><?php /* @escapeNotVerified */ echo __('Attach file:') ?></span>
+        <input id="<?php /* @escapeNotVerified */ echo $block->getConfig()->getFileField() ?>-uploader" type="file" name="<?php /* @escapeNotVerified */ echo $block->getConfig()->getFileField() ?>"
+            data-url="<?php /* @escapeNotVerified */ echo $block->getConfig()->getUrl() ?>" multiple="multiple" />
+    </div>
+    <div class="clear"></div>
+    <script id="<?php echo $block->getHtmlId() ?>-template" type="text/x-magento-template" data-template="<?php /* @escapeNotVerified */ echo $block->getConfig()->getFileField() ?>-uploader">
+        <div id="<%- data.id %>" class="file-row <%- data.rowclass %> comment-file">
+            <span class="file-info">
+                <%- data.name %> (<%- data.size %>)
+                <a href="#" class="file-delete"><?php echo __('Delete') ?></a>
+            </span>
+            <div class="progressbar-container">
+                <div class="progressbar upload-progress" style="width: 0%;"></div>
+            </div>
+            <div class="clear"></div>
+            <input type="hidden" name="<?php /* @escapeNotVerified */ echo $block->getConfig()->getFileField() ?>[<%- data.id %>][name]" value="<%- data.name %>" />
+            <input type="hidden" name="<?php /* @escapeNotVerified */ echo $block->getConfig()->getFileField() ?>[<%- data.id %>][size]" value="<%- data.size %>" />
+            <input type="hidden" name="<?php /* @escapeNotVerified */ echo $block->getConfig()->getFileField() ?>[<%- data.id %>][filename]" value="<%- data.filename %>" class="filename" />
+        </div>
+    </script>
+</div>

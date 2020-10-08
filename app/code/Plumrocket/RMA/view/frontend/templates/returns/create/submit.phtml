@@ -1,0 +1,66 @@
+<?php
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+?>
+
+<?php $_entity = $block->getEntity() ?>
+<?php $_order = $block->getOrder() ?>
+
+<div id="returns_submit_block" class="block">
+
+    <?php if ($block->getConfigHelper()->enabledReturnPolicy()): ?>
+        <div class="block-title"></div>
+    <?php endif ?>
+
+    <div class="block-content">
+
+        <?php if ($block->getConfigHelper()->enabledReturnPolicy()): ?>
+            <div class="returns_policy">
+
+                <div class="field choice">
+                    <!-- <div class="control"> -->
+                        <input type="checkbox" name="agree_return_policy" id="returns_policy_checkbox" value="1" class="checkbox required pr-vm">
+                    <!-- </div> -->
+                    <label class="label pr-vm" for="returns_policy_checkbox" >
+                        <span><?php echo __('I agree to <a href="#">return policy</a>') ?></span>
+                    </label>
+                </div>
+
+                <div id="returns_policy_popup">
+                    <?php echo $this->getCmsBlockHtml(
+                        $block->getConfigHelper()->getReturnPolicyBlock()
+                    ) ?>
+                </div>
+
+            </div>
+        <?php endif ?>
+
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button type="submit" class="action primary create" name="create">
+                    <span><?php echo __('Submit Request') ?></span>
+                </button>
+            </div>
+
+            <div class="secondary">
+                <a href="<?php echo $block->getCancelUrl() ?>" class="action secondary cancel">
+                    <span><?php echo __('Cancel') ?></span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>

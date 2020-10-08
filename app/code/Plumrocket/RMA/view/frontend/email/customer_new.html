@@ -1,0 +1,45 @@
+<!--@subject {{trans "%store_name: New Return Request # %returns_id" store_name=$store.getFrontendName() returns_id=$returns.getIncrementId()}} @-->
+<!--@vars {
+"var order.getCustomerName()":"Dear Customer",
+"var comment":"",
+"var returns.increment_id":"Return Id",
+"var view_url":""
+} @-->
+
+{{template config_path="design/email/header_template"}}
+<table>
+    <tr class="email-intro email-information">
+        <td>
+            <p class="greeting">{{trans "%name," name=$order.getCustomerName()}}</p>
+            <p>
+                {{trans
+                    "Your return request #%increment_id has been created."
+
+                    increment_id=$returns.increment_id
+                |raw}}
+            </p>
+            <p>
+                {{trans
+                    "Your return request will be reviewed by our staff within 24 hours, Monday through Friday, to confirm you are eligible for a return. After that, an email with return instructions will be sent to you within 24 hours, Monday through Friday."
+                |raw}}
+            </p>
+            {{depend comment}}
+            <table class="message-info">
+                <tr>
+                    <td>
+                        {{var comment|nl2br}}
+                    </td>
+                </tr>
+            </table>
+            {{/depend}}
+            <p>{{trans 'You can check the status or view more details about your return by clicking on this <a href="%view_url">link</a>.' view_url=$view_url |raw}}</p>
+            <p>
+                {{trans 'If you have any questions, please feel free to contact us at <a href="mailto:%store_email">%store_email</a>' store_email=$store_email |raw}}{{depend store_phone}} {{trans 'or by phone at <a href="tel:%store_phone">%store_phone</a>' store_phone=$store_phone |raw}}{{/depend}}
+                {{depend store_hours}}
+                    {{trans 'Our hours are <span class="no-link">%store_hours</span>.' store_hours=$store_hours |raw}}
+                {{/depend}}
+            </p>
+        </td>
+    </tr>
+</table>
+{{template config_path="design/email/footer_template"}}

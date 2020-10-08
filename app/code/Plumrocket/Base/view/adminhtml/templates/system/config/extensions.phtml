@@ -1,0 +1,53 @@
+<?php
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket_Base
+ * @copyright   Copyright (c) 2020 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+?>
+<?php /** @var \Plumrocket\Base\Block\Adminhtml\System\Config\Form\Extensions $block */ ?>
+
+<div class="base-exten-info">
+    <?php foreach ($block->getExtensions() as $extension) : ?>
+        <?php if ($extension['updates']) : ?>
+            <details>
+                <summary>
+                    <?= $block->getLabel($extension) ?> -
+                    <span class="new-update"><?= $block->getNewUpdateLabel($extension) ?></span>
+                </summary>
+
+                <div class="details-item details-item-avaible">
+                    <span class="base-exten-available"><?= __('Available Updates:') ?></span>
+                    <a href="<?= $block->escapeUrl($extension['wiki']) ?>" target="_blank"><?= __('Update Now') ?></a>
+                </div>
+
+                <?php foreach ($extension['updates'] as $update) : ?>
+                    <p class="details-item details-item-ver"><?= __('Version') ?> <?= $update['version'] ?></p>
+                    <?php foreach ($update['changes'] as $changeLog) : ?>
+                        <p class="details-item <?= $changeLog['type'] ?>"><?= $changeLog['description'] ?></p>
+                    <?php endforeach; ?>
+                <?php endforeach; ?>
+            </details>
+        <?php elseif (! $extension['successFetchUpdates']) : ?>
+            <div class="base-exten-warning">
+                <?= $block->getLabel($extension) ?> -
+                <span class="fail-fetch"><?= __('Information of latest version is unavailable') ?></span>
+            </div>
+        <?php else: ?>
+            <div class="base-exten-latest-version">
+                <?= $block->getLabel($extension) ?> -
+                <span class="last-version"><?= __('You have the latest version') ?></span>
+            </div>
+        <?php endif; ?>
+    <?php endforeach; ?>
+</div>

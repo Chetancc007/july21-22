@@ -1,0 +1,91 @@
+<?php
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+?>
+
+<?php $_entity = $block->getEntity() ?>
+<?php $_order = $block->getOrder() ?>
+
+<div id="returns_comments_block" class="block">
+
+    <div class="block-title">
+        <?php if ($block->isNewEntity()): ?>
+            <strong><?php echo __('Comment (optional)') ?></strong>
+        <?php else: ?>
+            <strong><?php echo __('Comments') ?></strong>
+        <?php endif ?>
+    </div>
+
+    <?php if ($block->canSubmit() && $editor = $block->getEditor()): ?>
+        <fieldset id="returns_comments_form" class="fieldset">
+
+            <div class="field">
+                <div class="control">
+                    <?php echo $editor->getElementHtml() ?>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="contents-uploader">
+                    <?php echo $block->getChildHtml('rma.returns.messages.uploader') ?>
+                </div>
+
+                <?php if (! $block->isNewEntity()): ?>
+                    <div class="actions-toolbar">
+                        <button type="submit" class="action send primary" name="send">
+                            <span><?php echo __('Submit Comment') ?></span>
+                        </button>
+                    </div>
+                <?php endif ?>
+            </div>
+        </fieldset>
+    <?php endif ?>
+
+    <div class="returns-comments-list">
+        <?php foreach ($block->getMessages() as $item): ?>
+            <div class="comment-item sender-<?php echo $block->escapeHtml($item->getType()) ?>">
+                <span class="comment-customer">
+                    <span class="comment-customer-notified">
+                        <?php /* @escapeNotVerified */ echo $block->escapeHtml($item->getName()) ?>
+                        <?php if ($block->isFromYou($item)): ?>
+                            (You)
+                        <?php endif ?>
+                    </span>
+                </span>
+                <span class="comment-date-wrap">
+                	<span class="comment-date"><?php /* @noEscape */ echo $block->formatDate($item->getCreatedAt(), \IntlDateFormatter::MEDIUM) ?></span>
+                	<span class="comment-time"><?php /* @noEscape */ echo $block->formatTime($item->getCreatedAt(), \IntlDateFormatter::MEDIUM) ?></span>
+                </span>
+                <?php if ($item->getText()): ?>
+                    <div class="comment-text">
+                        <?php echo $block->getMessageText($item) ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($files = $item->getPreparedFiles()): ?>
+                    <div class="comment-files">
+                    	<span class="prrma-att-file"></span>
+                        <?php foreach ($files as $file): ?>
+                                <a href="<?php echo $block->escapeHtml($block->getFileUrl($file['filename'])) ?>" target="_blank">
+                                    <?php echo $block->escapeHtml($file['name']) ?>
+                                </a><?php echo next($files) ? ', ' : '' ?>
+                        <?php endforeach ?>
+                    </div>
+                <?php endif ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</div>

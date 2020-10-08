@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!--
+
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <prrma>
+            <general>
+                <serial></serial>
+                <return_placement>product,shopping_cart,checkout,order_confirmation</return_placement>
+                <auto_close>30</auto_close>
+                <tracking_number>1</tracking_number>
+                <shipping_carriers>FedEx,UPS,USPS,DHL</shipping_carriers>
+            </general>
+            <newrma>
+                <allow>1</allow>
+                <return_policy>1</return_policy>
+                <return_policy_block>prrma_policy</return_policy_block>
+                <auto_authorize>0</auto_authorize>
+                <return_success>prrma_success_page</return_success>
+                <return_instructions>prrma_instructions</return_instructions>
+            </newrma>
+            <email>
+                <sender_name>RMA Department</sender_name>
+                <sender_email>rma@example.com</sender_email>
+            </email>
+            <file>
+                <type>jpg,jpeg,png,gif,pdf,docx,doc,odt</type>
+                <size>2</size>
+                <count>10</count>
+            </file>
+        </prrma>
+    </default>
+</config>

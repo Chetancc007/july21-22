@@ -1,0 +1,55 @@
+<!--@subject {{trans "%store_name: New Return Request # %returns_id" store_name=$store.getFrontendName() returns_id=$returns.getIncrementId()}} @-->
+<!--@vars {
+"var returns.getManagerName()":"Store Manager",
+"var sender_name":"",
+"var admin_comment":"",
+"var comment":"",
+"var returns.increment_id":"Return Id"
+} @-->
+
+{{template config_path="design/email/header_template"}}
+<table>
+    <tr class="email-intro email-information">
+        <td>
+            <p class="greeting">{{trans "%name," name=$returns.getManagerName()}}</p>
+            <p>
+                {{trans
+                    "New return request has been creaded. Return number: #%increment_id"
+
+                    increment_id=$returns.increment_id
+                |raw}}
+            </p>
+            <p>
+                {{trans
+                    "Please review this return request within 24 hours, Monday through Friday, to confirm that customer is eligible for a return. After that, please submit return instructions to the client."
+                |raw}}
+            </p>
+            {{depend admin_comment}}
+            <p>
+                {{trans "Admin Comment (%name)" name=$sender_name }}:
+            </p>
+            <table class="message-info">
+                <tr>
+                    <td>
+                        {{var admin_comment|nl2br}}
+                    </td>
+                </tr>
+            </table>
+            {{/depend}}
+            {{depend comment}}
+            <p>
+                {{trans "Customer Comment"}}:
+            </p>
+            <table class="message-info">
+                <tr>
+                    <td>
+                        {{var comment|nl2br}}
+                    </td>
+                </tr>
+            </table>
+            {{/depend}}
+            <p>{{trans 'Please navigate to store admin panel to manage this RMA.'}}</p>
+        </td>
+    </tr>
+</table>
+{{template config_path="design/email/footer_template"}}

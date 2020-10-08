@@ -1,0 +1,69 @@
+<?php
+/**
+ * Plumrocket Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the End-user License Agreement
+ * that is available through the world-wide-web at this URL:
+ * http://wiki.plumrocket.net/wiki/EULA
+ * If you are unable to obtain it through the world-wide-web, please
+ * send an email to support@plumrocket.com so we can send you a copy immediately.
+ *
+ * @package     Plumrocket RMA v2.x.x
+ * @copyright   Copyright (c) 2017 Plumrocket Inc. (http://www.plumrocket.com)
+ * @license     http://wiki.plumrocket.net/wiki/EULA  End-user License Agreement
+ */
+?>
+
+<?php $_returns = $block->getReturnsCollection(); ?>
+<?php echo $block->getChildHtml('info');?>
+
+<div class="order-details-items returns">
+    <?php if ($_returns && count($_returns)): ?>
+        <div class="table-wrapper returns-history">
+            <table class="data table table-order-items history" id="my-returns-table">
+                <caption class="table-caption"><?php /* @escapeNotVerified */ echo __('My Returns') ?></caption>
+                <thead>
+                    <tr>
+                        <th scope="col" class="col pr-items"><?php /* @escapeNotVerified */ echo __('Items') ?></th>
+                        <th scope="col" class="col id"><?php /* @escapeNotVerified */ echo __('RMA ID') ?></th>
+                        <th scope="col" class="col date"><?php /* @escapeNotVerified */ echo __('Updated') ?></th>
+                        <th scope="col" class="col status"><?php /* @escapeNotVerified */ echo __('Status') ?></th>
+                        <th scope="col" class="col actions">&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($_returns as $_return): ?>
+                        <tr>
+                            <td class="col-items">
+                                <div class="col-items-img">
+                                    <img src="<?php echo $this->escapeHtml($block->getImageUrl($_return)); ?>" />
+                                    <?php if ($counter = $block->getItemsCounter($_return)): ?>
+                                        <span class="prrma-hint-counter"><?php echo __('+%1', $counter) ?></span>
+                                    <?php endif ?>
+                                </div>
+                            </td>
+                            <td data-th="<?php echo $block->escapeHtml(__('RMA ID')) ?>" class="col id">#<?php /* @escapeNotVerified */ echo $_return->getIncrementId() ?></td>
+                            <td data-th="<?php echo $block->escapeHtml(__('Updated')) ?>" class="col date"><?php /* @escapeNotVerified */ echo $block->formatDate($_return->getUpdatedAt()) ?></td>
+                            <td data-th="<?php echo $block->escapeHtml(__('Status')) ?>" class="col status">
+                                <span class="<?php echo $this->getDataHelper()->getStatusColor($_return->getStatus()) ?>">
+                                    <?php /* @escapeNotVerified */ echo $_return->getStatusLabel() ?>
+                                </span>
+                            </td>
+                            <td class="col actions">
+                                <a href="<?php /* @escapeNotVerified */ echo $block->getViewUrl($_return) ?>" class="action view">
+                                    <span><?php /* @escapeNotVerified */ echo __('View') ?></span></a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php if ($block->getPagerHtml()): ?>
+            <div class="order-products-toolbar toolbar bottom"><?php echo $block->getPagerHtml(); ?></div>
+        <?php endif ?>
+    <?php else: ?>
+        <div class="message info empty"><span><?php /* @escapeNotVerified */ echo __('You have no returns.'); ?></span></div>
+    <?php endif ?>
+</div>
