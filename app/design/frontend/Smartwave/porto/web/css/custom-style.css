@@ -4,13 +4,13 @@
 
 @media (min-width: 1280px) {
     .page-header.type23 .sw-megamenu.navigation li.level0 {
-        flex: 0 0 12%;
-        max-width: 12%;
+        flex: 0 0 12% !important;
+        max-width: 12% !important;
     }
 }
 
 @media (min-width: 768px) {
     .page-header.type23 .navigation .level0 > .level-top {
-        padding: 12px 15px 15px
+        padding: 12px 15px 15px !important;
     }
 }
