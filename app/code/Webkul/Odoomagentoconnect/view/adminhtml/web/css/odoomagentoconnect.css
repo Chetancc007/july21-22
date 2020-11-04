@@ -1,0 +1,21 @@
+/**
+ * Webkul Odoomagentoconnect default css
+ *
+* @category  Webkul
+ * @package   Webkul_Odoomagentoconnect
+ * @author    Webkul
+ * @copyright Copyright (c) 2010-2017 Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ *
+ */
+.config-nav-block.webkul-tab strong:before {
+    width: 19px;
+    height: 19px;
+    font-family: Odoomagentoconnect;
+    content: '\0041';
+    color: #2196f3;
+    font-size: 150%;
+    display: inline-block;
+    margin-right: 12px;
+    vertical-align: bottom;
+}

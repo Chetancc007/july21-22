@@ -1,0 +1,69 @@
+<script src="https://ajax.googleapis.com/ajax/libs/prototype/1.7.3.0/prototype.js"></script>
+<!-- <h2 style="float:left; margin: 5px;">Odoo Connector Error Log </h2> -->
+
+<button style="float:right;margin: 8px;"onclick="myFunction_download()">Download log File</button>
+
+<button style="float:right;margin: 8px;"onclick="myFunction()">Clear log File</button>
+
+<p id="demo"></p>
+
+<script>
+function myFunction() {
+	var xhReq = new XMLHttpRequest();
+	xhReq.open("GET", "<?php echo $block->getUrl('*/*/clearfile')?>", false);
+    xhReq.send(null);
+    location.reload();
+}
+function myFunction_download() {
+    var xhReq = new XMLHttpRequest();
+    xhReq.open("GET", "<?php echo $block->getUrl('*/*/downloadfile')?>", false);
+    xhReq.send(null);
+    var responseText = xhReq.responseText;
+    if (responseText) {
+        var textToSave = responseText;
+        var textToSaveAsBlob = new Blob([textToSave], {type:"text/plain"});
+        var textToSaveAsURL = window.URL.createObjectURL(textToSaveAsBlob);
+        var fileNameToSaveAs = "Odoo_Connector.log";
+        var downloadLink = document.createElement("a");
+        downloadLink.download = fileNameToSaveAs;
+        downloadLink.innerHTML = "Download File";
+        downloadLink.href = textToSaveAsURL;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+    }
+    else{
+        alert(responseText);
+        alert("There is nothing to Download.");
+    }    
+    location.reload();
+}
+</script>
+
+<div class="col-md-3 col-xs-12 col-sm-12" style="border: 1px solid #e8e8e8; height:475px; border-top: 2px solid #bfbfbf; background-color: #FCFCFC;">
+   <textarea class="col-md-3 col-xs-12 col-sm-12"  readonly style="padding: 2%;height: 100%;color: green;font-family: monospace;box-shadow: 2px 3px 6px 0px grey;background-color: rgb(0, 0, 0);">
+    <?php 
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $fileSystem = $objectManager->create('\Magento\Framework\Filesystem');
+    $dir=$fileSystem->getDirectoryRead(\Magento\Framework\App\Filesystem\DirectoryList::LOG)->getAbsolutePath();
+    $files = scandir($dir);
+    $path = '';
+    $logfile = $objectManager->create('\Magento\Framework\App\Config\ScopeConfigInterface')->getValue('odoomagentoconnect/additional/view_log');
+    if (!$logfile) {
+        $logfile = "odoo_connector.log";
+    }
+    foreach ($files as $file) {
+        if ($file == '.' || $file == '..') {
+            continue;
+        }
+        if ($file == $logfile) {
+            $path = $dir.'/'.$file ;
+            $file = fopen($path, "r");
+            while (! feof($file)) {
+                echo fgets($file);
+            }
+            fclose($file);
+        }
+    }
+    ?>
+    </textarea>
+</div>

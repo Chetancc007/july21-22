@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Webkul Odoomagentoconnect acl
+ *
+* @category  Webkul
+ * @package   Webkul_Odoomagentoconnect
+ * @author    Webkul
+ * @copyright Copyright (c) 2010-2017 Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ *
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Webkul_Odoomagentoconnect::manager" title="Odoo Connector" sortOrder="10" >
+                    <resource id="Webkul_Odoomagentoconnect::catalog" title="Catalog Mapping" sortOrder="10" >
+                        <resource id="Webkul_Odoomagentoconnect::category" title="Product Category Mapping" sortOrder="10" >
+                            <resource id="Webkul_Odoomagentoconnect::category_list" title="List View" sortOrder="10"/>
+                            <resource id="Webkul_Odoomagentoconnect::category_new" title="Create" sortOrder="20"/>
+                            <resource id="Webkul_Odoomagentoconnect::category_view" title="View" sortOrder="30"/>
+                            <resource id="Webkul_Odoomagentoconnect::category_save" title="Save" sortOrder="40"/>
+                        </resource>
+                        <resource id="Webkul_Odoomagentoconnect::products" title="Products Mapping" sortOrder="10" >
+                            <resource id="Webkul_Odoomagentoconnect::product" title="Simple Products Mapping" sortOrder="10" >
+                                <resource id="Webkul_Odoomagentoconnect::product_list" title="List View" sortOrder="10"/>
+                                <resource id="Webkul_Odoomagentoconnect::product_new" title="Create" sortOrder="20"/>
+                                <resource id="Webkul_Odoomagentoconnect::product_view" title="View" sortOrder="30"/>
+                                <resource id="Webkul_Odoomagentoconnect::product_save" title="Save" sortOrder="40"/>
+                            </resource>
+                            <resource id="Webkul_Odoomagentoconnect::template" title="Configurable Products Mapping" sortOrder="10" >
+                                <resource id="Webkul_Odoomagentoconnect::template_list" title="List View" sortOrder="10"/>
+                                <resource id="Webkul_Odoomagentoconnect::template_new" title="Create" sortOrder="20"/>
+                                <resource id="Webkul_Odoomagentoconnect::template_view" title="View" sortOrder="30"/>
+                                <resource id="Webkul_Odoomagentoconnect::template_save" title="Save" sortOrder="40"/>
+                            </resource>
+                        </resource>
+                        <resource id="Webkul_Odoomagentoconnect::attributes" title="Attribute Mapping" sortOrder="10" >
+                            <resource id="Webkul_Odoomagentoconnect::set" title="Attribute Sets Mapping" sortOrder="10" >
+                                <resource id="Webkul_Odoomagentoconnect::set_list" title="List View" sortOrder="10"/>
+                                <resource id="Webkul_Odoomagentoconnect::set_new" title="Create" sortOrder="20"/>
+                                <resource id="Webkul_Odoomagentoconnect::set_view" title="View" sortOrder="30"/>
+                                <resource id="Webkul_Odoomagentoconnect::set_save" title="Save" sortOrder="40"/>
+                            </resource>
+                            <resource id="Webkul_Odoomagentoconnect::attribute" title="Attribute Mapping" sortOrder="10" >
+                                <resource id="Webkul_Odoomagentoconnect::attribute_list" title="List View" sortOrder="10"/>
+                                <resource id="Webkul_Odoomagentoconnect::attribute_new" title="Create" sortOrder="20"/>
+                                <resource id="Webkul_Odoomagentoconnect::attribute_view" title="View" sortOrder="30"/>
+                                <resource id="Webkul_Odoomagentoconnect::attribute_save" title="Save" sortOrder="40"/>
+                            </resource>
+                            <resource id="Webkul_Odoomagentoconnect::option" title="Attribute Option Mapping" sortOrder="10" >
+                                <resource id="Webkul_Odoomagentoconnect::option_list" title="List View" sortOrder="10"/>
+                                <resource id="Webkul_Odoomagentoconnect::option_new" title="Create" sortOrder="20"/>
+                                <resource id="Webkul_Odoomagentoconnect::option_view" title="View" sortOrder="30"/>
+                                <resource id="Webkul_Odoomagentoconnect::option_save" title="Save" sortOrder="40"/>
+                            </resource>
+                        </resource>
+                    </resource>
+                    <resource id="Webkul_Odoomagentoconnect::wkcustomers" title="Customers Mapping" sortOrder="10" >
+                        <resource id="Webkul_Odoomagentoconnect::customers" title="Customer Mapping" sortOrder="10" >
+                            <resource id="Webkul_Odoomagentoconnect::customers_list" title="List View" sortOrder="10"/>
+                            <resource id="Webkul_Odoomagentoconnect::customers_new" title="Create" sortOrder="20"/>
+                            <resource id="Webkul_Odoomagentoconnect::customers_view" title="View" sortOrder="30"/>
+                            <resource id="Webkul_Odoomagentoconnect::customers_save" title="Save" sortOrder="40"/>
+                        </resource>
+                    </resource>
+                    <resource id="Webkul_Odoomagentoconnect::general" title="General Mapping" sortOrder="10" >
+                        <resource id="Webkul_Odoomagentoconnect::currency" title="Currency Mapping" sortOrder="10" >
+                            <resource id="Webkul_Odoomagentoconnect::currency_list" title="List View" sortOrder="10"/>
+                            <resource id="Webkul_Odoomagentoconnect::currency_new" title="Create" sortOrder="20"/>
+                            <resource id="Webkul_Odoomagentoconnect::currency_view" title="View" sortOrder="30"/>
+                            <resource id="Webkul_Odoomagentoconnect::currency_save" title="Save" sortOrder="40"/>
+                        </resource>
+                    </resource>
+                    <resource id="Webkul_Odoomagentoconnect::sales" title="Sales Mapping" sortOrder="10" >
+                        <resource id="Webkul_Odoomagentoconnect::order" title="Order Mapping" sortOrder="10" >
+                            <resource id="Webkul_Odoomagentoconnect::order_list" title="List View" sortOrder="10"/>
+                            <resource id="Webkul_Odoomagentoconnect::order_new" title="Create" sortOrder="20"/>
+                            <resource id="Webkul_Odoomagentoconnect::order_view" title="View" sortOrder="30"/>
+                            <resource id="Webkul_Odoomagentoconnect::order_save" title="Save" sortOrder="40"/>
+                        </resource>
+                        <resource id="Webkul_Odoomagentoconnect::tax" title="Tax Mapping" sortOrder="10" >
+                            <resource id="Webkul_Odoomagentoconnect::tax_list" title="List View" sortOrder="10"/>
+                            <resource id="Webkul_Odoomagentoconnect::tax_new" title="Create" sortOrder="20"/>
+                            <resource id="Webkul_Odoomagentoconnect::tax_view" title="View" sortOrder="30"/>
+                            <resource id="Webkul_Odoomagentoconnect::tax_save" title="Save" sortOrder="40"/>
+                        </resource>
+                        <resource id="Webkul_Odoomagentoconnect::carrier" title="Carrier Mapping" sortOrder="10" >
+                            <resource id="Webkul_Odoomagentoconnect::carrier_list" title="List View" sortOrder="10"/>
+                            <resource id="Webkul_Odoomagentoconnect::carrier_new" title="Create" sortOrder="20"/>
+                            <resource id="Webkul_Odoomagentoconnect::carrier_view" title="View" sortOrder="30"/>
+                            <resource id="Webkul_Odoomagentoconnect::carrier_save" title="Save" sortOrder="40"/>
+                        </resource>
+                        <resource id="Webkul_Odoomagentoconnect::payment" title="Payment Mapping" sortOrder="10" >
+                            <resource id="Webkul_Odoomagentoconnect::payment_list" title="List View" sortOrder="10"/>
+                            <resource id="Webkul_Odoomagentoconnect::payment_new" title="Create" sortOrder="20"/>
+                            <resource id="Webkul_Odoomagentoconnect::payment_view" title="View" sortOrder="30"/>
+                            <resource id="Webkul_Odoomagentoconnect::payment_save" title="Save" sortOrder="40"/>
+                        </resource>
+                    </resource>
+                    <resource id="Webkul_Odoomagentoconnect::configuration" title="Configuration" sortOrder="10" >
+                        <resource id="Webkul_Odoomagentoconnect::config" title="Odoo Configuration" sortOrder="10" />
+                    </resource>
+                </resource>
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <resource id="Webkul_Odoomagentoconnect::config_webkul" title="Odoo Configuration" sortOrder="10" />
+                        </resource>
+                    </resource>
+                </resource>
+                <resource id="Magento_Sales::sales" title="Sales" sortOrder="20">
+                    <resource id="Magento_Sales::sales_operation" title="Operations" sortOrder="10">
+                        <resource id="Magento_Sales::sales_order"  title="Orders" sortOrder="10">
+                            <resource id="Magento_Sales::actions" title="Actions" sortOrder="10">
+                                <resource id="Magento_Sales::synchronize" title="Synchronize To Odoo" sortOrder="10" />
+                            </resource>
+                        </resource>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

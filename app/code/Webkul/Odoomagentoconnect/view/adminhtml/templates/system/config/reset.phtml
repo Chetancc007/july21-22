@@ -1,0 +1,41 @@
+<?php
+/**
+ * Webkul Odoomagentoconnect reset template
+ *
+* @category  Webkul
+ * @package   Webkul_Odoomagentoconnect
+ * @author    Webkul
+ * @copyright Copyright (c) 2010-2017 Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ *
+ */
+
+// @codingStandardsIgnoreFile
+
+?>
+<div class="actions actions-connection">
+    <div id="validation_result" class="message-validation hidden"></div>
+    <button class="testClick add" type="button" id="<?php echo $block->getId() ?>">
+        <span><?php echo $block->escapeHtml($block->getButtonLabel()) ?></span>
+    </button>
+</div>
+
+<script>
+require([
+        "jquery",
+        "mage/mage",
+    ], function($){
+        var alerttext = '';
+         $("#<?php echo $block->getId() ?>").on( "click", function() {
+
+            var alerttext = '';
+            new Ajax.Request('<?php echo $block->getAjaxCheckUrl() ?>', {
+                method: 'get',
+                onSuccess: function(transport){
+                    // alert("onSuccess");
+                    window.location = '<?php echo $block->escapeUrl($block->getUrl("*/*/edit/section/odoomagentoconnect")); ?>'
+                }
+            });
+        });
+    });                 
+</script>

@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Webkul Odoomagentoconnect Webapi
+ *
+* @category  Webkul
+ * @package   Webkul_Odoomagentoconnect
+ * @author    Webkul
+ * @copyright Copyright (c) 2010-2017 Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ *
+ */
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../app/code/Magento/Webapi/etc/webapi.xsd">
+
+    <route url="/V1/odoomagentoconnect/category" method="POST">
+        <service class="Webkul\Odoomagentoconnect\Api\MobRepositoryInterface" method="categoryMap"/>
+        <resources>
+            <resource ref="Webkul_Odoomagentoconnect::manager"/>
+        </resources>
+    </route>
+
+    <route url="/V1/odoomagentoconnect/category" method="PUT">
+        <service class="Webkul\Odoomagentoconnect\Api\MobRepositoryInterface" method="categoryUpdate"/>
+        <resources>
+            <resource ref="Webkul_Odoomagentoconnect::manager"/>
+        </resources>
+    </route>
+
+    <route url="/V1/odoomagentoconnect/product" method="POST">
+        <service class="Webkul\Odoomagentoconnect\Api\MobRepositoryInterface" method="productMap"/>
+        <resources>
+            <resource ref="Webkul_Odoomagentoconnect::manager"/>
+        </resources>
+    </route>
+
+    <route url="/V1/odoomagentoconnect/template" method="POST">
+        <service class="Webkul\Odoomagentoconnect\Api\MobRepositoryInterface" method="templateMap"/>
+        <resources>
+            <resource ref="Webkul_Odoomagentoconnect::manager"/>
+        </resources>
+    </route>
+
+    <route url="/V1/odoomagentoconnect/attribute" method="POST">
+        <service class="Webkul\Odoomagentoconnect\Api\MobRepositoryInterface" method="attributeMap"/>
+        <resources>
+            <resource ref="Webkul_Odoomagentoconnect::manager"/>
+        </resources>
+    </route>
+
+    <route url="/V1/odoomagentoconnect/option" method="POST">
+        <service class="Webkul\Odoomagentoconnect\Api\MobRepositoryInterface" method="optionMap"/>
+        <resources>
+            <resource ref="Webkul_Odoomagentoconnect::manager"/>
+        </resources>
+    </route>
+
+    <route url="/V1/odoomagentoconnect/OrderInvoice" method="POST">
+        <service class="Webkul\Odoomagentoconnect\Api\MobOrderResourceInterface" method="orderInvoice"/>
+        <resources>
+            <resource ref="Webkul_Odoomagentoconnect::manager"/>
+        </resources>
+    </route>
+
+    <route url="/V1/odoomagentoconnect/OrderShipment" method="POST">
+        <service class="Webkul\Odoomagentoconnect\Api\MobOrderResourceInterface" method="orderShipment"/>
+        <resources>
+            <resource ref="Webkul_Odoomagentoconnect::manager"/>
+        </resources>
+    </route>
+
+    <route url="/V1/odoomagentoconnect/OrderCancel" method="POST">
+        <service class="Webkul\Odoomagentoconnect\Api\MobOrderResourceInterface" method="orderCancel"/>
+        <resources>
+            <resource ref="Webkul_Odoomagentoconnect::manager"/>
+        </resources>
+    </route>
+
+    <route url="/V1/odoomagentoconnect/products" method="POST">
+        <service class="Webkul\Odoomagentoconnect\Api\MobRepositoryInterface" method="saveProduct"/>
+        <resources>
+            <resource ref="Webkul_Odoomagentoconnect::manager"/>
+        </resources>
+    </route>
+
+</routes>

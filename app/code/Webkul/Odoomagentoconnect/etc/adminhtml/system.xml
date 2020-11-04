@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Webkul Odoomagentoconnect System
+ *
+* @category  Webkul
+ * @package   Webkul_Odoomagentoconnect
+ * @author    Webkul
+ * @copyright Copyright (c) 2010-2017 Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ *
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="webkul" translate="label" sortOrder="10" class="webkul-tab">
+            <label>Webkul</label>
+        </tab>
+        <section id="odoomagentoconnect" translate="label" type="text" sortOrder="300" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Odoo Configuration</label>
+            <tab>webkul</tab>
+            <resource>Webkul_Odoomagentoconnect::config_webkul</resource>
+            <group id="settings" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Create New Odoo Configuration</label>
+                <field id="odoo_url" translate="label comment" sortOrder="0" type="text" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Odoo URL</label>
+                    <comment>(e.g : http://example.com)</comment>
+                </field>
+                <field id="odoo_port" translate="label comment" sortOrder="1" type="text" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Odoo Port</label>
+                    <comment>(e.g : 8080, for https use: 443)</comment>
+                </field>
+                <field id="odoo_database" translate="label comment" sortOrder="2" type="text" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Odoo Database</label>
+                    <comment>(e.g : mobdb)</comment>
+                </field>
+                <field id="odoo_user" translate="label comment" sortOrder="3" type="text" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Odoo User</label>
+                    <comment>(e.g : MOB)</comment>
+                </field>
+                <field id="odoo_pwd" translate="label comment" sortOrder="4" type="text" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Odoo User Pwd</label>
+                    <comment>(e.g : mobpwd)</comment>
+                </field>
+                <field id="odoo_status" translate="label comment" sortOrder="5" type="text" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Odoo Status</label>
+                </field>
+                <field id="run" translate="button_label" sortOrder="62" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <button_label>Test Odoo Connection</button_label>
+                    <frontend_model>Webkul\Odoomagentoconnect\Block\Adminhtml\System\Config\Connection</frontend_model>
+                    <comment>Test After after saving above odoo config details.</comment>
+                </field>
+            </group>
+
+            <group id="order_settings" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Order Synchronization Settings</label>
+                <field id="auto_order" translate="label comment" sortOrder="0" type="select" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Auto Order Synchronization</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>&lt;strong style="color:red"&gt;Warning!&lt;/strong&gt; If yes, Order Will Automatically Sync At Odoo.</comment>
+                </field>
+                <field id="draft_order" translate="label comment" sortOrder="1" type="select" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Order Synchronization(Draft State)</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>&lt;strong style="color:red"&gt;Warning!&lt;/strong&gt; If enabled, Odoo Order will be in Draft state. </comment>
+                </field>
+                <field id="invoice_order" translate="label comment" sortOrder="2" type="select" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Auto Order Invoice</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>&lt;strong style="color:red"&gt;Warning!&lt;/strong&gt; Odoo order will automatically invoiced when magneto order gets invoiced.</comment>
+                </field>
+                <field id="ship_order" translate="label comment" sortOrder="3" type="select" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Auto Order Shipment</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>&lt;strong style="color:red"&gt;Warning!&lt;/strong&gt; Odoo order will automatically Delivered when magneto order gets Shipped.</comment>
+                </field>
+                <field id="order_name" translate="label comment" sortOrder="4" type="select" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Sync Magento Order Sequence</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>&lt;strong style="color:red"&gt;Warning!&lt;/strong&gt; If yes, Odoo Order's Sequence will be same as Magento Order Sequence.</comment>
+                </field>
+            </group>
+
+            <group id="automatization_settings" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Automatic Synchronization Settings</label>
+                <field id="auto_category" translate="label comment" sortOrder="0" type="select" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Category Synchronization</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>&lt;strong style="color:red"&gt;Warning!&lt;/strong&gt; If Yes, Category will Automatically exported or updated during category save.</comment>
+                </field>
+                <field id="auto_product" translate="label comment" sortOrder="1" type="select" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Product Synchronization</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>&lt;strong style="color:red"&gt;Warning!&lt;/strong&gt;If Yes, Product will Automatically exported or updated during product save.</comment>
+                </field>
+                <field id="auto_customer" translate="label comment" sortOrder="2" type="select" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Customer Synchronization</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>&lt;strong style="color:red"&gt;Warning!&lt;/strong&gt; If Yes, Customer will Automatically exported or updated during customer save.</comment>
+                </field>
+                <field id="auto_tax" translate="label comment" sortOrder="3" type="select" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Tax Synchronization</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>&lt;strong style="color:red"&gt;Warning!&lt;/strong&gt; Odoo order will automatically Delivered when magneto order gets Shipped.</comment>
+                </field>
+                <field id="auto_inventory" translate="label comment" sortOrder="4" type="select" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Inventory Synchronization</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>&lt;strong style="color:red"&gt;Warning!&lt;/strong&gt; If Yes, Inventory will Automatically exported during product export.</comment>
+                </field>
+            </group>
+            <group id="reset_mapping" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Reset Mapping Setting</label>
+                <field id="reset" translate="button_label" sortOrder="62" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <button_label>Reset Odoo Mapping</button_label>
+                    <frontend_model>Webkul\Odoomagentoconnect\Block\Adminhtml\System\Config\Reset</frontend_model>
+                    <comment>Use It when you want to Change Odoo Connection with new Database. &lt;strong style="color:red"&gt;Warning!!! It'll Reset All Base Odoo Mapping Data from Magento.&lt;/strong&gt;</comment>    
+                </field>
+            </group>
+            <group id="additional" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Additional Setting</label>
+                <field id="show_messages" translate="label comment" sortOrder="4" type="select" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Show Realtime Sync Messages</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>&lt;strong style="color:red"&gt;Warning!&lt;/strong&gt; If yes, You'll not able to see any Success/Error messages during Realtime Sync.</comment>
+                </field>
+                <field id="view_log" translate="label comment" sortOrder="4" type="text" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>View Log</label>
+                    <comment>(e.g : "system.log")</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Webkul Odoomagentoconnect events xml
+ *
+* @category  Webkul
+ * @package   Webkul_Odoomagentoconnect
+ * @author    Webkul
+ * @copyright Copyright (c) 2010-2017 Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ *
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+
+    <event name="checkout_submit_all_after">
+        <observer name="webkul_odoomagentoconnect_sales_order_place_after_observer" instance="Webkul\Odoomagentoconnect\Observer\SalesOrderAfterObserver" />
+    </event>
+    
+    <event name="sales_order_invoice_register">
+        <observer name="webkul_odoomagentoconnect_sales_order_invoice_after_observer" instance="Webkul\Odoomagentoconnect\Observer\SalesOrderInvoiceAfterObserver" />
+    </event>
+
+    <event name="sales_order_shipment_save_after">
+        <observer name="webkul_odoomagentoconnect_sales_order_shipment_after_observer" instance="Webkul\Odoomagentoconnect\Observer\SalesOrderShipmentAfterObserver" />
+    </event>
+
+    <event name="order_cancel_after">
+        <observer name="webkul_odoomagentoconnect_order_cancel_after_observer" instance="Webkul\Odoomagentoconnect\Observer\SalesOrderCancelObserver" />
+    </event>
+
+    <event name="catalog_category_prepare_save">
+        <observer name="webkul_odoomagentoconnect_catalog_category_prepare_save_observer" instance="Webkul\Odoomagentoconnect\Observer\CategorySaveAfterObserver" />
+    </event>
+
+    <event name="catalog_product_save_after">
+        <observer name="webkul_odoomagentoconnect_catalog_product_save_after_observer" instance="Webkul\Odoomagentoconnect\Observer\ProductSaveAfterObserver" />
+    </event>
+
+    <event name="customer_save_after">
+        <observer name="webkul_odoomagentoconnect_customer_save_after_observer" instance="Webkul\Odoomagentoconnect\Observer\CustomerSaveAfterObserver" />
+    </event>
+
+</config>

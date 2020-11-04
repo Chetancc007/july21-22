@@ -1,0 +1,78 @@
+<!--
+/**
+ * Webkul Odoomagentoconnect Order layout
+ *
+* @category  Webkul
+ * @package   Webkul_Odoomagentoconnect
+ * @author    Webkul
+ * @copyright Copyright (c) 2010-2017 Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ *
+ */
+-->
+<script>
+require(['jquery'],
+	function(jQuery){
+		jQuery.noConflict();
+		jQuery(window).on("load",function(){
+			jQuery("#exportOrder").attr("onclick","");
+		});
+	jQuery(document).ready(function(){
+
+		jQuery("#exportOrder").on("click",function(e) {
+
+			jQuery('#loading-mask').css({	'width':jQuery(window).width(),
+											'height':jQuery(window).width(),
+											'top':0,
+											'left':0,
+											'display':'block'
+										});
+			jQuery.ajax({
+				url 	: 	"<?php echo $block->getUrl('*/*/exportallids')?>",
+				type 	: 	"GET",
+				dataType: 	"json",
+				showLoader: true,
+				success : 	function(export_ids){
+					var total_count = export_ids.length;
+					var typetotal_count = jQuery.type(total_count);
+					if(total_count==0){
+						location.reload();
+					}else{
+						var total_sync = 1;
+						var tot_success = 0;
+						var tot_failure = 0;
+						for(i = 0; i < total_count; i++) {
+							map_id = export_ids[i];
+							total_sync = i+1;
+							jQuery.ajax({
+								url 	: 	"<?php echo $block->getUrl('*/*/new')?>",
+								type 	: 	"GET",
+								dataType: 	"json",
+								async 	: false,
+								data 	: 	{
+												id: map_id,
+												total: total_count,
+												counter : total_sync,
+												failure : tot_failure,
+												success : tot_success
+											},
+								success : 	function(data){
+									if (data.response.odoo_id > 0){
+										tot_success = tot_success + 1;
+									}
+									else{
+										tot_failure = tot_failure + 1;
+									}
+									if(total_sync == total_count){
+										location.reload();
+									}
+								}
+							});
+						};
+					}
+				}
+			});
+		});
+	});
+});
+</script>

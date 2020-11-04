@@ -1,0 +1,285 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Webkul Odoomagentoconnect events di
+ *
+* @category  Webkul
+ * @package   Webkul_Odoomagentoconnect
+ * @author    Webkul
+ * @copyright Copyright (c) 2010-2017 Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ *
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    
+    <preference for="Webkul\Odoomagentoconnect\Api\MobRepositoryInterface"
+                type="Webkul\Odoomagentoconnect\Model\MobRepository" />
+    <preference for="Webkul\Odoomagentoconnect\Api\MobOrderResourceInterface"
+                type="Webkul\Odoomagentoconnect\Model\MobOrderResource" />
+
+    <preference for="Webkul\Odoomagentoconnect\Api\Data\CategoryInterface" type="Webkul\Odoomagentoconnect\Model\Category" />
+    <virtualType name="CategoryGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">
+        <arguments>
+            <argument name="collection" xsi:type="object" shared="false">Webkul\Odoomagentoconnect\Model\ResourceModel\Category\Collection</argument>
+            <argument name="filterPool" xsi:type="object" shared="false">OdoomagentoconnectGirdFilterPool</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Webkul\Odoomagentoconnect\Model\ResourceModel\Category\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">odoomagentoconnect_category</argument>
+            <argument name="resourceModel" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Category</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="odoomagentoconnect_category_listing_data_source" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Category\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <preference for="Webkul\Odoomagentoconnect\Api\Data\ProductInterface" type="Webkul\Odoomagentoconnect\Model\Product" />
+    <virtualType name="ProductGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">
+        <arguments>
+            <argument name="collection" xsi:type="object" shared="false">Webkul\Odoomagentoconnect\Model\ResourceModel\Product\Collection</argument>
+            <argument name="filterPool" xsi:type="object" shared="false">OdoomagentoconnectGirdFilterPool</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Webkul\Odoomagentoconnect\Model\ResourceModel\Product\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">odoomagentoconnect_product</argument>
+            <argument name="resourceModel" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Product</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="odoomagentoconnect_product_listing_data_source" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Product\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <preference for="Webkul\Odoomagentoconnect\Api\Data\TemplateInterface" type="Webkul\Odoomagentoconnect\Model\Template" />
+    <virtualType name="TemplateGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">
+        <arguments>
+            <argument name="collection" xsi:type="object" shared="false">Webkul\Odoomagentoconnect\Model\ResourceModel\Template\Collection</argument>
+            <argument name="filterPool" xsi:type="object" shared="false">OdoomagentoconnectGirdFilterPool</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Webkul\Odoomagentoconnect\Model\ResourceModel\Template\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">odoomagentoconnect_template</argument>
+            <argument name="resourceModel" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Template</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="odoomagentoconnect_template_listing_data_source" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Template\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <preference for="Webkul\Odoomagentoconnect\Api\Data\SetInterface" type="Webkul\Odoomagentoconnect\Model\Set" />
+    <virtualType name="SetGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">
+        <arguments>
+            <argument name="collection" xsi:type="object" shared="false">Webkul\Odoomagentoconnect\Model\ResourceModel\Set\Collection</argument>
+            <argument name="filterPool" xsi:type="object" shared="false">OdoomagentoconnectGirdFilterPool</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Webkul\Odoomagentoconnect\Model\ResourceModel\Set\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">odoomagentoconnect_set</argument>
+            <argument name="resourceModel" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Set</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="odoomagentoconnect_set_listing_data_source" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Set\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <preference for="Webkul\Odoomagentoconnect\Api\Data\AttributeInterface" type="Webkul\Odoomagentoconnect\Model\Attribute" />
+    <virtualType name="AttributeGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">
+        <arguments>
+            <argument name="collection" xsi:type="object" shared="false">Webkul\Odoomagentoconnect\Model\ResourceModel\Attribute\Collection</argument>
+            <argument name="filterPool" xsi:type="object" shared="false">OdoomagentoconnectGirdFilterPool</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Webkul\Odoomagentoconnect\Model\ResourceModel\Attribute\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">odoomagentoconnect_attribute</argument>
+            <argument name="resourceModel" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Attribute</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="odoomagentoconnect_attribute_listing_data_source" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Attribute\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <preference for="Webkul\Odoomagentoconnect\Api\Data\OptionInterface" type="Webkul\Odoomagentoconnect\Model\Option" />
+    <virtualType name="OptionGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">
+        <arguments>
+            <argument name="collection" xsi:type="object" shared="false">Webkul\Odoomagentoconnect\Model\ResourceModel\Option\Collection</argument>
+            <argument name="filterPool" xsi:type="object" shared="false">OdoomagentoconnectGirdFilterPool</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Webkul\Odoomagentoconnect\Model\ResourceModel\Option\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">odoomagentoconnect_option</argument>
+            <argument name="resourceModel" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Option</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="odoomagentoconnect_option_listing_data_source" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Option\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+    
+    <preference for="Webkul\Odoomagentoconnect\Api\Data\CustomerInterface" type="Webkul\Odoomagentoconnect\Model\Customer" />
+    <virtualType name="CustomerGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">
+        <arguments>
+            <argument name="collection" xsi:type="object" shared="false">Webkul\Odoomagentoconnect\Model\ResourceModel\Customer\Collection</argument>
+            <argument name="filterPool" xsi:type="object" shared="false">OdoomagentoconnectGirdFilterPool</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Webkul\Odoomagentoconnect\Model\ResourceModel\Customer\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">odoomagentoconnect_customer</argument>
+            <argument name="resourceModel" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Customer</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="odoomagentoconnect_customer_listing_data_source" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Customer\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <preference for="Webkul\Odoomagentoconnect\Api\Data\CurrencyInterface" type="Webkul\Odoomagentoconnect\Model\Currency" />
+    <virtualType name="CurrencyGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">
+        <arguments>
+            <argument name="collection" xsi:type="object" shared="false">Webkul\Odoomagentoconnect\Model\ResourceModel\Currency\Collection</argument>
+            <argument name="filterPool" xsi:type="object" shared="false">OdoomagentoconnectGirdFilterPool</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Webkul\Odoomagentoconnect\Model\ResourceModel\Currency\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">odoomagentoconnect_currency</argument>
+            <argument name="resourceModel" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Currency</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="odoomagentoconnect_currency_listing_data_source" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Currency\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <preference for="Webkul\Odoomagentoconnect\Api\Data\OrderInterface" type="Webkul\Odoomagentoconnect\Model\Order" />
+    <virtualType name="OrderGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">
+        <arguments>
+            <argument name="collection" xsi:type="object" shared="false">Webkul\Odoomagentoconnect\Model\ResourceModel\Order\Collection</argument>
+            <argument name="filterPool" xsi:type="object" shared="false">OdoomagentoconnectGirdFilterPool</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Webkul\Odoomagentoconnect\Model\ResourceModel\Order\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">odoomagentoconnect_order</argument>
+            <argument name="resourceModel" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Order</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="odoomagentoconnect_order_listing_data_source" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Order\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <preference for="Webkul\Odoomagentoconnect\Api\Data\TaxInterface" type="Webkul\Odoomagentoconnect\Model\Tax" />
+    <virtualType name="TaxGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">
+        <arguments>
+            <argument name="collection" xsi:type="object" shared="false">Webkul\Odoomagentoconnect\Model\ResourceModel\Tax\Collection</argument>
+            <argument name="filterPool" xsi:type="object" shared="false">OdoomagentoconnectGirdFilterPool</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Webkul\Odoomagentoconnect\Model\ResourceModel\Tax\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">odoomagentoconnect_tax</argument>
+            <argument name="resourceModel" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Tax</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="odoomagentoconnect_tax_listing_data_source" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Tax\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <preference for="Webkul\Odoomagentoconnect\Api\Data\CarrierInterface" type="Webkul\Odoomagentoconnect\Model\Carrier" />
+    <virtualType name="CarrierGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">
+        <arguments>
+            <argument name="collection" xsi:type="object" shared="false">Webkul\Odoomagentoconnect\Model\ResourceModel\Carrier\Collection</argument>
+            <argument name="filterPool" xsi:type="object" shared="false">OdoomagentoconnectGirdFilterPool</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Webkul\Odoomagentoconnect\Model\ResourceModel\Carrier\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">odoomagentoconnect_carrier</argument>
+            <argument name="resourceModel" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Carrier</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="odoomagentoconnect_carrier_listing_data_source" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Carrier\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <preference for="Webkul\Odoomagentoconnect\Api\Data\PaymentInterface" type="Webkul\Odoomagentoconnect\Model\Payment" />
+    <virtualType name="PaymentGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">
+        <arguments>
+            <argument name="collection" xsi:type="object" shared="false">Webkul\Odoomagentoconnect\Model\ResourceModel\Payment\Collection</argument>
+            <argument name="filterPool" xsi:type="object" shared="false">OdoomagentoconnectGirdFilterPool</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Webkul\Odoomagentoconnect\Model\ResourceModel\Payment\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">odoomagentoconnect_payment</argument>
+            <argument name="resourceModel" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Payment</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="odoomagentoconnect_payment_listing_data_source" xsi:type="string">Webkul\Odoomagentoconnect\Model\ResourceModel\Payment\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
+</config>
