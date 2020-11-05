@@ -14,3 +14,7 @@
         padding: 12px 15px 15px !important;
     }
 }
+
+.swiper-button-next, .swiper-button-prev{
+	height: 22px !important;
+}
