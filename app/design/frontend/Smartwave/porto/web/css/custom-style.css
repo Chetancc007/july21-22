@@ -19,12 +19,10 @@
 	height: 22px !important;
 }
 
-.our-policies-class{
-    padding: 25px !important;
+.footer-middle{
+	padding: 44px 0 0 !important;
+}
+.footer-middle > .container:after {
+    margin-top: 12px !important;
 }
 
-@media (max-width: 600px) {
-    .our-policies-class{
-    	padding: 0 !important;
-    }
-}
