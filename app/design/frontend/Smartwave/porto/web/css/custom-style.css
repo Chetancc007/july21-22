@@ -18,3 +18,13 @@
 .swiper-button-next, .swiper-button-prev{
 	height: 22px !important;
 }
+
+.our-policies-class{
+    padding: 25px !important;
+}
+
+@media (max-width: 600px) {
+    .our-policies-class{
+    	padding: 0 !important;
+    }
+}
