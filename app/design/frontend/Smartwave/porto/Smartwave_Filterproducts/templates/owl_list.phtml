@@ -274,7 +274,7 @@ if($product_type == null) {
                                 <?php if($_category_config['addtowishlist'] && $product_type != 4): ?>
                                 <?php if ($this->helper('Magento\Wishlist\Helper\Data')->isAllow()): ?>
                                     <a href="#"
-                                       class="action towishlist actions-secondary <?php if(isset($_category_config['qty_field']) && $_category_config['qty_field']):?>has-qty<?php endif;?>"
+                                       class="action towishlist actions-secondary-owl <?php if(isset($_category_config['qty_field']) && $_category_config['qty_field']):?>has-qty<?php endif;?>"
                                        title="<?php echo $block->escapeHtml(__('Add to Wish List')); ?>"
                                        aria-label="<?php echo $block->escapeHtml(__('Add to Wish List')); ?>"
                                        data-post='<?php echo $block->getAddToWishlistParams($_product); ?>'

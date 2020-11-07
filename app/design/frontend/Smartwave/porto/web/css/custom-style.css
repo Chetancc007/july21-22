@@ -26,3 +26,9 @@
     margin-top: 12px !important;
 }
 
+.actions-secondary-owl{
+    background-color: #ddd;
+}
+.actions-secondary-owl:hover{
+    background-color: #ffffff;
+}
