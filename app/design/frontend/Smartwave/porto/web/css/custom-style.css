@@ -32,3 +32,10 @@
 .actions-secondary-owl:hover{
     background-color: #ffffff;
 }
+
+.custom-pages-style h2{
+    font-weight: bold !important;
+}
+.custom-pages-style p{
+    line-height: 22px;
+}
