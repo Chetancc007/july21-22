@@ -2,7 +2,7 @@
 
 Odoo Bridge For Magento2 module installation is very easy, please follow the steps for installation-
 
-Note:- current modules are compatible with magento v2.2.* and odoo v11.0.
+Note:- current modules are compatible with magento v2.3.* and odoo v12.0.
 
 1. Unzip the respective extension zip and create Webkul(vendor) and Odoomagentoconnect(module) name folder inside your magento /app/code/ directory and then move all module's files into magento root directory Magento2/app/code/Webkul/Odoomagentoconnect/ folder.
 
@@ -27,7 +27,7 @@ simply extract Odoo-Modules.zip and follow Readme.md file which is inside Odoo-M
 
 # User Guide
 
-For Magento v2.2.* Odoo Bridge module's working process follow user guide - http://webkul.com/blog/odoo-bridge-for-magento-v2/
+For Magento v2.3.* Odoo Bridge module's working process follow user guide - http://webkul.com/blog/odoo-bridge-for-magento-v2/
     
 # Support
 

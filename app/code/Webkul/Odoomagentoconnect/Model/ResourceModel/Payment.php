@@ -61,7 +61,7 @@ class Payment extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $collection = $this->_modelConfig->getActiveMethods();
         foreach ($collection as $paymentCode => $paymentModel) {
             $paymentTitle = $this->_scopeConfig->getValue('payment/'.$paymentCode.'/title');
-            $payment[$paymentCode] = $paymentTitle;
+            $payment[$paymentTitle] = $paymentTitle;
         }
         return $payment;
     }

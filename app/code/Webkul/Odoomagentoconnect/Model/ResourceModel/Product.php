@@ -171,7 +171,10 @@ class Product extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                             ];
                     $this->mappingerp($mappingData);
                     $response['odoo_id'] = $odooId;
-                    $this->createInventoryAtOdoo($mageId, $odooId);
+                    $syncStock = $this->_scopeConfig->getValue('odoomagentoconnect/automatization_settings/auto_inventory');
+                    if ($syncStock) {
+                        $this->createInventoryAtOdoo($mageId, $odooId);
+                    }
                     $dispatchData = ['product' => $mageId, 'erp_product' => $odooId, 'type' => 'product'];
                     $this->_eventManager->dispatch('catalog_product_sync_after', $dispatchData);
                 }

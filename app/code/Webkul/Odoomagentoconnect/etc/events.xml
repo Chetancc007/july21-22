@@ -20,6 +20,10 @@
     <event name="sales_order_invoice_register">
         <observer name="webkul_odoomagentoconnect_sales_order_invoice_after_observer" instance="Webkul\Odoomagentoconnect\Observer\SalesOrderInvoiceAfterObserver" />
     </event>
+    
+    <event name="paypal_express_place_order_success">
+        <observer name="webkul_odoomagentoconnect_sales_order_place_after_observer" instance="Webkul\Odoomagentoconnect\Observer\SalesOrderAfterObserver" />
+    </event>
 
     <event name="sales_order_shipment_save_after">
         <observer name="webkul_odoomagentoconnect_sales_order_shipment_after_observer" instance="Webkul\Odoomagentoconnect\Observer\SalesOrderShipmentAfterObserver" />

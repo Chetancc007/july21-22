@@ -26,11 +26,13 @@ class ExportAllIds extends \Magento\Backend\App\Action
         \Webkul\Odoomagentoconnect\Helper\Connection $connection,
         \Webkul\Odoomagentoconnect\Model\Product $productMapping,
         \Magento\Catalog\Model\Product $productModel,
+        \Magento\ConfigurableProduct\Model\Product\Type\Configurable $configurableModel,
         \Magento\Backend\Model\View\Result\ForwardFactory $resultForwardFactory
     ) {
     
         $this->_productMapping = $productMapping;
         $this->_productModel = $productModel;
+        $this->_configurableModel = $configurableModel;
         $this->_connection = $connection;
         $this->_resultForwardFactory = $resultForwardFactory;
         parent::__construct($context);
@@ -61,6 +63,14 @@ class ExportAllIds extends \Magento\Backend\App\Action
                                          ->addFieldToSelect('magento_id')->getData();
             foreach ($productCollection as $value) {
                 array_push($mapTemplates, $value['magento_id']);
+            }
+            $configurableIds = $this->_productModel->getCollection()
+                                    ->addAttributeToFilter('type_id', ['eq' => 'configurable'])
+                                    ->addAttributeToSelect('entity_id')
+                                    ->getAllIds();
+            $configurableChildIds = $this->_configurableModel->getChildrenIds($configurableIds)[0];
+            if($configurableChildIds){
+                $mapTemplates = array_unique(array_merge($mapTemplates, array_values($configurableChildIds)));
             }
             if ($mapTemplates) {
                 $collection = $this->_productModel->getCollection()

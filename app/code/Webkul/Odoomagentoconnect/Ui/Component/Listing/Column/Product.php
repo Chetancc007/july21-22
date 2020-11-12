@@ -38,8 +38,10 @@ class Product extends Column
             foreach ($dataSource['data']['items'] as & $item) {
                 if (isset($item['magento_id'])) {
                     $productObj = $this->_productManager->load($item['magento_id']);
-                    $sku = $productObj->getSku();
-                    $item['sku'] = $sku;
+                    if ($productObj->getId() == $item['magento_id']) {
+                        $sku = $productObj->getSku();
+                        $item['sku'] = $sku;
+                    }
                 }
             }
         }

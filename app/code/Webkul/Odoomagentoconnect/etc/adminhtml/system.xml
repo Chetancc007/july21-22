@@ -122,7 +122,7 @@
                 <field id="show_messages" translate="label comment" sortOrder="4" type="select" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Show Realtime Sync Messages</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>&lt;strong style="color:red"&gt;Warning!&lt;/strong&gt; If yes, You'll not able to see any Success/Error messages during Realtime Sync.</comment>
+                    <comment>&lt;strong style="color:red"&gt;Warning!&lt;/strong&gt; If No, You'll not able to see any Success/Error messages during Realtime Sync.</comment>
                 </field>
                 <field id="view_log" translate="label comment" sortOrder="4" type="text" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>View Log</label>

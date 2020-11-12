@@ -401,7 +401,7 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                         $taxes,
                         $productName
                     );
-                    $lineIds .= $voucherLineId.",";
+                    $lineIds .= $voucherLineId;
                 }
             }
         }
@@ -669,7 +669,9 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         
         $invoiceDate = $thisOrder->getUpdatedAt();
         $incrementId = $thisOrder->getIncrementId();
-        $invoice = $thisOrder->getInvoiceCollection()->getData();
+        $invoice = $thisOrder->getInvoiceCollection()
+            ->addFieldToFilter('order_id', $thisOrder->getEntityId())
+            ->getData();
         foreach ($invoice as $inv) {
             $invoiceDate = $inv['created_at'];
             if (!$invoiceNumber) {
@@ -816,88 +818,65 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $partnerId = 0;
         $partnerInvoiceId = 0;
         $partnerShippingId = 0;
+        $billingAddresssId = 0;
+        $shippingAddressId = 0;
         $storeId = $thisOrder->getStoreId();
-        $magerpsync = $this->_customerMapping;
+        $customerId = $thisOrder->getCustomerId();
         $billing = $thisOrder->getBillingAddress();
         $shipping = $thisOrder->getShippingAddress();
+        $magerpsync = $this->_customerMapping;
         if ($billing) {
             $billing->setEmail($thisOrder->getCustomerEmail());
         }
         if ($shipping) {
             $shipping->setEmail($thisOrder->getCustomerEmail());
         }
+        $customerArray =  [
+            'name'=>new xmlrpcval(urlencode($thisOrder->getCustomerName()), "string"),
+            'email'=>new xmlrpcval(urlencode($thisOrder->getCustomerEmail()), "string"),
+            'is_company'=>new xmlrpcval(false, "boolean"),
+        ];
         if ($thisOrder->getCustomerIsGuest() == 1) {
-            $customerArray =  [
-                        'name'=>new xmlrpcval(urlencode($billing->getName()), "string"),
-                        'email'=>new xmlrpcval(urlencode($thisOrder->getCustomerEmail()), "string"),
-                        'is_company'=>new xmlrpcval(false, "boolean"),
-                    ];
-            $partnerId = $magerpsync->odooCustomerCreate($customerArray, 0, 0, $storeId);
-
-            $isDifferent = $this->checkAddresses($thisOrder);
-            if ($isDifferent == true) {
-                $partnerShippingId = $this->createErpAddress($shipping, $partnerId, 0, 0, $storeId);
-                $partnerInvoiceId = $this->createErpAddress($billing, $partnerId, 0, 0, $storeId);
-            } else {
-                $partnerInvoiceId = $this->createErpAddress($billing, $partnerId, 0, 0, $storeId);
-                $partnerShippingId = $partnerInvoiceId;
-            }
+            $customerId = 0;
+            $customerArray['name'] = new xmlrpcval(urlencode($billing->getName()), "string");
         }
-        $customerId = $thisOrder->getCustomerId();
         if ($customerId > 0) {
+            $billingAddresssId =  $billing->getCustomerAddressId();
+            $shippingAddressId = $shipping->getCustomerAddressId();
             $mappingcollection = $this->_customerModel
                                         ->getCollection()
                                         ->addFieldToFilter('magento_id', ['eq'=>$customerId])
                                         ->addFieldToFilter('address_id', ['eq'=>"customer"]);
-
             if (count($mappingcollection)>0) {
                 foreach ($mappingcollection as $map) {
                     $partnerId = $map->getOdooId();
-                    $mapNeedSync = $map->getNeedSync();
+                    break;
                 }
-
-                $isDifferent = $this->checkAddresses($thisOrder);
-                $billingAddresssId =  $billing->getCustomerAddressId();
-                if ($isDifferent == true) {
-                    $shippingAddressId = $shipping->getCustomerAddressId();
-                    $partnerShippingId = $this->createErpAddress(
-                        $shipping,
-                        $partnerId,
-                        $customerId,
-                        $shippingAddressId,
-                        $storeId
-                    );
-                    
-                    $partnerInvoiceId = $this->createErpAddress($billing, $partnerId, $customerId, $billingAddresssId, $storeId);
-                } else {
-                    $partnerInvoiceId = $this->createErpAddress($billing, $partnerId, $customerId, $billingAddresssId, $storeId);
-                    $partnerShippingId = $partnerInvoiceId;
-                }
+            }
+        }
+        if (!$partnerId) {
+            $partnerId = $magerpsync->odooCustomerCreate($customerArray, $customerId, 'customer', $storeId);
+        }
+        if ($partnerId){
+            $partnerInvoiceId = $this->createErpAddress(
+                $billing, 
+                $partnerId, 
+                $customerId, 
+                $billingAddresssId, 
+                $storeId
+            );
+            $isDifferent = $this->checkAddresses($thisOrder);
+            if ($isDifferent == true) {
+                $partnerShippingId = $this->createErpAddress(
+                    $shipping,
+                    $partnerId,
+                    $customerId,
+                    $shippingAddressId,
+                    $storeId
+                );
+                
             } else {
-                $customerArray =  [
-                        'name'=>new xmlrpcval(urlencode($thisOrder->getCustomerName()), "string"),
-                        'email'=>new xmlrpcval(urlencode($thisOrder->getCustomerEmail()), "string"),
-                        'is_company'=>new xmlrpcval(false, "boolean"),
-                    ];
-                $partnerId = $magerpsync->odooCustomerCreate($customerArray, $customerId, 'customer', $storeId);
-
-                $isDifferent = $this->checkAddresses($thisOrder);
-                $billingAddresssId =  $billing->getCustomerAddressId();
-                if ($isDifferent == true) {
-                    $shippingAddressId = $shipping->getCustomerAddressId();
-                    $partnerShippingId = $this->createErpAddress(
-                        $shipping,
-                        $partnerId,
-                        $customerId,
-                        $shippingAddressId,
-                        $storeId
-                    );
-                    
-                    $partnerInvoiceId = $this->createErpAddress($billing, $partnerId, $customerId, $billingAddresssId, $storeId);
-                } else {
-                    $partnerInvoiceId = $this->createErpAddress($billing, $partnerId, $customerId, $billingAddresssId, $storeId);
-                    $partnerShippingId = $partnerInvoiceId;
-                }
+                $partnerShippingId = $partnerInvoiceId;
             }
         }
 
@@ -910,7 +889,7 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $erpCusId = 0;
         $addressArray = [];
         $addressArray = $this->customerAddressArray($flatAddress);
-       
+
         if ($mageAddressId > -1) {
             $addresscollection =  $this->_customerModel
                                         ->getCollection()
@@ -970,7 +949,6 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             'email'=>new xmlrpcval($email, "string"),
             'zip'=>new xmlrpcval($flatAddress->getPostcode(), "string"),
             'phone'=>new xmlrpcval($flatAddress->getTelephone(), "string"),
-            'fax'=>new xmlrpcval($flatAddress->getFax(), "string"),
             'country_code'=>new xmlrpcval($flatAddress->getCountryId(), "string"),
             'region'=>new xmlrpcval($region, "string"),
             'wk_company'=>new xmlrpcval($company, "string"),

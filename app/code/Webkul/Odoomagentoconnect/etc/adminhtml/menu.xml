@@ -13,23 +13,21 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
 	<menu>
-		<add id="Webkul_Odoomagentoconnect::manager" title="Odoo Connector 2.5.3" module="Webkul_Odoomagentoconnect" sortOrder="10" resource="Webkul_Odoomagentoconnect::manager"/>
+		<add id="Webkul_Odoomagentoconnect::manager" title="Odoo Connector 2.5.5" module="Webkul_Odoomagentoconnect" sortOrder="10" resource="Webkul_Odoomagentoconnect::manager"/>
 			<add id="Webkul_Odoomagentoconnect::catalog" title="Catalog" module="Webkul_Odoomagentoconnect" sortOrder="1" parent="Webkul_Odoomagentoconnect::manager" resource="Webkul_Odoomagentoconnect::catalog"/>
 				<add id="Webkul_Odoomagentoconnect::category" title="Product Category" module="Webkul_Odoomagentoconnect" sortOrder="1" parent="Webkul_Odoomagentoconnect::catalog" action="odoomagentoconnect/category" resource="Webkul_Odoomagentoconnect::category"/>
-			
-				<add id="Webkul_Odoomagentoconnect::products" title="Products" module="Webkul_Odoomagentoconnect" sortOrder="2" parent="Webkul_Odoomagentoconnect::catalog" resource="Webkul_Odoomagentoconnect::products"/>
-					<add id="Webkul_Odoomagentoconnect::product" title="Simple Products" module="Webkul_Odoomagentoconnect" sortOrder="1" parent="Webkul_Odoomagentoconnect::products" action="odoomagentoconnect/product" resource="Webkul_Odoomagentoconnect::product"/>
-					<add id="Webkul_Odoomagentoconnect::template" title="Configurable Products" module="Webkul_Odoomagentoconnect" sortOrder="2" parent="Webkul_Odoomagentoconnect::products" action="odoomagentoconnect/template" resource="Webkul_Odoomagentoconnect::template"/>
+				<add id="Webkul_Odoomagentoconnect::product" title="Simple Products" module="Webkul_Odoomagentoconnect" sortOrder="1" parent="Webkul_Odoomagentoconnect::catalog" action="odoomagentoconnect/product" resource="Webkul_Odoomagentoconnect::product"/>
+				<add id="Webkul_Odoomagentoconnect::template" title="Configurable Products" module="Webkul_Odoomagentoconnect" sortOrder="2" parent="Webkul_Odoomagentoconnect::catalog" action="odoomagentoconnect/template" resource="Webkul_Odoomagentoconnect::template"/>
 					
-				<add id="Webkul_Odoomagentoconnect::attributes" title="Attribute" module="Webkul_Odoomagentoconnect" sortOrder="3" parent="Webkul_Odoomagentoconnect::catalog" resource="Webkul_Odoomagentoconnect::attributes"/>
+				<add id="Webkul_Odoomagentoconnect::attributes" title="Attribute" module="Webkul_Odoomagentoconnect" sortOrder="2" parent="Webkul_Odoomagentoconnect::manager" resource="Webkul_Odoomagentoconnect::attributes"/>
 					<add id="Webkul_Odoomagentoconnect::set" title="Sets" module="Webkul_Odoomagentoconnect" sortOrder="1" parent="Webkul_Odoomagentoconnect::attributes" action="odoomagentoconnect/set" resource="Webkul_Odoomagentoconnect::set"/>
 					<add id="Webkul_Odoomagentoconnect::attribute" title="Attributes" module="Webkul_Odoomagentoconnect" sortOrder="2" parent="Webkul_Odoomagentoconnect::attributes" action="odoomagentoconnect/attribute" resource="Webkul_Odoomagentoconnect::attribute"/>
 					<add id="Webkul_Odoomagentoconnect::option" title="Attribute Label/Options" module="Webkul_Odoomagentoconnect" sortOrder="3" parent="Webkul_Odoomagentoconnect::attributes" action="odoomagentoconnect/option" resource="Webkul_Odoomagentoconnect::option"/>
 
-			<add id="Webkul_Odoomagentoconnect::wkcustomers" title="Customers" module="Webkul_Odoomagentoconnect" sortOrder="2" parent="Webkul_Odoomagentoconnect::manager" resource="Webkul_Odoomagentoconnect::wkcustomers"/>
+			<add id="Webkul_Odoomagentoconnect::wkcustomers" title="Customers" module="Webkul_Odoomagentoconnect" sortOrder="3" parent="Webkul_Odoomagentoconnect::manager" resource="Webkul_Odoomagentoconnect::wkcustomers"/>
 				<add id="Webkul_Odoomagentoconnect::customers" title="Customer" module="Webkul_Odoomagentoconnect" sortOrder="1" parent="Webkul_Odoomagentoconnect::wkcustomers" action="odoomagentoconnect/customer" resource="Webkul_Odoomagentoconnect::customers"/>
 
-			<add id="Webkul_Odoomagentoconnect::general" title="General" module="Webkul_Odoomagentoconnect" sortOrder="3" parent="Webkul_Odoomagentoconnect::manager" resource="Webkul_Odoomagentoconnect::general"/>
+			<add id="Webkul_Odoomagentoconnect::general" title="General" module="Webkul_Odoomagentoconnect" sortOrder="5" parent="Webkul_Odoomagentoconnect::manager" resource="Webkul_Odoomagentoconnect::general"/>
 				<add id="Webkul_Odoomagentoconnect::currency" title="Currency" module="Webkul_Odoomagentoconnect" sortOrder="1" parent="Webkul_Odoomagentoconnect::general" action="odoomagentoconnect/currency" resource="Webkul_Odoomagentoconnect::currency"/>
 
 			<add id="Webkul_Odoomagentoconnect::sales" title="Sales" module="Webkul_Odoomagentoconnect" sortOrder="4" parent="Webkul_Odoomagentoconnect::manager" resource="Webkul_Odoomagentoconnect::sales"/>
@@ -38,8 +36,8 @@
 				<add id="Webkul_Odoomagentoconnect::carrier" title="Delivery Method" module="Webkul_Odoomagentoconnect" sortOrder="4" parent="Webkul_Odoomagentoconnect::sales" action="odoomagentoconnect/carrier" resource="Webkul_Odoomagentoconnect::carrier"/>
 				<add id="Webkul_Odoomagentoconnect::payment" title="Payment Method" module="Webkul_Odoomagentoconnect" sortOrder="5" parent="Webkul_Odoomagentoconnect::sales" action="odoomagentoconnect/payment" resource="Webkul_Odoomagentoconnect::payment"/>
 
-			<add id="Webkul_Odoomagentoconnect::configuration" title="Configuration" module="Webkul_Odoomagentoconnect" sortOrder="5" parent="Webkul_Odoomagentoconnect::manager" resource="Webkul_Odoomagentoconnect::configuration"/>
+			<add id="Webkul_Odoomagentoconnect::configuration" title="Configuration" module="Webkul_Odoomagentoconnect" sortOrder="6" parent="Webkul_Odoomagentoconnect::manager" resource="Webkul_Odoomagentoconnect::configuration"/>
 				<add id="Webkul_Odoomagentoconnect::system_config" title="Odoo Configuration" module="Webkul_Odoomagentoconnect" sortOrder="1" parent="Webkul_Odoomagentoconnect::configuration" action="adminhtml/system_config/edit/section/odoomagentoconnect" resource="Webkul_Odoomagentoconnect::config"/>
-			<add id="Webkul_Odoomagentoconnect::synchronization_logs" title="Synchronization Logs" module="Webkul_Odoomagentoconnect" sortOrder="1" parent="Webkul_Odoomagentoconnect::configuration" action="odoomagentoconnect/logs" resource="Webkul_Odoomagentoconnect::logs"/>
+				<add id="Webkul_Odoomagentoconnect::synchronization_logs" title="Synchronization Logs" module="Webkul_Odoomagentoconnect" sortOrder="1" parent="Webkul_Odoomagentoconnect::configuration" action="odoomagentoconnect/logs" resource="Webkul_Odoomagentoconnect::logs"/>
 	</menu>
 </config>
