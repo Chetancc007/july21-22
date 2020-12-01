@@ -64,6 +64,6 @@
 .stock.unavailable{
     color: red !important;
 }
-.product-image-photo.default_image{
+#layer-product-list .product-image-photo.default_image{
     z-index: -1 !important;
 }
