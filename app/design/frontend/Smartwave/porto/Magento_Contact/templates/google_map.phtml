@@ -29,15 +29,29 @@
             map: map,
             title: '<?php echo $_address; ?>'
         });
+
+        var mapProp= {
+          center:new google.maps.LatLng(44.0521848,-121.3319407),
+          zoom:5,
+        };
+        var pos1 = new google.maps.LatLng(44.0521848,-121.3319407);
+        var map = new google.maps.Map(document.getElementById("googleMap"),mapProp);
+        var marker = new google.maps.Marker({
+        position: pos1,
+        map: map,
+        title: '<?php echo "Cascade Rack Warehouse and Installation, 170 SE 9th Street, Bend, OR 97702"; ?>'
+        });
     }
     google.maps.event.addDomListener(window, 'load', initialize);
 </script>
 <?php if(!$_full_width): ?>
 <div class="container">
 <?php endif; ?>
-<div id="store_map" style="min-height: 300px; width: 100%;"></div>
+<div id="store_map" style="min-height: 300px;width: 49.5%;position: relative;overflow: hidden;float: left;"></div>
+<div id="googleMap" style="min-height: 300px;width: 49.5%;position: relative;overflow: hidden;float: right;"></div>
 <?php if(!$_full_width): ?>
 </div>
+<div class="container"><div style="width: 49.5%;position: relative;overflow: hidden;float: left;"><?php echo $_address; ?></div><div style="width: 49.5%;position: relative;overflow: hidden;float: right;"><?php echo "Cascade Rack Warehouse and Installation, 170 SE 9th Street, Bend, OR 97702"; ?></div></div>
 <?php endif; ?>
 <?php
     }

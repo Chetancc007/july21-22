@@ -20,7 +20,8 @@
 }
 
 .footer-middle{
-	padding: 44px 0 0 !important;
+	/*padding: 44px 0 0 !important;*/
+    padding: 20px 0 0 !important;
 }
 .footer-middle > .container:after {
     margin-top: 12px !important;
@@ -44,4 +45,11 @@
 .custom-pages-style ul{
     line-height: 22px;
     text-align: justify;
+}
+.footer-bottom {
+    min-height: auto !important;
+    padding: 0px !important;
+}
+.product-item-photo .product-item-inner {
+    z-index: 0 !important;
 }
