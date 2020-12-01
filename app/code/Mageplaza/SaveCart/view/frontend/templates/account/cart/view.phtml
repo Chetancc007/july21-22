@@ -1,0 +1,90 @@
+<?php
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_SaveCart
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+/** @var \Mageplaza\SaveCart\Block\Account\Cart\View $block */
+
+?>
+
+<div class="cart-description"><?= $block->escapeHtml($block->getCartDescription()) ?></div>
+<div class="cart-date">
+    <?= /* @noEscape */ __($block->formatDate($block->getCartCreated(), IntlDateFormatter::LONG))  ?>
+</div>
+<div class="actions">
+        <a href="<?= $block->escapeUrl($block->getBackUrl()) ?>" class="action back">
+            <span><?= /* @noEscape */ __('Back') ?></span>
+        </a>
+    <a class="action restore" href="<?=  $block->escapeUrl($block->getRestoreUrl()) ?>">
+        <span><?= /* @noEscape */ __('Restore') ?></span>
+    </a>
+</div>
+<div class="mp-cart-view-table">
+    <div class="table-wrapper order-items">
+            <?php $items = $block->getItems(); ?>
+            <div class="table-wrapper history-recent">
+                <table class="data table table-history-products">
+                    <caption class="table-caption"><?= /* @noEscape */ __('Cart') ?></caption>
+                    <thead>
+                    <tr>
+                        <th scope="col" class="col name"><?= /* @noEscape */ __('Product Name') ?></th>
+                        <th scope="col" class="col sku"><?= /* @noEscape */ __('SKU') ?></th>
+                        <th scope="col" class="col image"><?= /* @noEscape */ __('Image') ?></th>
+                        <th scope="col" class="col price"><?= /* @noEscape */ __('Price') ?></th>
+                        <th scope="col" class="col qty"><?= /* @noEscape */ __('Qty') ?></th>
+                        <th scope="col" class="col subtotal"><?= /* @noEscape */ __('Subtotal') ?></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($items as $item): ?>
+                        <tr>
+                            <td data-th="<?= /* @noEscape */ __('Product Name') ?>" class="col name">
+                                <?= $block->escapeHtml($block->getProductName($item)) ?>
+                            </td>
+                            <td data-th="<?= /* @noEscape */ __('SKU') ?>" class="col sku">
+                                <?= $block->escapeHtml($block->getSku($item)) ?>
+                            </td>
+                            <td data-th="<?= /* @noEscape */ __('Image') ?>" class="col image">
+                                <img src="<?= $block->escapeUrl($block->getImage($item)) ?>" alt="Image">
+                            </td>
+                            <td data-th="<?= /* @noEscape */ __('Price') ?>" class="col price">
+                                <?= /* @noEscape */ $block->getPrice($item) ?>
+                            </td>
+                            <td data-th="<?= /* @noEscape */ __('Qty') ?>" class="col qty">
+                                <?= /* @noEscape */ $item['qty'] ?>
+                            </td>
+                            <td data-th="<?= /* @noEscape */ __('Subtotal') ?>" class="col subtotal">
+                                <?= /* @noEscape */ $block->getSubtotalConverted($item) ?>
+                            </td>
+
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                    <tfoot>
+                    <tr class="subtotal">
+                        <th colspan="5" class="mark" scope="row"><?= /* @noEscape */__('Subtotal')?></th>
+                        <td class="amount" data-th="Subtotal">
+                            <span class="price"><?= /* @noEscape */$block->getCartTotal() ?></span>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+    </div>
+</div>

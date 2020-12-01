@@ -1,0 +1,19 @@
+"Check Bucket Availabilty","Check Bucket Availabilty"
+Header,Header
+Value,Value
+"Add Custom Header","Add Custom Header"
+"Magecomp S3Amazon","Magecomp S3Amazon"
+"S3 Amazon","S3 Amazon"
+Configuration,Configuration
+"Allowed File to save on Amazon","Allowed File to save on Amazon"
+"Access Key","Access Key"
+"Secret Key","Secret Key"
+Bucket,Bucket
+Region,Region
+"Request Timeout","Request Timeout"
+"A unique, time-sensitive, URL is generated every time a customer attempts to download a file.  This value indicates the number of seconds for which you'd like the generated URL to be valid.","A unique, time-sensitive, URL is generated every time a customer attempts to download a file.  This value indicates the number of seconds for which you'd like the generated URL to be valid."
+Prefix,Prefix
+"Enable Custom Endpoint","Enable Custom Endpoint"
+"Custom Endpoint","Custom Endpoint"
+"Don't include the http:// or https:// prefix.","Don't include the http:// or https:// prefix."
+"Custom Headers","Custom Headers"

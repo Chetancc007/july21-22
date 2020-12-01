@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.LocationsInterface.php
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_SaveCart
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route url="/V1/mpSaveCart/configs" method="GET">
+        <service class="Mageplaza\SaveCart\Api\ConfigManagementInterface" method="get"/>
+        <resources>
+            <resource ref="Mageplaza_SaveCart::configuration"/>
+        </resources>
+    </route>
+    <route url="/V1/mpSaveCart/mine/carts" method="GET">
+        <service class="Mageplaza\SaveCart\Api\SaveCartRepositoryInterface" method="getList"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+        <data>
+            <parameter name="customerId" force="true">%customer_id%</parameter>
+        </data>
+    </route>
+    <route url="/V1/mpSaveCart/mine/products" method="GET">
+        <service class="Mageplaza\SaveCart\Api\SaveProductRepositoryInterface" method="getList"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+        <data>
+            <parameter name="customerId" force="true">%customer_id%</parameter>
+        </data>
+    </route>
+    <route url="/V1/mpSaveCart/mine/products/restore" method="POST">
+        <service class="Mageplaza\SaveCart\Api\SaveProductRepositoryInterface" method="restore"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+        <data>
+            <parameter name="customerId" force="true">%customer_id%</parameter>
+            <parameter name="cartId" force="true">%cart_id%</parameter>
+        </data>
+    </route>
+    <route url="/V1/mpSaveCart/mine/products/:token" method="DELETE">
+        <service class="Mageplaza\SaveCart\Api\SaveProductRepositoryInterface" method="delete"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+        <data>
+            <parameter name="customerId" force="true">%customer_id%</parameter>
+        </data>
+    </route>
+    <route url="/V1/mpSaveCart/mine/carts/view/:token" method="GET">
+        <service class="Mageplaza\SaveCart\Api\SaveCartRepositoryInterface" method="get"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+        <data>
+            <parameter name="customerId" force="true">%customer_id%</parameter>
+        </data>
+    </route>
+    <route url="/V1/mpSaveCart/mine/carts/restore" method="POST">
+        <service class="Mageplaza\SaveCart\Api\SaveCartRepositoryInterface" method="restore"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+        <data>
+            <parameter name="customerId" force="true">%customer_id%</parameter>
+            <parameter name="cartId" force="true">%cart_id%</parameter>
+        </data>
+    </route>
+    <route url="/V1/mpSaveCart/mine/carts/:token" method="DELETE">
+        <service class="Mageplaza\SaveCart\Api\SaveCartRepositoryInterface" method="delete"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+        <data>
+            <parameter name="customerId" force="true">%customer_id%</parameter>
+        </data>
+    </route>
+    <route url="/V1/mpSaveCart/mine/carts/share" method="POST">
+        <service class="Mageplaza\SaveCart\Api\SaveCartRepositoryInterface" method="share"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+        <data>
+            <parameter name="cartId" force="true">%cart_id%</parameter>
+        </data>
+    </route>
+    <route url="/V1/mpSaveCart/mine/products/share" method="POST">
+        <service class="Mageplaza\SaveCart\Api\SaveProductRepositoryInterface" method="share"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+        <data>
+            <parameter name="cartId" force="true">%cart_id%</parameter>
+        </data>
+    </route>
+    <route url="/V1/mpSaveCart/mine/carts/mine/items/save" method="POST">
+        <service class="Mageplaza\SaveCart\Api\SaveProductRepositoryInterface" method="save"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+        <data>
+            <parameter name="customerId" force="true">%customer_id%</parameter>
+            <parameter name="cartId" force="true">%cart_id%</parameter>
+        </data>
+    </route>
+    <route url="/V1/mpSaveCart/mine/carts/mine/save" method="POST">
+        <service class="Mageplaza\SaveCart\Api\SaveCartRepositoryInterface" method="save"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+        <data>
+            <parameter name="customerId" force="true">%customer_id%</parameter>
+            <parameter name="cartId" force="true">%cart_id%</parameter>
+        </data>
+    </route>
+</routes>

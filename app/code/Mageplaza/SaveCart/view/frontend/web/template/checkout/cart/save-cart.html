@@ -1,0 +1,62 @@
+<!--
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_SaveCart
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+ -->
+
+<button class="mpsavecart-toggle" data-bind="afterRender: moveButton , text: addLabel, click:showModal">
+</button>
+<div class="mpsavecart-modal" data-bind="afterRender: setModalElement">
+    <form class="form savecart"
+          id="form-savecart"
+          method="post"
+          data-bind="attr : {action : saveCartUrl}">
+        <fieldset class="fieldset">
+            <input data-bind='attr: {value: formKey}' type="hidden" name="form_key"/>
+            <div class="field emails required">
+                <label class="label" for="mpsavecart-name"><span data-bind="i18n: 'Cart Name'"></span></label>
+                <p class="note">
+                    <span data-bind="i18n: '( Must be unique )'"></span>
+                </p>
+                <div class="control">
+                    <input type="text" name="mpsavecart-name" id="mpsavecart-name" required/>
+                </div>
+
+            </div>
+            <div class="field text">
+                <label class="label" for="mpsavecart-description"><span data-bind="i18n: 'Description'"></span></label>
+                <div class="control">
+                    <textarea id="mpsavecart-description" name="mpsavecart-description" cols="60" rows="5"></textarea>
+                </div>
+            </div>
+            <p class="note">
+                <span data-bind="i18n: 'Maximum number of characters must be between 1 and 255'"></span>
+            </p>
+        </fieldset>
+        <div class="mpsavecart-model-button">
+            <button class="action primary" type="submit">
+                <span data-bind="i18n: 'Save'"></span>
+            </button>
+            <button class="action cancel" type="button" data-role="action" data-bind="click: closeModal">
+                <span data-bind="i18n: 'Cancel'"></span>
+            </button>
+        </div>
+
+    </form>
+</div>

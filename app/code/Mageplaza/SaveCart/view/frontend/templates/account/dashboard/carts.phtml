@@ -1,0 +1,97 @@
+<?php
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_SaveCart
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+/** @var \Mageplaza\SaveCart\Block\Account\Dashboard\Carts $block */
+
+$carts = $block->getCarts();
+
+?>
+
+<div class="block block-dashboard-history">
+    <div class="block-title">
+        <strong><?= /* @noEscape */ __('Saved Carts') ?></strong>
+    </div>
+    <div class="block-content">
+        <?php if ($carts->getSize()): ?>
+            <div class="table-wrapper history-recent">
+                <table class="data table table-history-products">
+                    <caption class="table-caption"><?= /* @noEscape */ __('Carts Table') ?></caption>
+                    <thead>
+                    <tr>
+                        <th scope="col" class="col id"><?= /* @noEscape */ __('Cart ID') ?></th>
+                        <th scope="col" class="col date"><?= /* @noEscape */ __('Date') ?></th>
+                        <th scope="col" class="col name"><?= /* @noEscape */ __('Cart Name') ?></th>
+                        <th scope="col" class="col total"><?= /* @noEscape */ __('Cart Total') ?></th>
+                        <th scope="col" class="col item"><?= /* @noEscape */ __('Item(s)') ?></th>
+                        <th scope="col" class="col description"><?= /* @noEscape */ __('Description') ?></th>
+                        <th scope="col" class="col action"><?= /* @noEscape */ __('Action') ?></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($carts as $cart): ?>
+                        <tr>
+                            <td data-th="<?= /* @noEscape */ __('Cart ID') ?>" class="col id">
+                                <?= $block->escapeHtml($cart->getId()) ?>
+                            </td>
+                            <td data-th="<?= /* @noEscape */ __('Date') ?>" class="col date">
+                                <?=  $block->escapeHtml($block->formatDate($cart->getCreatedDate(), IntlDateFormatter::MEDIUM)) ?>
+                            </td>
+                            <td data-th="<?= /* @noEscape */ __('Cart Name') ?>" class="col name">
+                                <?= $block->escapeHtml($cart->getCartName()) ?>
+                            </td>
+                            <td data-th="<?= /* @noEscape */ __('Cart Total') ?>" class="col total">
+                                <?= /* @noEscape */ $block->getCartTotal($cart)?>
+                            </td>
+                            <td data-th="<?= /* @noEscape */ __('Item(s)') ?>" class="col item">
+                                <?= /* @noEscape */$block->getItems($cart)?>
+                            </td>
+                            <td data-th="<?= /* @noEscape */ __('Description') ?>" class="col description">
+                                <?= $block->escapeHtml($cart->getDescription())?>
+                            </td>
+                            <td data-th="<?= /* @noEscape */ __('Actions') ?>" class="col actions">
+                                <a href="<?= $block->escapeUrl($block->getViewUrl($cart)) ?>" class="action view">
+                                    <span><?= /* @noEscape */ __('View') ?></span>
+                                </a>
+                                <?php  if ($block->allowShare()): ?>
+                                <a href="javascript:void(0)" class="action share" data-share-url= "<?= $block->escapeUrl($block->getShareUrl($cart))?>">
+                                    <span><?= /* @noEscape */ __('Copy Link') ?></span>
+                                </a>
+                                <?php endif ?>
+                                <a href="<?= $block->escapeUrl($block->getRestoreUrl($cart))?>" class="action restore">
+                                    <span><?= /* @noEscape */ __('Restore') ?></span>
+                                </a>
+                                <a href="javascript:void(0)" data-name="cart" data-delete-url="<?= $block->escapeUrl($block->getDeleteUrl($cart)) ?>" class="action delete">
+                                    <span><?= /* @noEscape */ __('Delete') ?></span>
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            <?php if ($block->getPagerHtml()): ?>
+                <div class="history-toolbar toolbar bottom"><?= /* @noEscape */ $block->getPagerHtml() ?></div>
+            <?php endif ?>
+        <?php else: ?>
+            <div class="message info empty"><span><?= /* @noEscape */ __('Your Saved Carts List is empty.') ?></span></div>
+        <?php endif; ?>
+    </div>
+</div>

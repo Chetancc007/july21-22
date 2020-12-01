@@ -1,0 +1,68 @@
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_SaveCart
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+.mp-save-cart-content{
+    width:60%;
+    margin:0 auto;
+}
+
+.mpsavecart-model-button .cancel{
+    float:right;
+}
+
+.savecart .fieldset .note {
+    font-style: italic;
+    font-size: 12px;
+}
+
+.cart.table-wrapper .action-to-productlist img{
+    display:none;
+}
+
+
+@media only screen and (max-width: 767px) {
+    .modal-popup.modal-slide._inner-scroll._show {
+        margin-right: unset;
+        -webkit-overflow-scrolling: touch;
+        overflow-y: auto;
+    }
+
+    .cart.table-wrapper .action-to-productlist span {
+        display:none;
+    }
+
+    .cart.table-wrapper .action-to-productlist img{
+        display:inline-block;
+        height: 20px;
+        width: 18px;
+    }
+
+    .cart.table-wrapper .action-to-productlist{
+        position: absolute;
+        margin-left:30px;
+    }
+
+    .gift-options-cart-item {
+        width: auto;
+    }
+    .gift-options-cart-item+.towishlist{
+        position: initial;
+    }
+}

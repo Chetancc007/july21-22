@@ -1,0 +1,57 @@
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_SaveCart
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+.mp-cart-view-table {
+    padding: 20px 20px 40px 20px;
+    border: 1px solid #cccccc
+}
+
+a.action.restore {
+    float: right;
+}
+
+.cart-description {
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.cart-date {
+    margin-bottom: 15px;
+}
+
+.actions {
+    margin-bottom: 10px;
+}
+
+td.amount {
+    float: right;
+}
+
+td.price, td.price, td.subtotal, .table tfoot .mark{
+    font-weight: 600;
+}
+
+.table tfoot > tr:first-child th, .table tfoot > tr:first-child td{
+    border-top:unset;
+}
+
+td.image img{
+    width:40px;
+}

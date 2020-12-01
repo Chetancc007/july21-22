@@ -1,0 +1,78 @@
+"Buy Later Notes","Buy Later Notes"
+ID,ID
+"Created At","Created At"
+"Cart Name","Cart Name"
+Items,Items
+Description,Description
+"Total Price","Total Price"
+Action,Action
+"Are you sure you want to remove this item?","Are you sure you want to remove this item?"
+Thumbnail,Thumbnail
+Name,Name
+SKU,SKU
+"Amount Change","Amount Change"
+Quantity,Quantity
+"Save Cart","Save Cart"
+"Cannot add to cart","Cannot add to cart"
+"Delete Successfully","Delete Successfully"
+"Restore Successfully. Please go to View Cart Page to view updates","Restore Successfully. Please go to View Cart Page to view updates"
+"Sharing is disabled","Sharing is disabled"
+"Save Cart is turned off.","Save Cart is turned off."
+"The requested cart item doesn't exist.","The requested cart item doesn't exist."
+"%1 has been moved to your Saved Products List.","%1 has been moved to your Saved Products List."
+"This item cannot be moved to your Saved Products List.","This item cannot be moved to your Saved Products List."
+"Cart Name has already existed","Cart Name has already existed"
+"Cannot add this product to cart","Cannot add this product to cart"
+"Buy Product Icon","Buy Product Icon"
+"The module is disabled","The module is disabled"
+"Token is required","Token is required"
+"Cart does not exist","Cart does not exist"
+"Cart name must not empty","Cart name must not empty"
+"Cart empty","Cart empty"
+"Product does not exist","Product does not exist"
+"itemId is required","itemId is required"
+"-- Please select an option --","-- Please select an option --"
+TopLink,TopLink
+"Footer Link","Footer Link"
+"Something went wrong while saving object. Token exist","Something went wrong while saving object. Token exist"
+"Saved Carts","Saved Carts"
+"Saved Products","Saved Products"
+Back,Back
+Restore,Restore
+Cart,Cart
+"Product Name","Product Name"
+Image,Image
+Price,Price
+Qty,Qty
+Subtotal,Subtotal
+"Carts Table","Carts Table"
+"Cart ID","Cart ID"
+Date,Date
+"Cart Total","Cart Total"
+Item(s),Item(s)
+Actions,Actions
+View,View
+"Copy Link","Copy Link"
+Delete,Delete
+"Your Saved Carts List is empty.","Your Saved Carts List is empty."
+"Products Table","Products Table"
+"Your Saved Products List is empty.","Your Saved Products List is empty."
+"Buy Later","Buy Later"
+"( Must be unique )","( Must be unique )"
+"Maximum number of characters must be between 1 and 255","Maximum number of characters must be between 1 and 255"
+Save,Save
+Cancel,Cancel
+Copied!,Copied!
+"Are you sure you want to delete this ","Are you sure you want to delete this "
+"Save Cart And Buy Later","Save Cart And Buy Later"
+"General Configuration","General Configuration"
+Enable,Enable
+"Select <strong>Yes</strong> to enable the module.","Select <strong>Yes</strong> to enable the module."
+"Button Title","Button Title"
+"Show Button for Guest","Show Button for Guest"
+"Display Save Cart Button to guest visitors at the View Cart Page. When clicking on the button, a guest will be required to login to save the cart.","Display Save Cart Button to guest visitors at the View Cart Page. When clicking on the button, a guest will be required to login to save the cart."
+"Show Buy Later Notes Page Link","Show Buy Later Notes Page Link"
+"Allow Sharing","Allow Sharing"
+"If Yes, Copy Link will be displayed at Buy Later Notes section of customers. Customers can use this link to share the saved cart/product.","If Yes, Copy Link will be displayed at Buy Later Notes section of customers. Customers can use this link to share the saved cart/product."
+"Upload Buy Later Product Icon","Upload Buy Later Product Icon"
+"Displayed at the responsive or mobile mode. Recommended size: 20x20 px. Format: JPG, PNG, GIF . If no file is chosen, the default icon will be used.","Displayed at the responsive or mobile mode. Recommended size: 20x20 px. Format: JPG, PNG, GIF . If no file is chosen, the default icon will be used."

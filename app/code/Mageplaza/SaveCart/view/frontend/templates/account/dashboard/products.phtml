@@ -1,0 +1,152 @@
+<?php
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_SaveCart
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+/** @var \Mageplaza\SaveCart\Block\Account\Dashboard\Products $block */
+
+$products = $block->getProducts();
+
+?>
+
+<div class="block block-dashboard-history">
+    <div class="block-title">
+        <strong><?= /* @noEscape */ __('Saved Products') ?></strong>
+    </div>
+    <div class="block-content">
+        <?php if ($products->getSize()): ?>
+            <div class="table-wrapper history-recent">
+                <table class="data table table-history-products">
+                    <caption class="table-caption"><?= /* @noEscape */ __('Products Table') ?></caption>
+                    <thead>
+                    <tr>
+                        <th scope="col" class="col name"><?= /* @noEscape */ __('Product Name') ?></th>
+                        <th scope="col" class="col sku"><?= /* @noEscape */ __('SKU') ?></th>
+                        <th scope="col" class="col image"><?= /* @noEscape */ __('Image') ?></th>
+                        <th scope="col" class="col price"><?= /* @noEscape */ __('Price') ?></th>
+                        <th scope="col" class="col qty"><?= /* @noEscape */ __('Qty') ?></th>
+                        <th scope="col" class="col subtotal"><?= /* @noEscape */ __('Subtotal') ?></th>
+                        <th scope="col" class="col action"><?= /* @noEscape */ __('Action') ?></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($products as $item): ?>
+                        <tr>
+                            <td data-th="<?= /* @noEscape */ __('Product Name') ?>" class="col name">
+                                <a href="<?= $block->escapeUrl($block->getProductUrl($item)) ?>">
+                                    <?= $block->escapeHtml($block->getProductName($item)) ?>
+                                </a>
+                            </td>
+                            <td data-th="<?= /* @noEscape */ __('SKU') ?>" class="col sku">
+                                <?= $block->escapeHtml($item->getSku()) ?>
+                            </td>
+                            <td data-th="<?= /* @noEscape */ __('Image') ?>" class="col image">
+                                <img src="<?= $block->escapeUrl($block->getImage($item)) ?>" alt="<?= $block->escapeHtml($item->getName())?>" width="40px">
+                            </td>
+                            <td data-th="<?= /* @noEscape */ __('Price') ?>" class="col price">
+                                <?= /* @noEscape */ $block->getPrice($item) ?>
+                            </td>
+                            <td data-th="<?= /* @noEscape */ __('Qty') ?>" class="col qty">
+                                <?= $block->escapeHtml($item->getQty()) ?>
+                            </td>
+                            <td data-th="<?= /* @noEscape */ __('Subtotal') ?>" class="col subtotal">
+                                <?= /* @noEscape */ $block->getSubtotalConverted($item) ?>
+                            </td>
+                            <td data-th="<?= /* @noEscape */ __('Actions') ?>" class="col actions">
+                                <?php  if ($block->allowShare()): ?>
+                                <a href="javascript:void(0)" class="action share" data-share-url="<?= $block->escapeUrl($block->getShareUrl($item))?>">
+                                    <span><?= /* @noEscape */ __('Copy Link') ?></span>
+                                </a>
+                                <?php endif; ?>
+                                <a href="<?= $block->escapeUrl($block->getRestoreUrl($item))?>" class="action restore">
+                                    <span><?= /* @noEscape */ __('Restore') ?></span>
+                                </a>
+                                <a href="javascript:void(0)" data-name="product" data-delete-url="<?= $block->escapeUrl($block->getDeleteUrl($item))?>" class="action delete">
+                                    <span><?= /* @noEscape */ __('Delete') ?></span>
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            <?php if ($block->getPagerHtml()): ?>
+                <div class="history-toolbar toolbar bottom"><?= /* @noEscape */ $block->getPagerHtml() ?></div>
+            <?php endif ?>
+        <?php else: ?>
+            <div class="message info empty"><span><?= /* @noEscape */ __('Your Saved Products List is empty.') ?></span></div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<script type="text/javascript">
+    require([
+        'jquery',
+        'mage/translate',
+        'Magento_Ui/js/modal/confirm'
+    ], function ($, $t, confirm) {
+        var tooltip = $('.action.share span'),
+            body = $('body');
+        body.on('click', '.action.share', function () {
+            var url = $(this).attr('data-share-url');
+            var productUrl = document.createElement('textarea');
+
+            productUrl.value = url;
+            document.body.appendChild(productUrl);
+            productUrl.select();
+            document.execCommand('copy');
+            document.body.removeChild(productUrl);
+
+            tooltip.addClass('mp-tooltip');
+            tooltip.attr('aria-label', $t('Copied!'));
+        });
+
+        body.on('mouseleave', '.action.share', function () {
+            tooltip.removeClass('mp-tooltip');
+            tooltip.attr('aria-label', '');
+        });
+
+        body.on('click', '.action.delete', function(){
+            var deleteUrl = $(this).attr('data-delete-url'),
+                name = $(this).attr('data-name');
+            confirm({
+                content: $t('Are you sure you want to delete this '+name+'?'),
+                actions: {
+
+                    /**
+                     * Confirmation handler
+                     *
+                     */
+                    confirm: function () {
+                        $.mage.redirect(deleteUrl);
+                    },
+
+                    /**
+                     * Cancel confirmation handler
+                     *
+                     */
+                    cancel: function (event) {
+                        if (event && !$(event.target).hasClass('action-close')) {
+                        }
+                    }
+                }
+            });
+        });
+    });
+</script>
