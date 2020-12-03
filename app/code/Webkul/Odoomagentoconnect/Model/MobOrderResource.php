@@ -35,15 +35,21 @@ class MobOrderResource implements MobOrderResourceInterface
         \Magento\Sales\Api\Data\OrderInterface $orderInterface,
         \Magento\Sales\Model\Service\InvoiceService $invoiceRepository,
         \Magento\Framework\DB\Transaction $invoiceTransaction,
-        \Magento\Sales\Model\Convert\Order $shipmentRepository
+        \Magento\Sales\Model\Convert\Order $shipmentRepository,
+        \Magento\Sales\Model\Order\Shipment\TrackFactory $trackFactory,
+        \Magento\Sales\Model\Order\Email\Sender\ShipmentSender $shipmentSender,
+        \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender
     ) {
     
         $this->mobOrderResourceFactory = $mobOrderResourceFactory;
         $this->_objectManager = $objectManager;
         $this->_orderInterface = $orderInterface;
         $this->_invoiceRepository = $invoiceRepository;
+        $this->_trackFactory = $trackFactory;
         $this->_invoiceTransaction = $invoiceTransaction;
         $this->_shipmentRepository = $shipmentRepository;
+        $this->shipmentSender = $shipmentSender;
+        $this->invoiceSender = $invoiceSender;
     }
 
     /**
@@ -80,6 +86,16 @@ class MobOrderResource implements MobOrderResourceInterface
             )->addObject(
                 $invoice->getOrder()
             )->save();
+
+            // send invoice emails
+            try {
+                if (isset($itemData['send_email'])) {
+                    $this->invoiceSender->send($invoice);
+                }
+            } catch (\Exception $e) {
+                $helper = $this->_objectManager->create('\Webkul\Odoomagentoconnect\Helper\Connection');
+                $helper->addError("$incrementId >> Invoice email is not sent.");
+            }
         }
         return true;
     }
@@ -98,6 +114,11 @@ class MobOrderResource implements MobOrderResourceInterface
     {
         $order = $this->_orderInterface->loadByIncrementId($incrementId);
         $shipmentId = 0;
+        $isNotify = false;
+        if (isset($itemData['send_email'])) {
+            $isNotify = $itemData['send_email'];
+            unset($itemData['send_email']);
+        }
         if ($order->canShip()) {
             $shipment = $this->_shipmentRepository->toShipment($order);
             foreach ($order->getAllItems() as $orderItem) {
@@ -105,9 +126,17 @@ class MobOrderResource implements MobOrderResourceInterface
                     continue;
                 }
                 $qtyShipped = 0;
-                if ($itemData){
+                if ($itemData) {
                     $sku = $orderItem->getSku();
-                    if(isset($itemData[$sku])){
+                    $prodType = $orderItem->getProductType();
+                    if ($prodType == 'bundle') {
+                        foreach($itemData as $key => $value ) {
+                            if (strpos($sku, $key) !== false) {
+                                $qtyShipped = $itemData[$key];
+                            }
+                            
+                        }
+                    } else if (isset($itemData[$sku])) {
                         $qtyShipped = $itemData[$sku];
                     }
                 } else {
@@ -128,7 +157,13 @@ class MobOrderResource implements MobOrderResourceInterface
             $shipment->register();
 
             $shipment->getOrder()->setIsInProcess(true);
-
+            if (isset($itemData['tracking_data'])) {
+                $trackingData = $itemData['tracking_data'];
+                if ($trackingData) {
+                    $track = $this->_trackFactory->create()->addData($trackingData);
+                    $shipment->addTrack($track);
+                }
+            }
             try {
                 $this->_invoiceTransaction->addObject(
                     $shipment
@@ -139,6 +174,16 @@ class MobOrderResource implements MobOrderResourceInterface
                 $shipmentId = $shipment->getId();
             } catch (\Exception $e) {
                 return false;
+            }
+
+            // send shipment emails
+            try {
+                if ($isNotify) {
+                    $this->shipmentSender->send($shipment);
+                }
+            } catch (\Exception $e) {
+                $helper = $this->_objectManager->create('\Webkul\Odoomagentoconnect\Helper\Connection');
+                $helper->addError("$incrementId >> Shipment email is not sent.");
             }
         }
         return $shipmentId;

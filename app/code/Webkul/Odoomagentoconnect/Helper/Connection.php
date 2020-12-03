@@ -56,6 +56,13 @@ class Connection extends \Magento\Search\Helper\Data
 
     public function getSocketConnect()
     {
+        if (!(self::$odooUrl && self::$odooDb && self::$odooUser && self::$odooPwd)) {
+            $userId = 0;
+            $this->getSession()->setUserId($userId);
+            $errorMessage = "Sorry, Unable to find odoo configuration, Please fill the odoo details in configuration.";
+            $this->getSession()->setErrorMessage($errorMessage);
+            return false;
+        }
         $userId = $this->getSession()->getUserId();
         $isSesson = $this->checkConfigurationChange();
         $errorMessage = "";
@@ -106,7 +113,7 @@ class Connection extends \Magento\Search\Helper\Data
             $msg2->addParam(new xmlrpcval(self::$odooDb, "string"));
             $msg2->addParam(new xmlrpcval($userId, "int"));
             $msg2->addParam(new xmlrpcval(self::$odooPwd, "string"));
-            $msg2->addParam(new xmlrpcval("magento.configure", "string"));
+            $msg2->addParam(new xmlrpcval("connector.instance", "string"));
             $msg2->addParam(new xmlrpcval("fetch_connection_info", "string"));
             $msg2->addParam(new xmlrpcval($fields, "struct"));
             $resp = $client->send($msg2);
@@ -131,6 +138,9 @@ class Connection extends \Magento\Search\Helper\Data
 
     public function getClientConnect()
     {
+        if (!self::$odooUrl) {
+            return false;
+        }
         $client = new xmlrpc_client(self::$odooUrl.":".self::$odooPort."/xmlrpc/object");
         $client->setSSLVerifyPeer(0);
         $client->setSSLVerifyHost(0);
@@ -139,6 +149,9 @@ class Connection extends \Magento\Search\Helper\Data
 
     public function getSocket()
     {
+        if (!self::$odooUrl) {
+            return false;
+        }
         $socket = new xmlrpc_client(self::$odooUrl.":".self::$odooPort."/xmlrpc/common");
         $socket->setSSLVerifyPeer(0);
         $socket->setSSLVerifyHost(0);

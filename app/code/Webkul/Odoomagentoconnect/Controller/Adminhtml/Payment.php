@@ -44,7 +44,6 @@ abstract class Payment extends \Magento\Backend\App\AbstractAction
         \Webkul\Odoomagentoconnect\Model\Payment $paymentMapping,
         \Webkul\Odoomagentoconnect\Model\PaymentFactory $paymentFactory
     ) {
-    
         parent::__construct($context);
         $this->_paymentMapping = $paymentMapping;
         $this->_coreRegistry = $coreRegistry;

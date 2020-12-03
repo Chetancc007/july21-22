@@ -65,7 +65,7 @@ class Category extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $name = urlencode($category->getName());
         $xmlrpcArray = [
                 'name'=>new xmlrpcval($name, "string"),
-                'mage_id'=>new xmlrpcval($categoryId, "int")
+                'ecomm_id'=>new xmlrpcval($categoryId, "int")
         ];
         $parentId = $category->getParentId();
         if ($parentId) {
@@ -96,13 +96,16 @@ class Category extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             if ($odooId) {
                 $categoryArray['category_id'] = new xmlrpcval($odooId, "int");
             }
-            $msg = new xmlrpcmsg('execute');
+            $context['created_by'] = new xmlrpcval('Magento', "string");
+            $context = ['context' => new xmlrpcval($context, "struct")];
+            $categoryArray = [new xmlrpcval($categoryArray, "struct")];
+            $msg = new xmlrpcmsg('execute_kw');
             $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
             $msg->addParam(new xmlrpcval($userId, "int"));
             $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
-            $msg->addParam(new xmlrpcval("magento.category", "string"));
+            $msg->addParam(new xmlrpcval("connector.category.mapping", "string"));
             $msg->addParam(new xmlrpcval("create_category", "string"));
-            $msg->addParam(new xmlrpcval($categoryArray, "struct"));
+            $msg->addParam(new xmlrpcval($categoryArray, "array"));
             $msg->addParam(new xmlrpcval($context, "struct"));
             $resp = $client->send($msg);
             if ($resp->faultCode()) {

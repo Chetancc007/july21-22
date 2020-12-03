@@ -49,7 +49,7 @@ class Export extends \Magento\Backend\App\Action
      */
     public function execute()
     {
-        $response = 0;
+        $response = ['odoo_id' => 0];
         $params = $this->getRequest()->getParams();
         $paymentMethod = $params['id'];
         $total = $params['total'];

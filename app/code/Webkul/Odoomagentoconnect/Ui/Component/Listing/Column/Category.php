@@ -57,7 +57,9 @@ class Category extends \Magento\Ui\Component\Listing\Columns\Column
             foreach ($dataSource['data']['items'] as & $item) {
                 if (isset($item['magento_id'])) {
                     $categoryObj = $this->_categoryModel->load($item['magento_id']);
-                    $item['name'] = $categoryObj->getName();
+                    if ($categoryObj->getId() == $item['magento_id']) {
+                        $item['name'] = $categoryObj->getName();
+                    }
                 }
             }
         }

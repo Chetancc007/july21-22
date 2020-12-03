@@ -94,14 +94,15 @@ class Set extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                 'set_id'=>new xmlrpcval($setId, "int"),
                 'created_by'=>new xmlrpcval("magento", "string"),
             ];
-
-            $msg = new xmlrpcmsg('execute');
+            $attributesetArray = [new xmlrpcval($attributesetArray, "struct")];
+            $context = ['context' => new xmlrpcval($context, "struct")];
+            $msg = new xmlrpcmsg('execute_kw');
             $msg->addParam(new xmlrpcval(Connection::$odooDb, "string"));
             $msg->addParam(new xmlrpcval($userId, "int"));
             $msg->addParam(new xmlrpcval(Connection::$odooPwd, "string"));
             $msg->addParam(new xmlrpcval("magento.attribute.set", "string"));
             $msg->addParam(new xmlrpcval("create", "string"));
-            $msg->addParam(new xmlrpcval($attributesetArray, "struct"));
+            $msg->addParam(new xmlrpcval($attributesetArray, "array"));
             $msg->addParam(new xmlrpcval($context, "struct"));
             $resp = $client->send($msg);
             if ($resp->faultCode()) {
@@ -150,10 +151,6 @@ class Set extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $optcount = 0;
         $helper = $this->_connection;
         $helper->getSocketConnect();
-        
-        $client = $helper->getClientConnect();
-        $context = $helper->getOdooContext();
-        $userId = $helper->getSession()->getUserId();
         $attributeArray = [];
         $attributeModel = $this->_attributeObj;
         $attributes = $this->_catalogModel->getResource()

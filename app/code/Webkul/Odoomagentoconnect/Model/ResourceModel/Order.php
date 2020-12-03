@@ -71,7 +71,7 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         parent::__construct($context, $resourcePrefix);
     }
 
-    public function exportOrder($thisOrder)
+    public function exportOrder($thisOrder, $quote=false)
     {
         $odooId = 0;
         $helper = $this->_connection;
@@ -97,7 +97,7 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             $odooId = $odooOrder[0];
             $orderName = $odooOrder[1];
             if ($odooId) {
-                $lineids = $this->createOdooOrderLine($thisOrder, $odooId);
+                $lineids = $this->createOdooOrderLine($thisOrder, $odooId, $quote);
                 $includesTax = $this->_scopeConfig->getValue('tax/calculation/price_includes_tax');
                 $this->_eventManager
                         ->dispatch(
@@ -191,13 +191,15 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         foreach ($extraFieldArray as $field => $value) {
             $orderArray[$field]= $value;
         }
-        $msg = new xmlrpcmsg('execute');
+        $context = ['context' => new xmlrpcval($context, "struct")];
+        $orderArray = [new xmlrpcval($orderArray, "struct")];
+        $msg = new xmlrpcmsg('execute_kw');
         $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
         $msg->addParam(new xmlrpcval($userId, "int"));
         $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
         $msg->addParam(new xmlrpcval("wk.skeleton", "string"));
         $msg->addParam(new xmlrpcval("create_order", "string"));
-        $msg->addParam(new xmlrpcval($orderArray, "struct"));
+        $msg->addParam(new xmlrpcval($orderArray, "array"));
         $msg->addParam(new xmlrpcval($context, "struct"));
         $resp = $client->send($msg);
         if ($resp->faultcode()) {
@@ -220,7 +222,7 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         return $odooOrder;
     }
 
-    public function createOdooOrderLine($thisOrder, $odooId)
+    public function createOdooOrderLine($thisOrder, $odooId, $thisQuote=false)
     {
         $erpProductId = 0;
         $lineIds = '';
@@ -245,7 +247,9 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             $itemId = $item->getId();
             $itemDesc = $item->getName();
             $productId = $item->getProductId();
-            $product = $this->_catalogModel->load($productId);
+            $product = $this->_objectManager
+                ->create('\Magento\Catalog\Model\Product')
+                ->load($productId);
             if ($priceIncludesTax) {
                 $basePrice = $item->getPriceInclTax();
             } else {
@@ -264,6 +268,7 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             }
             $discountAmount = 0;
             $discountAmount = $item->getDiscountAmount();
+            $parent = false;
             if ($item->getParentItemId() != null) {
                 $parentId = $item->getParentItemId();
                 $parent = $this->_orderItemModel->load($parentId);
@@ -309,38 +314,61 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         /**************** checking tax applicable & getting mage tax id per item ************/
             if ($itemTaxPercent > 0) {
                 $itemTaxes = [];
-                $tableName = $resource->getTableName('sales_order_tax_item');
-                $taxItems = $write->query("SELECT * FROM ".$tableName." WHERE item_id='".$itemId."'")->fetchAll();
-                
-                if ($taxItems) {
-                    foreach ($taxItems as $itemTax) {
-                        $erpTaxId = 0;
-                        $tableName = $resource->getTableName('sales_order_tax');
-                        $select = "SELECT code FROM ".$tableName;
-                        $queryTax = $select." WHERE tax_id='".$itemTax['tax_id']."' AND order_id= '".$mageOrderId."'";
-                        $orderTax = $write->query($queryTax);
-                        $taxCodeResult = $orderTax->fetch();
-                        
-                        $taxCode = $taxCodeResult["code"];
-                        $erpTaxId = $this->getOdooTaxId($taxCode);
-
-                        /******************** getting erp tax id ******************/
-                        if ($erpTaxId) {
-                            array_push($itemTaxes, new xmlrpcval($erpTaxId, "int"));
+                if ($thisQuote) {
+                    $qItems = $thisQuote->getAllItems();
+                    $oQtItemId = $item->getQuoteItemId();
+                    if ($parent) {
+                        $oQtItemId = $parent->getQuoteItemId();
+                    }
+                    foreach ($qItems as $qItem) {
+                        $qItemId = $qItem->getItemId();
+                        $appliedTaxes = $qItem['applied_taxes'];
+                        if ($qItemId == $oQtItemId && $appliedTaxes) {
+                            foreach ($appliedTaxes as $appliedTaxe) {
+                                $taxCode = $appliedTaxe['id'];
+                                $erpTaxId = $this->getOdooTaxId($taxCode);
+                                if ($erpTaxId) {
+                                    array_push($itemTaxes, new xmlrpcval($erpTaxId, "int"));
+                                }
+                            }
+                            break;
                         }
                     }
                 } else {
-                    $tableName = $resource->getTableName('sales_order_tax');
-                    $orderTax = $write->query("SELECT code FROM ".$tableName." WHERE order_id= '".$mageOrderId."'");
-                    $taxCodeResult = $orderTax->fetch();
-                    if ($taxCodeResult) {
-                        $taxCode = $taxCodeResult["code"];
-                        $erpTaxId = $this->getOdooTaxId($taxCode);
-                        if ($erpTaxId) {
-                            array_push($itemTaxes, new xmlrpcval($erpTaxId, "int"));
+                    $tableName = $resource->getTableName('sales_order_tax_item');
+                    $taxItems = $write->query("SELECT * FROM ".$tableName." WHERE item_id='".$itemId."'")->fetchAll();
+                
+                    if ($taxItems) {
+                        foreach ($taxItems as $itemTax) {
+                            $erpTaxId = 0;
+                            $tableName = $resource->getTableName('sales_order_tax');
+                            $select = "SELECT code FROM ".$tableName;
+                            $queryTax = $select." WHERE tax_id='".$itemTax['tax_id']."' AND order_id= '".$mageOrderId."'";
+                            $orderTax = $write->query($queryTax);
+                            $taxCodeResult = $orderTax->fetch();
+                            
+                            $taxCode = $taxCodeResult["code"];
+                            $erpTaxId = $this->getOdooTaxId($taxCode);
+
+                            /******************** getting erp tax id ******************/
+                            if ($erpTaxId) {
+                                array_push($itemTaxes, new xmlrpcval($erpTaxId, "int"));
+                            }
+                        }
+                    } else {
+                        $tableName = $resource->getTableName('sales_order_tax');
+                        $orderTax = $write->query("SELECT code FROM ".$tableName." WHERE order_id= '".$mageOrderId."'");
+                        $taxCodeResult = $orderTax->fetch();
+                        if ($taxCodeResult) {
+                            $taxCode = $taxCodeResult["code"];
+                            $erpTaxId = $this->getOdooTaxId($taxCode);
+                            if ($erpTaxId) {
+                                array_push($itemTaxes, new xmlrpcval($erpTaxId, "int"));
+                            }
                         }
                     }
                 }
+
                 $orderLineArray['tax_id'] = new xmlrpcval($itemTaxes, "array");
             } else {
                 $itemTaxes = [];
@@ -364,13 +392,22 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                 }
             }
 
-            $lineCreate = new xmlrpcmsg('execute');
+            $extraFieldArray = [];
+            $this->_session->setExtraFieldArray($extraFieldArray);
+            $this->_eventManager->dispatch('odoo_orderline_sync_before', ['item' => $item]);
+            $extraFieldArray = $this->_session->getExtraFieldArray();
+            foreach ($extraFieldArray as $field => $value) {
+                $orderArray[$field]= $value;
+            }
+            $context = ['context' => new xmlrpcval($context, "struct")];
+            $orderLineArray = [new xmlrpcval($orderLineArray, "struct")];
+            $lineCreate = new xmlrpcmsg('execute_kw');
             $lineCreate->addParam(new xmlrpcval($helper::$odooDb, "string"));
             $lineCreate->addParam(new xmlrpcval($userId, "int"));
             $lineCreate->addParam(new xmlrpcval($helper::$odooPwd, "string"));
             $lineCreate->addParam(new xmlrpcval("wk.skeleton", "string"));
             $lineCreate->addParam(new xmlrpcval("create_sale_order_line", "string"));
-            $lineCreate->addParam(new xmlrpcval($orderLineArray, "struct"));
+            $lineCreate->addParam(new xmlrpcval($orderLineArray, "array"));
             $lineCreate->addParam(new xmlrpcval($context, "struct"));
             $lineResp = $client->send($lineCreate);
             if ($lineResp->faultCode()) {
@@ -601,19 +638,28 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $context = $helper->getOdooContext();
         $client = $helper->getClientConnect();
         $extraLineArray['ecommerce_channel'] = new xmlrpcval("magento", "string");
-        $msg = new xmlrpcmsg('execute');
+        $context = ['context' => new xmlrpcval($context, "struct")];
+        $extraLineArray = [new xmlrpcval($extraLineArray, "struct")];
+        $msg = new xmlrpcmsg('execute_kw');
         $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
         $msg->addParam(new xmlrpcval($userId, "int"));
         $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
         $msg->addParam(new xmlrpcval("wk.skeleton", "string"));
         $msg->addParam(new xmlrpcval("create_order_shipping_and_voucher_line", "string"));
-        $msg->addParam(new xmlrpcval($extraLineArray, "struct"));
+        $msg->addParam(new xmlrpcval($extraLineArray, "array"));
         $msg->addParam(new xmlrpcval($context, "struct"));
         $resp = $client->send($msg);
         if ($resp->faultCode()) {
             $error = $type." Line Export Error, For Order ".$incrementId." >>".$resp->faultString();
             $helper->addError($error);
         } else {
+            $odooStatus = $resp->value()->me["struct"]["status"]->me["boolean"];
+            if (!$odooStatus) {
+                $statusMsg = $resp->value()->me["struct"]["status_message"]->me["string"];
+                $error = "Line Export Error, Order ".$incrementId." >>".$statusMsg;
+                $helper->addError($error);
+                return $extraLineId;
+            }
             $extraLineId = $resp->value()->me["struct"]["order_line_id"]->me["int"];
             $extraLineId = $extraLineId.",";
         }
@@ -644,13 +690,15 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $client = $helper->getClientConnect();
         $context = $helper->getOdooContext();
         $userId = $helper->getSession()->getUserId();
-        $method = new xmlrpcmsg('execute');
+        $context = ['context' => new xmlrpcval($context, "struct")];
+        $odooId = [new xmlrpcval($odooId, "int")];
+        $method = new xmlrpcmsg('execute_kw');
         $method->addParam(new xmlrpcval($helper::$odooDb, "string"));
         $method->addParam(new xmlrpcval($userId, "int"));
         $method->addParam(new xmlrpcval($helper::$odooPwd, "string"));
         $method->addParam(new xmlrpcval("wk.skeleton", "string"));
         $method->addParam(new xmlrpcval("confirm_odoo_order", "string"));
-        $method->addParam(new xmlrpcval($odooId, "int"));
+        $method->addParam(new xmlrpcval($odooId, "array"));
         $method->addParam(new xmlrpcval($context, "struct"));
         $resp = $client->send($method);
         if ($resp->faultcode()) {
@@ -680,14 +728,15 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             break;
         }
         $context['invoice_date'] = new xmlrpcval($invoiceDate, "string");
-        $msg = new xmlrpcmsg('execute');
+        $context = ['context' => new xmlrpcval($context, "struct")];
+        $invoice_array = [new xmlrpcval($odooId, "int"), new xmlrpcval($invoiceNumber, "string")];
+        $msg = new xmlrpcmsg('execute_kw');
         $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
         $msg->addParam(new xmlrpcval($userId, "int"));
         $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
         $msg->addParam(new xmlrpcval("wk.skeleton", "string"));
         $msg->addParam(new xmlrpcval("create_order_invoice", "string"));
-        $msg->addParam(new xmlrpcval($odooId, "int"));
-        $msg->addParam(new xmlrpcval($invoiceNumber, "string"));
+        $msg->addParam(new xmlrpcval($invoice_array, "array"));
         $msg->addParam(new xmlrpcval($context, "struct"));
         $resp = $client->send($msg);
 
@@ -705,6 +754,7 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             } else {
                 $invoiceId = $resp->value()->me["struct"]["invoice_id"]->me["int"];
                 if ($invoiceId > 0) {
+                    $context = $helper->getOdooContext();
                     /**
                     ******** Odoo Order Payment *************
                     */
@@ -716,13 +766,16 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                                 'journal_id'=>new xmlrpcval($journalId, "int")
                             ];
 
-                    $payment = new xmlrpcmsg('execute');
+                    $context = ['context' => new xmlrpcval($context, "struct")];
+                    $paymentArray = [new xmlrpcval($paymentArray, "struct")];
+                    $payment = new xmlrpcmsg('execute_kw');
                     $payment->addParam(new xmlrpcval($helper::$odooDb, "string"));
                     $payment->addParam(new xmlrpcval($userId, "int"));
                     $payment->addParam(new xmlrpcval($helper::$odooPwd, "string"));
                     $payment->addParam(new xmlrpcval("wk.skeleton", "string"));
                     $payment->addParam(new xmlrpcval("set_order_paid", "string"));
-                    $payment->addParam(new xmlrpcval($paymentArray, "struct"));
+                    $payment->addParam(new xmlrpcval($paymentArray, "array"));
+                    $payment->addParam(new xmlrpcval($context, "struct"));
                     $payResp = $client->send($payment);
                     if ($payResp->faultcode()) {
                         $error = "Sync Error, Order ".$incrementId." During Payment >>".$payResp->faultString();
@@ -739,6 +792,9 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                             return true;
                         }
                     }
+                } elseif ($invoiceId == 0) {
+                    $error = "Sync Error, Order ".$incrementId." During Invoice >> Not able to create invoice at odoo.";
+                    $this->_connection->addError($error);
                 }
             }
         }
@@ -756,13 +812,11 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $userId = $helper->getSession()->getUserId();
         $incrementId = $thisOrder->getIncrementId();
         if ($shipmentObj) {
-            if (count($shipmentObj)) {
-                $shipmentNo = $shipmentObj->getId();
-                foreach ($shipmentObj->getAllTracks() as $tracknum) {
-                    $tracknums=$tracknum->getTrackNumber();
-                    $trackCarrier=$tracknum->getCarrierCode();
-                    break;
-                }
+            $shipmentNo = $shipmentObj->getId();
+            foreach ($shipmentObj->getAllTracks() as $tracknum) {
+                $tracknums=$tracknum->getTrackNumber();
+                $trackCarrier=$tracknum->getCarrierCode();
+                break;
             }
         } else {
             $shipment = $thisOrder->getShipmentsCollection();
@@ -776,22 +830,35 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                 break;
             }
         }
-        $context['mage_ship_number'] = new xmlrpcval($shipmentNo, "string");
-        $context['carrier_tracking_ref'] = new xmlrpcval($tracknums, "string");
-        $context['carrier_code'] = new xmlrpcval($trackCarrier, "string");
-        $msg = new xmlrpcmsg('execute');
+        $context['ship_number'] = new xmlrpcval($shipmentNo, "string");
+        if($trackCarrier && $tracknums){
+            $context['carrier_tracking_ref'] = new xmlrpcval($tracknums, "string");
+            $context['carrier_code'] = new xmlrpcval($trackCarrier, "string");
+        }
+        $context = ['context' => new xmlrpcval($context, "struct")];
+        $erpOrderId = [new xmlrpcval($erpOrderId, "int")];
+        $msg = new xmlrpcmsg('execute_kw');
         $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
         $msg->addParam(new xmlrpcval($userId, "int"));
         $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
         $msg->addParam(new xmlrpcval("wk.skeleton", "string"));
         $msg->addParam(new xmlrpcval("set_order_shipped", "string"));
-        $msg->addParam(new xmlrpcval($erpOrderId, "int"));
+        $msg->addParam(new xmlrpcval($erpOrderId, "array"));
         $msg->addParam(new xmlrpcval($context, "struct"));
         $resp = $client->send($msg);
         if ($resp->faultcode()) {
-            $error = "Sync Error, Order ".$incrementId." During Shipment >>".$resp->faultString();
+            $error = "Sync Error, Order ".$incrementId." During Shipment >> ".$resp->faultString();
             $helper->addError($error);
             return false;
+        } else {
+            $response = $resp->value();
+            $status = $response->me["struct"]["status"]->me["boolean"];
+            if (!$status) {
+                $statusMessage = $response->me["struct"]["status_message"]->me["string"];
+                $error = "Sync Error, Order ".$incrementId." During Shipment >> ".$statusMessage;
+                $helper->addError($error);
+                return false;
+            }
         }
         return true;
     }
@@ -842,7 +909,9 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         }
         if ($customerId > 0) {
             $billingAddresssId =  $billing->getCustomerAddressId();
-            $shippingAddressId = $shipping->getCustomerAddressId();
+            if ($shipping) {
+                $shippingAddressId = $shipping->getCustomerAddressId();
+            }
             $mappingcollection = $this->_customerModel
                                         ->getCollection()
                                         ->addFieldToFilter('magento_id', ['eq'=>$customerId])
@@ -866,7 +935,7 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                 $storeId
             );
             $isDifferent = $this->checkAddresses($thisOrder);
-            if ($isDifferent == true) {
+            if ($isDifferent == true && $shipping) {
                 $partnerShippingId = $this->createErpAddress(
                     $shipping,
                     $partnerId,
@@ -890,7 +959,7 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $addressArray = [];
         $addressArray = $this->customerAddressArray($flatAddress);
 
-        if ($mageAddressId > -1) {
+        if ($mageAddressId > 0) {
             $addresscollection =  $this->_customerModel
                                         ->getCollection()
                                         ->addFieldToFilter('magento_id', ['eq'=>$mageCustomerId])
@@ -952,7 +1021,7 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             'country_code'=>new xmlrpcval($flatAddress->getCountryId(), "string"),
             'region'=>new xmlrpcval($region, "string"),
             'wk_company'=>new xmlrpcval($company, "string"),
-            'customer'=>new xmlrpcval(false, "boolean"),
+            'customer_rank'=>new xmlrpcval(false, "boolean"),
             'type'=>new xmlrpcval($type, "string")
         ];
         return $addressArray;

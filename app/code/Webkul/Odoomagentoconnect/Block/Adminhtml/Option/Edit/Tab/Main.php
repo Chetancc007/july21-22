@@ -176,7 +176,7 @@ class Main extends \Magento\Backend\Block\Widget\Form\Generic
                 $resp1 = $client->send($msgSer1);
 
                 if ($resp1->faultCode()) {
-                    $msg = $helper->__('Not Available- Error: ').$resp1->faultString();
+                    $msg = 'Not Available- Error: '.$resp1->faultString();
                     array_push($attributeOption, array('label' => $msg, 'value' => ''));
                     return $attributeOption;
                 }

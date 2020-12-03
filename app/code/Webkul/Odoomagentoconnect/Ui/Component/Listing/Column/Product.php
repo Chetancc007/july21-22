@@ -35,8 +35,12 @@ class Product extends Column
     public function prepareDataSource(array $dataSource)
     {
         if (isset($dataSource['data']['items'])) {
+            $prodIds = $this->_productManager->getCollection()
+                ->addAttributeToFilter('type_id', ['neq' => 'configurable'])
+                ->addAttributeToSelect('entity_id')
+                ->getAllIds();
             foreach ($dataSource['data']['items'] as & $item) {
-                if (isset($item['magento_id'])) {
+                if (isset($item['magento_id']) && in_array($item['magento_id'], $prodIds)) {
                     $productObj = $this->_productManager->load($item['magento_id']);
                     if ($productObj->getId() == $item['magento_id']) {
                         $sku = $productObj->getSku();

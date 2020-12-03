@@ -55,7 +55,7 @@ class SalesOrderShipmentAfterObserver implements ObserverInterface
                                 ->getValue('odoomagentoconnect/order_settings/ship_order');
         $showMessages = $this->_scopeConfig
                             ->getValue('odoomagentoconnect/additional/show_messages');
-        if ($autoShipment==1 && ($route == 'order_shipment' || $route == 'order_invoice')) {
+        if ($autoShipment==1 && $orderId && in_array($route, ['order', 'order_shipment', 'order_invoice', 'manual', 'order_create', 'express'])) {
             $mappingcollection = $this->_orderModel
                                         ->getCollection()
                                         ->addFieldToFilter('magento_id', ['eq'=>$orderId]);

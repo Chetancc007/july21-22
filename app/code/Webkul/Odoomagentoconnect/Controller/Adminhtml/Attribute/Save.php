@@ -81,20 +81,22 @@ class Save extends \Webkul\Odoomagentoconnect\Controller\Adminhtml\Attribute
             $client = $helper->getClientConnect();
             $attrMapArray = [
                                 'name'=>new xmlrpcval($odooId, "int"),
-                                'erp_id'=>new xmlrpcval($odooId, "int"),
-                                'mage_id'=>new xmlrpcval($magentoId, "int"),
-                                'mage_attribute_code'=>new xmlrpcval($code, "string"),
+                                'odoo_id'=>new xmlrpcval($odooId, "int"),
+                                'ecomm_id'=>new xmlrpcval($magentoId, "int"),
+                                'ecomm_attribute_code'=>new xmlrpcval($code, "string"),
                                 'created_by'=>new xmlrpcval('Manual Mapping', "string"),
                             ];
-            $catgMap = new xmlrpcmsg('execute');
+            $context = ['context' => new xmlrpcval($context, "struct")];
+            $attrMapArray = [new xmlrpcval($attrMapArray, "struct")];
+            $catgMap = new xmlrpcmsg('execute_kw');
             $catgMap->addParam(new xmlrpcval($helper::$odooDb, "string"));
             $catgMap->addParam(new xmlrpcval($userId, "int"));
             $catgMap->addParam(new xmlrpcval($helper::$odooPwd, "string"));
-            $catgMap->addParam(new xmlrpcval("magento.product.attribute", "string"));
+            $catgMap->addParam(new xmlrpcval("connector.attribute.mapping", "string"));
             $catgMap->addParam(new xmlrpcval("create", "string"));
-            $catgMap->addParam(new xmlrpcval($attrMapArray, "struct"));
+            $catgMap->addParam(new xmlrpcval($attrMapArray, "array"));
             $catgMap->addParam(new xmlrpcval($context, "struct"));
-            $catgMapResp = $client->send($catgMap);
+            $client->send($catgMap);
         }
     }
     /**

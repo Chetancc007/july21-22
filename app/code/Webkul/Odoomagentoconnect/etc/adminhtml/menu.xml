@@ -13,7 +13,7 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
 	<menu>
-		<add id="Webkul_Odoomagentoconnect::manager" title="Odoo Connector 2.5.5" module="Webkul_Odoomagentoconnect" sortOrder="10" resource="Webkul_Odoomagentoconnect::manager"/>
+		<add id="Webkul_Odoomagentoconnect::manager" title="Odoo Connector 3.6.1" module="Webkul_Odoomagentoconnect" sortOrder="10" resource="Webkul_Odoomagentoconnect::manager"/>
 			<add id="Webkul_Odoomagentoconnect::catalog" title="Catalog" module="Webkul_Odoomagentoconnect" sortOrder="1" parent="Webkul_Odoomagentoconnect::manager" resource="Webkul_Odoomagentoconnect::catalog"/>
 				<add id="Webkul_Odoomagentoconnect::category" title="Product Category" module="Webkul_Odoomagentoconnect" sortOrder="1" parent="Webkul_Odoomagentoconnect::catalog" action="odoomagentoconnect/category" resource="Webkul_Odoomagentoconnect::category"/>
 				<add id="Webkul_Odoomagentoconnect::product" title="Simple Products" module="Webkul_Odoomagentoconnect" sortOrder="1" parent="Webkul_Odoomagentoconnect::catalog" action="odoomagentoconnect/product" resource="Webkul_Odoomagentoconnect::product"/>

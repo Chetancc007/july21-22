@@ -51,6 +51,7 @@ class Option extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $helper = $this->_connection;
         $client = $helper->getClientConnect();
         $context = $helper->getOdooContext();
+        $context = ['context' => new xmlrpcval($context, "struct")];
         $userId = $helper->getSession()->getUserId();
         $collection = $this->_objectManager->create('\Magento\Catalog\Model\Product')->getResource()
                                                             ->getAttribute($attributeId);
@@ -67,13 +68,14 @@ class Option extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                                 'name'=>new xmlrpcval($label, "string"),
                                 'attribute_id'=>new xmlrpcval($erpAttributeId, "int"),
                             ];
-                $msg = new xmlrpcmsg('execute');
+                $optionArray = [new xmlrpcval($optionArray, "struct")];
+                $msg = new xmlrpcmsg('execute_kw');
                 $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
                 $msg->addParam(new xmlrpcval($userId, "int"));
                 $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
                 $msg->addParam(new xmlrpcval("product.attribute.value", "string"));
                 $msg->addParam(new xmlrpcval("create", "string"));
-                $msg->addParam(new xmlrpcval($optionArray, "struct"));
+                $msg->addParam(new xmlrpcval($optionArray, "array"));
                 $msg->addParam(new xmlrpcval($context, "struct"));
                 $resp = $client->send($msg);
                 if ($resp->faultCode()) {
@@ -105,18 +107,20 @@ class Option extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $userId = $helper->getSession()->getUserId();
         $mappingArray = [
                         'name'=>new xmlrpcval($data['odoo_id'], "int"),
-                        'erp_id'=>new xmlrpcval($data['odoo_id'], "int"),
-                        'mage_id'=>new xmlrpcval($data['magento_id'], "int"),
+                        'odoo_id'=>new xmlrpcval($data['odoo_id'], "int"),
+                        'ecomm_id'=>new xmlrpcval($data['magento_id'], "int"),
                         'created_by'=>new xmlrpcval($helper::$mageUser, "string"),
                         'instance_id'=>$context['instance_id'],
                     ];
-        $msg = new xmlrpcmsg('execute');
+        $mappingArray = [new xmlrpcval($mappingArray, "struct")];
+        $context = ['context' => new xmlrpcval($context, "struct")];
+        $msg = new xmlrpcmsg('execute_kw');
         $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
         $msg->addParam(new xmlrpcval($userId, "int"));
         $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
-        $msg->addParam(new xmlrpcval("magento.product.attribute.value", "string"));
+        $msg->addParam(new xmlrpcval("connector.option.mapping", "string"));
         $msg->addParam(new xmlrpcval("create", "string"));
-        $msg->addParam(new xmlrpcval($mappingArray, "struct"));
+        $msg->addParam(new xmlrpcval($mappingArray, "array"));
         $msg->addParam(new xmlrpcval($context, "struct"));
         $resp = $client->send($msg);
         if ($resp->faultCode()) {

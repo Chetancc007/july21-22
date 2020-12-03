@@ -56,8 +56,13 @@ class SyncOrder extends \Magento\Sales\Controller\Adminhtml\Order\AbstractMassAc
         if ($userId) {
             $countNonSyncOrder = 0;
             $countSyncOrder = 0;
+            $countCancelOrder = 0;
             $orderIds = '';
             foreach ($collection->getItems() as $order) {
+                if ($order->getState() == 'canceled') {
+                    $countCancelOrder++;
+                    continue;
+                }
                 $orderId = $order->getId();
                 $mapping = $this->_orderMapping
                                 ->getCollection()
@@ -77,7 +82,14 @@ class SyncOrder extends \Magento\Sales\Controller\Adminhtml\Order\AbstractMassAc
             if ($countNonSyncOrder) {
                 $this->messageManager->addError(__('%1 order(s) cannot be synchronized at Odoo.', $countNonSyncOrder));
             }
-
+            if ($countCancelOrder) {
+                $this->messageManager->addError(
+                    __(
+                        '%1 Magento cancel order(s) cannot be synchronized at Odoo.',
+                        $countCancelOrder
+                    )
+                );
+            }
             if ($countSyncOrder) {
                 $this->messageManager->addSuccess(__('%1 order(s) synchronized at Odoo.', $countSyncOrder));
             }

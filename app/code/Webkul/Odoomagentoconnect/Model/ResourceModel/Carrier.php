@@ -93,14 +93,15 @@ class Carrier extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             } else {
                 $val = $resp0->value()->me['array'];
                 $key1 = [new xmlrpcval('id', 'string'), new xmlrpcval('name', 'string')];
-                $msgSer1 = new xmlrpcmsg('execute');
+                $context = ['context' => new xmlrpcval($context, "struct")];
+                $val = [new xmlrpcval($val, "array"), new xmlrpcval($key1, "array")];
+                $msgSer1 = new xmlrpcmsg('execute_kw');
                 $msgSer1->addParam(new xmlrpcval(Connection::$odooDb, "string"));
                 $msgSer1->addParam(new xmlrpcval($userId, "int"));
                 $msgSer1->addParam(new xmlrpcval(Connection::$odooPwd, "string"));
                 $msgSer1->addParam(new xmlrpcval("delivery.carrier", "string"));
                 $msgSer1->addParam(new xmlrpcval("read", "string"));
                 $msgSer1->addParam(new xmlrpcval($val, "array"));
-                $msgSer1->addParam(new xmlrpcval($key1, "array"));
                 $msgSer1->addParam(new xmlrpcval($context, "struct"));
                 $resp1 = $client->send($msgSer1);
 
@@ -159,12 +160,15 @@ class Carrier extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                         'name'=>new xmlrpcval($shippingTitle, "string")
                     ];
             $msg = new xmlrpcmsg('execute');
+            $context = ['context' => new xmlrpcval($context, "struct")];
+            $carrierArray = [new xmlrpcval($carrierArray, "struct")];
+            $msg = new xmlrpcmsg('execute_kw');
             $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
             $msg->addParam(new xmlrpcval($userId, "int"));
             $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
             $msg->addParam(new xmlrpcval("delivery.carrier", "string"));
             $msg->addParam(new xmlrpcval("create", "string"));
-            $msg->addParam(new xmlrpcval($carrierArray, "struct"));
+            $msg->addParam(new xmlrpcval($carrierArray, "array"));
             $msg->addParam(new xmlrpcval($context, "struct"));
             $resp = $client->send($msg);
             if ($resp->faultCode()) {

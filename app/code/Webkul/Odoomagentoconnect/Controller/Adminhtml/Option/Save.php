@@ -86,17 +86,19 @@ class Save extends \Webkul\Odoomagentoconnect\Controller\Adminhtml\Option
             $client = $helper->getClientConnect();
             $mapArray = [
                                 'name'=>new xmlrpcval($odooId, "int"),
-                                'erp_id'=>new xmlrpcval($odooId, "int"),
-                                'mage_id'=>new xmlrpcval($magentoId, "int"),
+                                'odoo_id'=>new xmlrpcval($odooId, "int"),
+                                'ecomm_id'=>new xmlrpcval($magentoId, "int"),
                                 'created_by'=>new xmlrpcval('Manual Mapping', "string"),
                             ];
-            $catgMap = new xmlrpcmsg('execute');
+            $context = ['context' => new xmlrpcval($context, "struct")];
+            $mapArray = [new xmlrpcval($mapArray, "struct")];
+            $catgMap = new xmlrpcmsg('execute_kw');
             $catgMap->addParam(new xmlrpcval($helper::$odooDb, "string"));
             $catgMap->addParam(new xmlrpcval($userId, "int"));
             $catgMap->addParam(new xmlrpcval($helper::$odooPwd, "string"));
-            $catgMap->addParam(new xmlrpcval("magento.product.attribute.value", "string"));
+            $catgMap->addParam(new xmlrpcval("connector.option.mapping", "string"));
             $catgMap->addParam(new xmlrpcval("create", "string"));
-            $catgMap->addParam(new xmlrpcval($mapArray, "struct"));
+            $catgMap->addParam(new xmlrpcval($mapArray, "array"));
             $catgMap->addParam(new xmlrpcval($context, "struct"));
             $catgMapResp = $client->send($catgMap);
         }

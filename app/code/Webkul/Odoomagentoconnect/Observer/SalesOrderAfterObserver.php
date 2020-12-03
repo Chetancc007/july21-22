@@ -45,6 +45,7 @@ class SalesOrderAfterObserver implements ObserverInterface
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
         $lastOrderId = $observer->getEvent()->getData('order');
+        $quote = $observer->getEvent()->getData('quote');
         $route = $this->_requestInterface->getControllerName();
         if ($route == "order" || $route == "order_shipment" || $route == "order_invoice") {
             return true;
@@ -68,7 +69,7 @@ class SalesOrderAfterObserver implements ObserverInterface
                 $helper->getSocketConnect();
                 $userId = $helper->getSession()->getUserId();
                 if ($userId > 0) {
-                    $odooName = $this->_orderMapping->exportOrder($lastOrderId);
+                    $odooName = $this->_orderMapping->exportOrder($lastOrderId, $quote);
                     if ($odooName && $showMessages) {
                         $this->messageManager->addSuccess(__("Odoo Order ".$odooName[1]." Successfully Create."));
                     }

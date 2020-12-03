@@ -46,7 +46,6 @@ class CategorySaveAfterObserver implements ObserverInterface
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
         $category = $observer->getEvent()->getCategory();
-        $category->save();
         $mappingObj = 0;
         $catId = $category->getId();
         $route = $this->_requestInterface->getControllerName();
@@ -66,10 +65,6 @@ class CategorySaveAfterObserver implements ObserverInterface
             
             $userId = $helper->getSession()->getUserId();
             if ($userId > 0 && $autoSync) {
-                $catalogObj = $this->_catalogModel->load($catId);
-                $catalogObj->setName($category->getName());
-                $catalogObj->setParentId($category->getParentId());
-                $catalogObj->save();
                 if ($mappingObj) {
                     $mageId = $mappingObj->getMagentoId();
                     $odooId = $mappingObj->getOdooId();

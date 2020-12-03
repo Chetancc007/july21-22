@@ -81,13 +81,15 @@ class Tax extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             $rateArray = $this->getTaxArray($mageId);
             $taxRate = $this->_rateModel->load($mageId);
             $code = $taxRate->getCode();
-            $msg = new xmlrpcmsg('execute');
+            $context = ['context' => new xmlrpcval($context, "struct")];
+            $rateArray = [new xmlrpcval($rateArray, "struct")];
+            $msg = new xmlrpcmsg('execute_kw');
             $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
             $msg->addParam(new xmlrpcval($userId, "int"));
             $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
             $msg->addParam(new xmlrpcval("account.tax", "string"));
             $msg->addParam(new xmlrpcval("create", "string"));
-            $msg->addParam(new xmlrpcval($rateArray, "struct"));
+            $msg->addParam(new xmlrpcval($rateArray, "array"));
             $msg->addParam(new xmlrpcval($context, "struct"));
             $resp = $client->send($msg);
             if ($resp->faultCode()) {

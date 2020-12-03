@@ -92,22 +92,7 @@ class Customer extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                 $addresscollection = $model->getCollection()
                                     ->addFieldToFilter('magento_id', ['eq'=>$customerId])
                                     ->addFieldToFilter('address_id', ['eq'=>$address->getId()]);
-                if ($addresscollection->getSize() > 0) {
-                    foreach ($addresscollection as $map) {
-                        $needSync = $map->getNeedSync();
-                        if ($needSync == 'yes' || $autoSync) {
-                            $odooId = $map->getOdooId();
-                            $addressMapId = $map->getEntityId();
-                            $odooAddressId = $this->syncSpecificAddressAtOdoo(
-                                $odooCustomerId,
-                                $customer,
-                                $address,
-                                'write',
-                                $odooId
-                            );
-                        }
-                    }
-                } else {
+                if ($addresscollection->getSize() == 0) {
                     $odooAddressId = $this->syncSpecificAddressAtOdoo($odooCustomerId, $customer, $address);
                 }
             }
@@ -148,7 +133,7 @@ class Customer extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                     'region'=>new xmlrpcval($region, "string"),
                     'type'=>new xmlrpcval($type, "string"),
                     'wk_company'=>new xmlrpcval($company, "string"),
-                    'customer'=>new xmlrpcval(false, "boolean"),
+                    'customer_rank'=>new xmlrpcval(false, "boolean"),
                     'parent_id'=>new xmlrpcval($odooCustomerId, "int"),
                 ];
         if ($method == 'create') {
@@ -195,6 +180,7 @@ class Customer extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $userId = $helper->getSession()->getUserId();
         $client = $helper->getClientConnect();
         $context = $helper->getOdooContext();
+        $instanceId = $context['instance_id'];
         /* Adding Extra Fields*/
         $helper->getSession()->setExtraFieldArray($extraFieldArray);
         $this->_eventManager->dispatch('customer_sync_before', ['mage_id' => $storeId]);
@@ -202,13 +188,15 @@ class Customer extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         foreach ($extraFieldArray as $field => $value) {
             $customerArray[$field]= $value;
         }
-        $msg = new xmlrpcmsg('execute');
+        $context = ['context' => new xmlrpcval($context, "struct")];
+        $customerArray = [new xmlrpcval($customerArray, "struct")];
+        $msg = new xmlrpcmsg('execute_kw');
         $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
         $msg->addParam(new xmlrpcval($userId, "int"));
         $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
         $msg->addParam(new xmlrpcval("res.partner", "string"));
         $msg->addParam(new xmlrpcval("create", "string"));
-        $msg->addParam(new xmlrpcval($customerArray, "struct"));
+        $msg->addParam(new xmlrpcval($customerArray, "array"));
         $msg->addParam(new xmlrpcval($context, "struct"));
         $resp = $client->send($msg);
         if ($resp->faultCode()) {
@@ -231,20 +219,22 @@ class Customer extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 
                 if ($odooId > 0 && $mageAddressId) {
                     $mapArray = [
-                        'cus_name'=>new xmlrpcval($odooId, "int"),
-                        'oe_customer_id'=>new xmlrpcval($odooId, "int"),
-                        'mag_customer_id'=>new xmlrpcval($mageCustomerId, "string"),
-                        'mag_address_id'=>new xmlrpcval($mageAddressId, "string"),
+                        'name'=>new xmlrpcval($odooId, "int"),
+                        'odoo_id'=>new xmlrpcval($odooId, "int"),
+                        'ecomm_id'=>new xmlrpcval($mageCustomerId, "string"),
+                        'ecomm_address_id'=>new xmlrpcval($mageAddressId, "string"),
                         'created_by'=>new xmlrpcval($helper::$mageUser, "string"),
-                        'instance_id'=>$context['instance_id'],
+                        'instance_id'=>$instanceId,
                     ];
-                    $map = new xmlrpcmsg('execute');
+                    $context = ['context' => new xmlrpcval($context, "struct")];
+                    $mapArray = [new xmlrpcval($mapArray, "struct")];
+                    $map = new xmlrpcmsg('execute_kw');
                     $map->addParam(new xmlrpcval($helper::$odooDb, "string"));
                     $map->addParam(new xmlrpcval($userId, "int"));
                     $map->addParam(new xmlrpcval($helper::$odooPwd, "string"));
-                    $map->addParam(new xmlrpcval("magento.customers", "string"));
+                    $map->addParam(new xmlrpcval("connector.partner.mapping", "string"));
                     $map->addParam(new xmlrpcval("create", "string"));
-                    $map->addParam(new xmlrpcval($mapArray, "struct"));
+                    $map->addParam(new xmlrpcval($mapArray, "array"));
                     $msg->addParam(new xmlrpcval($context, "struct"));
                     $resp = $client->send($map);
                 }
@@ -260,16 +250,17 @@ class Customer extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $userId = $helper->getSession()->getUserId();
         $client = $helper->getClientConnect();
         $context = $helper->getOdooContext();
-        $addressArray['mage_customer_id'] = new xmlrpcval($customerId, "int");
+        $addressArray['ecomm_id'] = new xmlrpcval($customerId, "int");
 
-        $msg = new xmlrpcmsg('execute');
+        $context = ['context' => new xmlrpcval($context, "struct")];
+        $addressArray = [new xmlrpcval($erpCustomerId, "int"), new xmlrpcval($addressArray, "struct")];
+        $msg = new xmlrpcmsg('execute_kw');
         $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
         $msg->addParam(new xmlrpcval($userId, "int"));
         $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
         $msg->addParam(new xmlrpcval("res.partner", "string"));
         $msg->addParam(new xmlrpcval("write", "string"));
-        $msg->addParam(new xmlrpcval($erpCustomerId, "int"));
-        $msg->addParam(new xmlrpcval($addressArray, "struct"));
+        $msg->addParam(new xmlrpcval($addressArray, "array"));
         $msg->addParam(new xmlrpcval($context, "struct"));
         $resp = $client->send($msg);
         if ($resp->faultCode()) {

@@ -58,13 +58,15 @@ class Attribute extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         if (!empty($erpAttributeIds)) {
             $setArray['attribute_ids']= new xmlrpcval($erpAttributeIds, "array");
         }
-        $msg1 = new xmlrpcmsg('execute');
+        $context = ['context' => new xmlrpcval($context, "struct")];
+        $setArray = [new xmlrpcval($setArray, "struct")];
+        $msg1 = new xmlrpcmsg('execute_kw');
         $msg1->addParam(new xmlrpcval($helper::$odooDb, "string"));
         $msg1->addParam(new xmlrpcval($userId, "int"));
         $msg1->addParam(new xmlrpcval($helper::$odooPwd, "string"));
-        $msg1->addParam(new xmlrpcval("magento.synchronization", "string"));
+        $msg1->addParam(new xmlrpcval("connector.snippet", "string"));
         $msg1->addParam(new xmlrpcval("sync_attribute_set", "string"));
-        $msg1->addParam(new xmlrpcval($setArray, "struct"));
+        $msg1->addParam(new xmlrpcval($setArray, "array"));
         $msg1->addParam(new xmlrpcval($context, "struct"));
         $resp1 = $client->send($msg1);
         return true;
@@ -116,13 +118,15 @@ class Attribute extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             $attributeArray = [
                         'name'=>new xmlrpcval($label, "string"),
                     ];
-            $msg = new xmlrpcmsg('execute');
+            $attributeArray = [new xmlrpcval($attributeArray, "struct")];
+            $context = ['context' => new xmlrpcval($context, "struct")];
+            $msg = new xmlrpcmsg('execute_kw');
             $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
             $msg->addParam(new xmlrpcval($userId, "int"));
             $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
             $msg->addParam(new xmlrpcval("product.attribute", "string"));
             $msg->addParam(new xmlrpcval("create", "string"));
-            $msg->addParam(new xmlrpcval($attributeArray, "struct"));
+            $msg->addParam(new xmlrpcval($attributeArray, "array"));
             $msg->addParam(new xmlrpcval($context, "struct"));
             $resp = $client->send($msg);
             if ($resp->faultCode()) {
@@ -137,7 +141,7 @@ class Attribute extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                             'created_by'=>$helper::$mageUser
                         ];
             $this->attributeMapping($mappingData);
-            $mappingData['mage_attribute_code']=$code;
+            $mappingData['ecomm_attribute_code']=$code;
             $this->mapAttribute($mappingData);
         }
         if ($erpAttrId) {
@@ -155,26 +159,27 @@ class Attribute extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $userId = $helper->getSession()->getUserId();
         $attrMappingArray = [
                         'name'=>new xmlrpcval($data['odoo_id'], "int"),
-                        'erp_id'=>new xmlrpcval($data['odoo_id'], "int"),
-                        'mage_id'=>new xmlrpcval($data['magento_id'], "int"),
-                        'mage_attribute_code'=>new xmlrpcval($data['mage_attribute_code'], "string"),
+                        'odoo_id'=>new xmlrpcval($data['odoo_id'], "int"),
+                        'ecomm_id'=>new xmlrpcval($data['magento_id'], "int"),
+                        'ecomm_attribute_code'=>new xmlrpcval($data['ecomm_attribute_code'], "string"),
                         'created_by'=>new xmlrpcval($helper::$mageUser, "string"),
                         'instance_id'=>$context['instance_id'],
                     ];
-        $attributeMap = new xmlrpcmsg('execute');
+        $context = ['context' => new xmlrpcval($context, "struct")];
+        $attrMappingArray = [new xmlrpcval($attrMappingArray, "struct")];
+        $attributeMap = new xmlrpcmsg('execute_kw');
         $attributeMap->addParam(new xmlrpcval($helper::$odooDb, "string"));
         $attributeMap->addParam(new xmlrpcval($userId, "int"));
         $attributeMap->addParam(new xmlrpcval($helper::$odooPwd, "string"));
-        $attributeMap->addParam(new xmlrpcval("magento.product.attribute", "string"));
+        $attributeMap->addParam(new xmlrpcval("connector.attribute.mapping", "string"));
         $attributeMap->addParam(new xmlrpcval("create", "string"));
-        $attributeMap->addParam(new xmlrpcval($attrMappingArray, "struct"));
+        $attributeMap->addParam(new xmlrpcval($attrMappingArray, "array"));
         $attributeMap->addParam(new xmlrpcval($context, "struct"));
         $resp = $client->send($attributeMap);
         if ($resp->faultCode()) {
             return false;
-        } else {
-            return true;
         }
+        return true;
     }
 
     /**

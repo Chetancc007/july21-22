@@ -55,7 +55,7 @@ class SalesOrderInvoiceAfterObserver implements ObserverInterface
         $autoInvoice = $this->_scopeConfig->getValue('odoomagentoconnect/order_settings/invoice_order');
         $showMessages = $this->_scopeConfig
                             ->getValue('odoomagentoconnect/additional/show_messages');
-        if ($autoInvoice == 1 && $route == 'order_invoice') {
+        if ($autoInvoice == 1 && $orderId && in_array($route, ['order', 'order_shipment', 'order_invoice', 'manual', 'order_create', 'express', 'checkout'])) {
             $mappingcollection = $this->_orderModel
                                     ->getCollection()
                                     ->addFieldToFilter('magento_id', ['eq'=>$orderId]);

@@ -30,6 +30,8 @@ class Product extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Catalog\Model\Product $productManager,
         Connection $connection,
+        \Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable $catalogProductTypeConfigurable,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         $resourcePrefix = null
     ) {
         parent::__construct($context, $resourcePrefix);
@@ -38,6 +40,8 @@ class Product extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $this->_productManager = $productManager;
         $this->_objectManager = $objectManager;
         $this->_connection = $connection;
+        $this->_catalogProductTypeConfigurable = $catalogProductTypeConfigurable;
+        $this->_scopeConfig = $scopeConfig;
     }
 
     public function getMageProductArray()
@@ -70,16 +74,18 @@ class Product extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             $product[''] ='--Select Odoo Product--';
             $context = $helper->getOdooContext();
             $client = $helper->getClientConnect();
-            $key = array ( 
+            $key = array (
                 new xmlrpcval(
                     array(
-                        new xmlrpcval('attribute_value_ids', "string"), 
-                        new xmlrpcval('=', "string"), 
+                        new xmlrpcval('product_template_attribute_value_ids', "string"),
+                        new xmlrpcval('=', "string"),
                         new xmlrpcval(false, "boolean")
                     ), "array"
                 ),
             );
-            $productSearch = new xmlrpcmsg('execute');
+            $context = ['context' => new xmlrpcval($context, "struct")];
+            $key = [new xmlrpcval($key, "array")];
+            $productSearch = new xmlrpcmsg('execute_kw');
             $productSearch->addParam(new xmlrpcval(Connection::$odooDb, "string"));
             $productSearch->addParam(new xmlrpcval($userId, "int"));
             $productSearch->addParam(new xmlrpcval(Connection::$odooPwd, "string"));
@@ -88,11 +94,12 @@ class Product extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             $productSearch->addParam(new xmlrpcval($key, "array"));
             $resp0 = $client->send($productSearch);
             if ($resp0->faultCode()) {
-                array_push($product, ['label' => $helper->__('Not Available(Error in Fetching)'), 'value' => '']);
+                $product['error'] = 'Not Available(Error in Fetching)';
                 return $product;
             } else {
                 $val = $resp0->value()->me['array'];
-                $productGet = new xmlrpcmsg('execute');
+                $val = [new xmlrpcval($val, "array")];
+                $productGet = new xmlrpcmsg('execute_kw');
                 $productGet->addParam(new xmlrpcval(Connection::$odooDb, "string"));
                 $productGet->addParam(new xmlrpcval($userId, "int"));
                 $productGet->addParam(new xmlrpcval(Connection::$odooPwd, "string"));
@@ -103,8 +110,7 @@ class Product extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                 $resp1 = $client->send($productGet);
 
                 if ($resp1->faultCode()) {
-                    $msg = $helper->__('Not Available- Error: ').$resp1->faultString();
-                    array_push($product, ['label' => $msg, 'value' => '']);
+                    $product['error'] = 'Not Available- Error: '.$resp1->faultString();
                     return $product;
                 } else {
                     $valueArray=$resp1->value()->scalarval();
@@ -137,7 +143,7 @@ class Product extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 
     public function createSpecificProduct($mageId)
     {
-        $response = [];
+        $response = ['odoo_id' => 0];
         $helper = $this->_connection;
         if ($mageId) {
             $helper->getSocketConnect();
@@ -147,13 +153,19 @@ class Product extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             $context = $helper->getOdooContext();
             $client = $helper->getClientConnect();
             $productArray = $this->getProductArray($mageId);
-            $msg = new xmlrpcmsg('execute');
+            $itemId = $this->_objectManager
+                ->create('\Magento\CatalogInventory\Api\StockRegistryInterface')
+                ->getStockItem($mageId)->getId();
+            $context['magento_stock_id'] = new xmlrpcval($itemId, "int");
+            $context = ['context' => new xmlrpcval($context, "struct")];
+            $productArray = [new xmlrpcval($productArray, "struct")];
+            $msg = new xmlrpcmsg('execute_kw');
             $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
             $msg->addParam(new xmlrpcval($userId, "int"));
             $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
             $msg->addParam(new xmlrpcval("product.product", "string"));
             $msg->addParam(new xmlrpcval("create", "string"));
-            $msg->addParam(new xmlrpcval($productArray, "struct"));
+            $msg->addParam(new xmlrpcval($productArray, "array"));
             $msg->addParam(new xmlrpcval($context, "struct"));
             $resp = $client->send($msg);
             if ($resp->faultCode()) {
@@ -210,9 +222,6 @@ class Product extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $product = $this->_objectManager
                         ->create('\Magento\Catalog\Model\Product')
                         ->load($productId);
-        $itemId = $this->_objectManager
-                        ->create('\Magento\CatalogInventory\Api\StockRegistryInterface')
-                        ->getStockItem($productId)->getId();
         $ean = $product->getEan();
         $keys = ['simple','grouped','configurable','virtual','bundle','downloadable'];
         $productType = $product->getTypeID();
@@ -231,28 +240,33 @@ class Product extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $xmlrpcArray = [
                 'type'=>new xmlrpcval($type, "string"),
                 'default_code'=>new xmlrpcval($sku, "string"),
-                'magento_stock_id'=>new xmlrpcval($itemId, "int"),
-                'mage_id'=>new xmlrpcval($productId, "int"),
-                'sale_ok'=>new xmlrpcval($status, "boolean")
+                'ecomm_id'=>new xmlrpcval($productId, "int"),
+                'sale_ok'=>new xmlrpcval($status, "boolean"),
+                'weight'=>new xmlrpcval($product->getWeight(), "double"),
+                'standard_price'=>new xmlrpcval($product->getCost(), "double")
         ];
-        $setId = $product->getAttributeSetId();
-        $name = urlencode($product->getName());
-        $description = urlencode($product->getDescription());
-        $shortDescription = urlencode($product->getShortDescription());
-        $odooCategoryArray = $this->getProductCategoryArray($product->getCategoryIds());
-        $odooSetId = $this->_objectManager
-                            ->create('\Webkul\Odoomagentoconnect\Model\ResourceModel\Set')
-                            ->getOdooAttributeSetId($setId);
-        
-        $xmlrpcArray['name'] = new xmlrpcval($name, "string");
-        $xmlrpcArray['description'] = new xmlrpcval($description, "string");
-        $xmlrpcArray['attribute_set_id'] = new xmlrpcval($odooSetId, "int");
-        $xmlrpcArray['description_sale'] = new xmlrpcval($shortDescription, "string");
-        $xmlrpcArray['list_price'] = new xmlrpcval($product->getPrice(), "double");
-        $xmlrpcArray['prod_type'] = new xmlrpcval($productType, "string");
-        $xmlrpcArray['weight'] = new xmlrpcval($product->getWeight(), "double");
-        $xmlrpcArray['standard_price'] = new xmlrpcval($product->getCost(), "double");
-        $xmlrpcArray['category_ids'] = new xmlrpcval($odooCategoryArray, "array");
+
+        $parentIds = $this->_catalogProductTypeConfigurable->getParentIdsByChild($productId);
+        if (!isset($parentIds[0])) {
+            $name = urlencode($product->getName());
+            $description = urlencode($product->getDescription());
+            $shortDescription = urlencode($product->getShortDescription());
+            $odooCategoryArray = $this->getProductCategoryArray($product->getCategoryIds());
+            $setId = $product->getAttributeSetId();
+            $odooSetId = $this->_objectManager
+                ->create('\Webkul\Odoomagentoconnect\Model\ResourceModel\Set')
+                ->getOdooAttributeSetId($setId);
+
+            $xmlrpcArray['name'] = new xmlrpcval($name, "string");
+            $xmlrpcArray['attribute_set_id'] = new xmlrpcval($odooSetId, "int");
+            $xmlrpcArray['description'] = new xmlrpcval($description, "string");
+            $xmlrpcArray['description_sale'] = new xmlrpcval($shortDescription, "string");
+            $xmlrpcArray['list_price'] = new xmlrpcval($product->getPrice(), "double");
+            $xmlrpcArray['prod_type'] = new xmlrpcval($productType, "string");
+            $xmlrpcArray['category_ids'] = new xmlrpcval($odooCategoryArray, "array");
+        }
+
+
         if ($product->getImage()) {
             if ($product->getImage() != "no_selection") {
                 try {
@@ -295,14 +309,15 @@ class Product extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             $mageId = $mapping['magento_id'];
             $productArray = $this->getProductArray($mageId);
             unset($productArray['type']);
-            $msg = new xmlrpcmsg('execute');
+            $context = ['context' => new xmlrpcval($context, "struct")];
+            $productArray = [new xmlrpcval($odooId, "int"), new xmlrpcval($productArray, "struct")];
+            $msg = new xmlrpcmsg('execute_kw');
             $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
             $msg->addParam(new xmlrpcval($userId, "int"));
             $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
             $msg->addParam(new xmlrpcval("product.product", "string"));
             $msg->addParam(new xmlrpcval("write", "string"));
-            $msg->addParam(new xmlrpcval($odooId, "int"));
-            $msg->addParam(new xmlrpcval($productArray, "struct"));
+            $msg->addParam(new xmlrpcval($productArray, "array"));
             $msg->addParam(new xmlrpcval($context, "struct"));
             $resp = $client->send($msg);
             if ($resp->faultCode()) {
@@ -331,17 +346,23 @@ class Product extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $productQty = $this->_objectManager
                             ->create('\Magento\CatalogInventory\Api\StockRegistryInterface')
                             ->getStockItem($productId)->getQty();
+        if ($productQty <= 0) {
+            return false;
+        }
         $inventoryArray = [
             'product_id'=>new xmlrpcval($erpProId, "int"),
             'new_quantity'=>new xmlrpcval($productQty, "double")
         ];
-        $inv = new xmlrpcmsg('execute');
+        $context['stock_from'] = new xmlrpcval("magento", "string");
+        $context = ['context' => new xmlrpcval($context, "struct")];
+        $inventoryArray = [new xmlrpcval($inventoryArray, "struct")];
+        $inv = new xmlrpcmsg('execute_kw');
         $inv->addParam(new xmlrpcval($helper::$odooDb, "string"));
         $inv->addParam(new xmlrpcval($userId, "int"));
         $inv->addParam(new xmlrpcval($helper::$odooPwd, "string"));
-        $inv->addParam(new xmlrpcval("bridge.backbone", "string"));
+        $inv->addParam(new xmlrpcval("connector.snippet", "string"));
         $inv->addParam(new xmlrpcval("update_quantity", "string"));
-        $inv->addParam(new xmlrpcval($inventoryArray, "struct"));
+        $inv->addParam(new xmlrpcval($inventoryArray, "array"));
         $inv->addParam(new xmlrpcval($context, "struct"));
         $inventoryResp = $client->send($inv);
         if ($inventoryResp->faultcode()) {

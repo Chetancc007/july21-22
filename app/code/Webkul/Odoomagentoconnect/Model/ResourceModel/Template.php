@@ -32,6 +32,8 @@ class Template extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         \Webkul\Odoomagentoconnect\Model\ResourceModel\Attribute $attributeModel,
         \Magento\Catalog\Model\Product $catalogManager,
         \Magento\ConfigurableProduct\Model\Product\Type\Configurable $configurableModel,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Framework\Event\ManagerInterface $eventManager,
         Connection $connection,
         $resourcePrefix = null
     ) {
@@ -43,6 +45,8 @@ class Template extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $this->_configurableModel = $configurableModel;
         $this->_attributeModel = $attributeModel;
         $this->_objectManager = $objectManager;
+        $this->_scopeConfig = $scopeConfig;
+        $this->_eventManager = $eventManager;
         parent::__construct($context, $resourcePrefix);
     }
 
@@ -114,13 +118,15 @@ class Template extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                 $productPrice = $product->getData()['price'];
                 $configurableArray['list_price'] = new xmlrpcval($productPrice, "double");
             }
-            $msg = new xmlrpcmsg('execute');
+            $context = ['context' => new xmlrpcval($context, "struct")];
+            $configurableArray = [new xmlrpcval($configurableArray, "struct")];
+            $msg = new xmlrpcmsg('execute_kw');
             $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
             $msg->addParam(new xmlrpcval($userId, "int"));
             $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
             $msg->addParam(new xmlrpcval("product.template", "string"));
             $msg->addParam(new xmlrpcval("create", "string"));
-            $msg->addParam(new xmlrpcval($configurableArray, "struct"));
+            $msg->addParam(new xmlrpcval($configurableArray, "array"));
             $msg->addParam(new xmlrpcval($context, "struct"));
             $resp = $client->send($msg);
             if ($resp->faultCode()) {
@@ -138,6 +144,8 @@ class Template extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                             ];
                     $this->mappingtemplatemap($mappingData);
                     $response['odoo_id'] = $odooId;
+                    $dispatchData = ['product' => $configurableId, 'erp_product' => $odooId, 'type' => 'template'];
+                    $this->_eventManager->dispatch('catalog_product_sync_after', $dispatchData);
                 }
             }
         }
@@ -164,15 +172,15 @@ class Template extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                 $productPrice = $product->getData()['price'];
                 $configurableArray['list_price'] = new xmlrpcval($productPrice, "double");
             }
-            unset($configurableArray['default_code']);
-            $msg = new xmlrpcmsg('execute');
+            $context = ['context' => new xmlrpcval($context, "struct")];
+            $configurableArray = [new xmlrpcval($erpTemplateId, "int"), new xmlrpcval($configurableArray, "struct")];
+            $msg = new xmlrpcmsg('execute_kw');
             $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
             $msg->addParam(new xmlrpcval($userId, "int"));
             $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
             $msg->addParam(new xmlrpcval("product.template", "string"));
             $msg->addParam(new xmlrpcval("write", "string"));
-            $msg->addParam(new xmlrpcval($erpTemplateId, "int"));
-            $msg->addParam(new xmlrpcval($configurableArray, "struct"));
+            $msg->addParam(new xmlrpcval($configurableArray, "array"));
             $msg->addParam(new xmlrpcval($context, "struct"));
             $resp = $client->send($msg);
             if ($resp->faultCode()) {
@@ -184,6 +192,8 @@ class Template extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                 $response['odoo_id'] = $erpTemplateId;
                 $this->syncConfigChildProducts($configurableId, $erpTemplateId);
                 $this->updateMapping($mappingId, 'no');
+                $dispatchData = ['product' => $configurableId, 'erp_product' => $erpTemplateId, 'type' => 'template'];
+                $this->_eventManager->dispatch('catalog_product_sync_after', $dispatchData);
                 return $response;
             }
             return $response;
@@ -259,13 +269,15 @@ class Template extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         if (isset($productArray['list_price'])) {
             unset($productArray['list_price']);
         }
-        $msg = new xmlrpcmsg('execute');
+        $context = ['context' => new xmlrpcval($context, "struct")];
+        $productArray = [new xmlrpcval($productArray, "struct")];
+        $msg = new xmlrpcmsg('execute_kw');
         $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
         $msg->addParam(new xmlrpcval($userId, "int"));
         $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
         $msg->addParam(new xmlrpcval("product.product", "string"));
         $msg->addParam(new xmlrpcval("create", "string"));
-        $msg->addParam(new xmlrpcval($productArray, "struct"));
+        $msg->addParam(new xmlrpcval($productArray, "array"));
         $msg->addParam(new xmlrpcval($context, "struct"));
         $resp = $client->send($msg);
         if ($resp->faultCode()) {
@@ -283,8 +295,13 @@ class Template extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                         ];
                 $this->_productManager->mappingerp($mappingData);
                 $response['odoo_id'] = $odooId;
-                $this->_productManager
-                        ->createInventoryAtOdoo($childId, $odooId);
+                $syncStock = $this->_scopeConfig->getValue('odoomagentoconnect/automatization_settings/auto_inventory');
+                if ($syncStock) {
+                    $this->_productManager
+                            ->createInventoryAtOdoo($childId, $odooId);
+                }
+                $dispatchData = ['product' => $childId, 'erp_product' => $odooId, 'type' => 'product'];
+                $this->_eventManager->dispatch('catalog_product_sync_after', $dispatchData);
             }
         }
         return $response;
@@ -299,6 +316,7 @@ class Template extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $userId = $helper->getSession()->getUserId();
         $_product = $this->_catalogManager->load($configurableId);
         $attributes = $_product->getTypeInstance(true)->getConfigurableAttributesAsArray($_product);
+        $context = ['context' => new xmlrpcval($context, "struct")];
         foreach ($attributes as $attribute) {
             $attributeArray = [];
             $attributeId = $attribute['attribute_id'];
@@ -331,13 +349,14 @@ class Template extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                 $attributeArray['values'] = new xmlrpcval($valueArray, 'array');
             }
             if ($attributeArray) {
-                $msg = new xmlrpcmsg('execute');
+                $attributeArray = [new xmlrpcval($attributeArray, "struct")];
+                $msg = new xmlrpcmsg('execute_kw');
                 $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
                 $msg->addParam(new xmlrpcval($userId, "int"));
                 $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
-                $msg->addParam(new xmlrpcval("magento.product.template", "string"));
+                $msg->addParam(new xmlrpcval("connector.template.mapping", "string"));
                 $msg->addParam(new xmlrpcval("create_n_update_attribute_line", "string"));
-                $msg->addParam(new xmlrpcval($attributeArray, "struct"));
+                $msg->addParam(new xmlrpcval($attributeArray, "array"));
                 $msg->addParam(new xmlrpcval($context, "struct"));
                 $resp = $client->send($msg);
             }
@@ -407,14 +426,15 @@ class Template extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                 unset($productArray['list_price']);
             }
             $context['create_product_variant'] = new xmlrpcval('create_product_variant', "string");
-            $productMsg = new xmlrpcmsg('execute');
+            $context = ['context' => new xmlrpcval($context, "struct")];
+            $productArray = [new xmlrpcval($odooId, "int"), new xmlrpcval($productArray, "struct")];
+            $productMsg = new xmlrpcmsg('execute_kw');
             $productMsg->addParam(new xmlrpcval($helper::$odooDb, "string"));
             $productMsg->addParam(new xmlrpcval($userId, "int"));
             $productMsg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
             $productMsg->addParam(new xmlrpcval("product.product", "string"));
             $productMsg->addParam(new xmlrpcval("write", "string"));
-            $productMsg->addParam(new xmlrpcval($odooId, "int"));
-            $productMsg->addParam(new xmlrpcval($productArray, "struct"));
+            $productMsg->addParam(new xmlrpcval($productArray, "array"));
             $productMsg->addParam(new xmlrpcval($context, "struct"));
             $resp = $client->send($productMsg);
             if ($resp->faultCode()) {
@@ -423,6 +443,8 @@ class Template extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             } else {
                 $this->_productManager
                         ->updateMapping($mapping, 'no');
+                $dispatchData = ['product' => $mageId, 'erp_product' => $odooId, 'type' => 'product'];
+                $this->_eventManager->dispatch('catalog_product_sync_after', $dispatchData);
                 return true;
             }
             return false;

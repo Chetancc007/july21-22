@@ -59,13 +59,15 @@ class Currency extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                 $pricelistArray =  [
                     'code'=>new xmlrpcval($currencyCode, "string")
                 ];
-                $msg = new xmlrpcmsg('execute');
+                $context = ['context' => new xmlrpcval($context, "struct")];
+                $pricelistArray = [new xmlrpcval($pricelistArray, "struct")];
+                $msg = new xmlrpcmsg('execute_kw');
                 $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
                 $msg->addParam(new xmlrpcval($userId, "int"));
                 $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
-                $msg->addParam(new xmlrpcval("bridge.backbone", "string"));
+                $msg->addParam(new xmlrpcval("connector.snippet", "string"));
                 $msg->addParam(new xmlrpcval("create_pricelist", "string"));
-                $msg->addParam(new xmlrpcval($pricelistArray, "struct"));
+                $msg->addParam(new xmlrpcval($pricelistArray, "array"));
                 $msg->addParam(new xmlrpcval($context, "struct"));
                 $resp = $client->send($msg);
                 if ($resp->faultCode()) {

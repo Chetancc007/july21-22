@@ -103,15 +103,16 @@ class Payment extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                 return $payment;
             } else {
                 $val = $resp0->value()->me['array'];
-                $key1 = [new xmlrpcval('id', 'int'), new xmlrpcval('name', 'string')];
-                $msgSer1 = new xmlrpcmsg('execute');
+                $key1 = [new xmlrpcval('id', 'string'), new xmlrpcval('name', 'string')];
+                $context = ['context' => new xmlrpcval($context, "struct")];
+                $val = [new xmlrpcval($val, "array"), new xmlrpcval($key1, "array")];
+                $msgSer1 = new xmlrpcmsg('execute_kw');
                 $msgSer1->addParam(new xmlrpcval(Connection::$odooDb, "string"));
                 $msgSer1->addParam(new xmlrpcval($userId, "int"));
                 $msgSer1->addParam(new xmlrpcval(Connection::$odooPwd, "string"));
                 $msgSer1->addParam(new xmlrpcval("account.journal", "string"));
                 $msgSer1->addParam(new xmlrpcval("read", "string"));
                 $msgSer1->addParam(new xmlrpcval($val, "array"));
-                $msgSer1->addParam(new xmlrpcval($key1, "array"));
                 $msgSer1->addParam(new xmlrpcval($context, "struct"));
                 $resp1 = $client->send($msgSer1);
 
@@ -138,7 +139,7 @@ class Payment extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 
     public function syncSpecificPayment($paymentMethod)
     {
-        $response = [];
+        $response = ['odoo_id' => 0];
         $helper = $this->_connection;
         $helper->getSocketConnect();
         if ($paymentMethod) {
@@ -150,13 +151,15 @@ class Payment extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                         'name'=>new xmlrpcval($paymentMethod, "string"),
                         'type'=>new xmlrpcval('cash', "string")
                     ];
-            $msg = new xmlrpcmsg('execute');
+            $context = ['context' => new xmlrpcval($context, "struct")];
+            $paymentArray = [new xmlrpcval($paymentArray, "struct")];
+            $msg = new xmlrpcmsg('execute_kw');
             $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
             $msg->addParam(new xmlrpcval($userId, "int"));
             $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
-            $msg->addParam(new xmlrpcval("bridge.backbone", "string"));
+            $msg->addParam(new xmlrpcval("connector.snippet", "string"));
             $msg->addParam(new xmlrpcval("create_payment_method", "string"));
-            $msg->addParam(new xmlrpcval($paymentArray, "struct"));
+            $msg->addParam(new xmlrpcval($paymentArray, "array"));
             $msg->addParam(new xmlrpcval($context, "struct"));
             $resp = $client->send($msg);
             if ($resp->faultCode()) {
@@ -165,15 +168,23 @@ class Payment extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                 $response['error'] = $error;
                 $helper->addError($error);
             } else {
-                $odooId = $resp->value()->me["int"];
-                if ($odooId > 0) {
-                    $mappingData = [
-                                'magento_id'=>$paymentMethod,
-                                'odoo_id'=>$odooId,
-                                'created_by'=>$helper::$mageUser
-                            ];
-                    $this->createMapping($mappingData);
-                    $response['odoo_id'] = $odooId;
+                $paymentResp = $resp->value();
+                $status = $paymentResp->me["struct"]["status"]->me["boolean"];
+                if(!$status){
+                    $statusMessage = $paymentResp->me["struct"]["status_message"]->me["string"];
+                    $error = "Export Payment Method: ".$paymentMethod.", Error:-".$statusMessage;
+                    $helper->addError($error);
+                } else {
+                    $odooPaymentId = $paymentResp->me["struct"]["odoo_id"]->me["int"];
+                    $response['odoo_id'] = $odooPaymentId;
+                    if ($odooPaymentId > 0) {
+                        $mappingData = [
+                                    'magento_id'=>$paymentMethod,
+                                    'odoo_id'=>$odooPaymentId,
+                                    'created_by'=>$helper::$mageUser
+                                ];
+                        $this->createMapping($mappingData);
+                    }
                 }
             }
         }

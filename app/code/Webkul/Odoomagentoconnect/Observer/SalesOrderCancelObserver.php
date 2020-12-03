@@ -63,13 +63,15 @@ class SalesOrderCancelObserver implements ObserverInterface
                         $state = $this->checkErpOrderStatus($erporderid);
                         if ($state != 'cancel') {
                             $client = $helper->getClientConnect();
-                            $orderCancel = new xmlrpcmsg('execute');
+                            $context = ['context' => new xmlrpcval($context, "struct")];
+                            $erporderid = [new xmlrpcval($erporderid, "int")];
+                            $orderCancel = new xmlrpcmsg('execute_kw');
                             $orderCancel->addParam(new xmlrpcval($helper::$odooDb, "string"));
                             $orderCancel->addParam(new xmlrpcval($userId, "int"));
                             $orderCancel->addParam(new xmlrpcval($helper::$odooPwd, "string"));
                             $orderCancel->addParam(new xmlrpcval("wk.skeleton", "string"));
                             $orderCancel->addParam(new xmlrpcval("set_order_cancel", "string"));
-                            $orderCancel->addParam(new xmlrpcval($erporderid, "int"));
+                            $orderCancel->addParam(new xmlrpcval($erporderid, "array"));
                             $orderCancel->addParam(new xmlrpcval($context, "struct"));
                             $resp = $client->send($orderCancel);
                             if ($resp->faultcode()) {

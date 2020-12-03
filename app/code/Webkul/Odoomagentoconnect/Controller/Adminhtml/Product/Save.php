@@ -80,37 +80,41 @@ class Save extends \Webkul\Odoomagentoconnect\Controller\Adminhtml\Product
             $product = $this->_catalogModel->load($magentoId);
             $stockId = $product->getExtensionAttributes()->getStockItem()->getItemId();
             $prodMapArray = [
-                                'pro_name'=>new xmlrpcval($odooId, "int"),
-                                'oe_product_id'=>new xmlrpcval($odooId, "int"),
-                                'mag_product_id'=>new xmlrpcval($magentoId, "int"),
+                                'name'=>new xmlrpcval($odooId, "int"),
+                                'odoo_id'=>new xmlrpcval($odooId, "int"),
+                                'ecomm_id'=>new xmlrpcval($magentoId, "int"),
                                 'instance_id'=>$instanceId,
                                 'magento_stock_id'=>new xmlrpcval($stockId, "int"),
                                 'created_by'=>new xmlrpcval('Manual Mapping', "string"),
                             ];
-            $catgMap = new xmlrpcmsg('execute');
+            $context = ['context' => new xmlrpcval($context, "struct")];
+            $prodMapArray = [new xmlrpcval($prodMapArray, "struct")];
+            $catgMap = new xmlrpcmsg('execute_kw');
             $catgMap->addParam(new xmlrpcval($helper::$odooDb, "string"));
             $catgMap->addParam(new xmlrpcval($userId, "int"));
             $catgMap->addParam(new xmlrpcval($helper::$odooPwd, "string"));
-            $catgMap->addParam(new xmlrpcval("magento.product", "string"));
+            $catgMap->addParam(new xmlrpcval("connector.product.mapping", "string"));
             $catgMap->addParam(new xmlrpcval("create", "string"));
-            $catgMap->addParam(new xmlrpcval($prodMapArray, "struct"));
+            $catgMap->addParam(new xmlrpcval($prodMapArray, "array"));
             $catgMap->addParam(new xmlrpcval($context, "struct"));
             $catgMapResp = $client->send($catgMap);
             if ($catgMapResp->errno != 0) {
                 return false;
             } else {
                 $templateMapArray = [];
-                $templateMapArray['mage_product_id'] = new xmlrpcval($magentoId, "int");
-                $templateMapArray['erp_product_id'] = new xmlrpcval($odooId, "int");
+                $templateMapArray['ecomm_id'] = new xmlrpcval($magentoId, "int");
+                $templateMapArray['odoo_id'] = new xmlrpcval($odooId, "int");
                 $templateMapArray['instance_id'] = $instanceId;
 
-                $msg = new xmlrpcmsg('execute');
+                $context = ['context' => new xmlrpcval($context, "struct")];
+                $templateMapArray = [new xmlrpcval($templateMapArray, "struct")];
+                $msg = new xmlrpcmsg('execute_kw');
                 $msg->addParam(new xmlrpcval($helper::$odooDb, "string"));
                 $msg->addParam(new xmlrpcval($userId, "int"));
                 $msg->addParam(new xmlrpcval($helper::$odooPwd, "string"));
-                $msg->addParam(new xmlrpcval("magento.product.template", "string"));
+                $msg->addParam(new xmlrpcval("connector.template.mapping", "string"));
                 $msg->addParam(new xmlrpcval("create_template_mapping", "string"));
-                $msg->addParam(new xmlrpcval($templateMapArray, "struct"));
+                $msg->addParam(new xmlrpcval($templateMapArray, "array"));
                 $msg->addParam(new xmlrpcval($context, "struct"));
                 $respMsg = $client->send($msg);
                 if ($respMsg->errno != 0) {
