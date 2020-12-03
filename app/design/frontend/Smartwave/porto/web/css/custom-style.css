@@ -53,3 +53,17 @@
 .product-item-photo .product-item-inner {
     z-index: 0 !important;
 }
+.product-item .product-item-info img.product-image-photo {
+    max-width: 232px !important;
+    max-height: 232px !important;
+}
+.footer-top .col-lg-12 {
+    margin-top: 20px;
+}
+
+.stock.unavailable{
+    color: red !important;
+}
+#layer-product-list .product-image-photo.default_image{
+    z-index: -1 !important;
+}
