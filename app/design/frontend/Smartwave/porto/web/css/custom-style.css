@@ -67,3 +67,8 @@
 #layer-product-list .product-image-photo.default_image{
     z-index: -1 !important;
 }
+
+div#amasty-main-container {
+    max-width: 250px !important;
+    max-height: 300px !important;
+}
