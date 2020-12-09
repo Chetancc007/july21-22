@@ -45,7 +45,8 @@ $schema = ($block->getZone() == 'item_view') ? true : false;
         <span class="price-container price-final_price tax weee">
             <span class="price-label">Special Price</span>
             <span id="product-price-<?php echo $idSuffix; ?>" data-price-amount="<?php echo $deal_final_price_amount; ?>" data-price-type="finalPrice" class="price-wrapper ">
-                <span class="price"><?php echo $helper->getcurrencySymbol().''.$deal_final_price_amount; ?></span>
+               <!--  <span class="price"><?php echo $helper->getcurrencySymbol().''.$deal_final_price_amount; ?></span> -->
+               <span class="price custom"><?php echo $helper->getcurrencySymbol().''.$deal_final_price_amount; ?></span>
             </span>
         </span>
     </span>
