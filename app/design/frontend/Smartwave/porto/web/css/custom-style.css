@@ -68,7 +68,24 @@
     z-index: -1 !important;
 }
 
+/*Mahalakshmi add css code*/
 div#amasty-main-container {
     max-width: 250px !important;
+    max-height: 300px !important;
+}
+.col-md-7.block .footer-middle ul.links li a {
+    margin-left: 5px;
+}
+.footer-middle.footer-middle-2 .col-lg-12 {
+    margin-bottom: -25px;
+}
+.product-info-main .prev-next-products ~ .page-title-wrapper h1 {
+    line-height: 40px;
+}
+.product-info-main .stock.available, .product-info-main .stock.unavailable, .product-info-main .product.sku {
+    line-height: 27px;
+}
+.gallery-placeholder #amasty-main-container #amasty-main-image {
+    max-width: 300px !important;
     max-height: 300px !important;
 }

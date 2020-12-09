@@ -7,7 +7,7 @@ body > p {
 .toolbar .modes > a {
     text-decoration: none;
 }
-.toolbar-amount {display: none;}
+/*.toolbar-amount {display: none;}*/
 .clearer {
     clear:both;
 }
