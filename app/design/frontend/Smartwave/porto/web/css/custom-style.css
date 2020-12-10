@@ -89,7 +89,7 @@ div#amasty-main-container {
     max-width: 300px !important;
     max-height: 300px !important;
 }
-span.price.custom::before {
+.special-price.custom-text:before{
     font-weight: bold;
     color: #403f3f;
     content: "Now Only";
