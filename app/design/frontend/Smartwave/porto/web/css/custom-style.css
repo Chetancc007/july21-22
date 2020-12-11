@@ -102,8 +102,8 @@
 } */
 
 .catalog-product-view .special-price.custom-text:before{
-    /*font-weight: bold;*/
-    /*color: #403f3f;*/
+    font-weight: bold;
+    color: #403f3f;
     content: "Now Only";
     margin-top: 2px;
     font-size: 20px;
