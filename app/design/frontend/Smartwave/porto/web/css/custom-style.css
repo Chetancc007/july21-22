@@ -72,7 +72,7 @@
 /* div#amasty-main-container {
     max-width: 250px !important;
     max-height: 300px !important;
-}
+} */
 .col-md-7.block .footer-middle ul.links li a {
     margin-left: 5px;
 }
@@ -85,7 +85,7 @@
 .product-info-main .stock.available, .product-info-main .stock.unavailable, .product-info-main .product.sku {
     line-height: 27px;
 }
-.gallery-placeholder #amasty-main-container #amasty-main-image {
+/*.gallery-placeholder #amasty-main-container #amasty-main-image {
     max-width: 300px !important;
     max-height: 300px !important;
 }
@@ -146,4 +146,9 @@ span.special-price.custom-text:before {
     margin-right: 10px;
     color: #F70046;
     display: contents;
+}
+.price-box .price{
+    font-size: 20px;
+    margin-left: 10px;
+    line-height: 1.7 !important;
 }
