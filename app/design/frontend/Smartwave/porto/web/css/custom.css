@@ -7678,26 +7678,5 @@ header.page-header.type15 .minicart-wrapper .minicart-items .product-item-detail
 	}
 }
 
-.toolbar-amount {
-    display: block;
-    padding-top: 10px;
-}
-.special-price.custom-text:before{
-    display: none;
-}
-.footer-middle .block-content li span {
-    margin-right: 5px;
-}
 
-.custom-block a.theme-color {
-    display: none;
-}
-.special-price {
-    display: flex !important;
-}
-.product-info-price .price-box .price-container span.price {
-    font-size: 20px;
-    font-weight: normal;
-    color: #F70046;
-}
 
