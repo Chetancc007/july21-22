@@ -69,7 +69,7 @@
 }
 
 /*Mahalakshmi add css code*/
-div#amasty-main-container {
+/* div#amasty-main-container {
     max-width: 250px !important;
     max-height: 300px !important;
 }
@@ -99,4 +99,14 @@ div#amasty-main-container {
     background-color: #ffffff;
     padding-top: 10px;
     padding-bottom: 5px;
+} */
+
+.product-info-main .catalog-product-view .special-price.custom-text:before{
+    /*font-weight: bold;*/
+    /*color: #403f3f;*/
+    content: "Now Only";
+    margin-top: 2px;
+    font-size: 20px;
+    margin-right: 10px;
+    color: #F70046;
 }
