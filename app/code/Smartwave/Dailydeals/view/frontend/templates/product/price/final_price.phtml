@@ -32,15 +32,6 @@ $schema = ($block->getZone() == 'item_view') ? true : false;
     <?php
         $deal_final_price_amount = number_format($helper->getDealproductbyId($productId),2);
     ?>
-    <span class="old-price">
-        <?php /* @escapeNotVerified */ echo $block->renderAmount($finalPriceModel->getAmount(), [
-            'display_label'     => __('Regular Price'),
-            'price_id'          => $block->getPriceId('old-price-' . $idSuffix),
-            'price_type'        => 'oldPrice',
-            'include_container' => true,
-            'skip_adjustments'  => true
-        ]); ?>
-    </span>
     <span class="special-price">
         <span class="price-container price-final_price tax weee">
             <span class="price-label">Special Price</span>
@@ -50,9 +41,8 @@ $schema = ($block->getZone() == 'item_view') ? true : false;
             </span>
         </span>
     </span>
-<?php elseif ($block->hasSpecialPrice()): ?>
     <span class="old-price">
-        <?php /* @escapeNotVerified */ echo $block->renderAmount($priceModel->getAmount(), [
+        <?php /* @escapeNotVerified */ echo $block->renderAmount($finalPriceModel->getAmount(), [
             'display_label'     => __('Regular Price'),
             'price_id'          => $block->getPriceId('old-price-' . $idSuffix),
             'price_type'        => 'oldPrice',
@@ -60,6 +50,7 @@ $schema = ($block->getZone() == 'item_view') ? true : false;
             'skip_adjustments'  => true
         ]); ?>
     </span>
+<?php elseif ($block->hasSpecialPrice()): ?>
     <span class="special-price custom-text">
         <?php /* @escapeNotVerified */ echo $block->renderAmount($finalPriceModel->getAmount(), [
             'display_label'     => __('Special Price'),
@@ -67,6 +58,15 @@ $schema = ($block->getZone() == 'item_view') ? true : false;
             'price_type'        => 'finalPrice',
             'include_container' => true,
             'schema' => $schema
+        ]); ?>
+    </span>
+    <span class="old-price">
+        <?php /* @escapeNotVerified */ echo $block->renderAmount($priceModel->getAmount(), [
+            'display_label'     => __('Regular Price'),
+            'price_id'          => $block->getPriceId('old-price-' . $idSuffix),
+            'price_type'        => 'oldPrice',
+            'include_container' => true,
+            'skip_adjustments'  => true
         ]); ?>
     </span>
 <?php else : ?>
