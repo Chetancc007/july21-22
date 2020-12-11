@@ -127,8 +127,9 @@
 .special-price {
     display: flex !important;
 }
-.product-info-price .price-box .price-container span.price {
-    font-size: 20px;
-    font-weight: normal;
-    color: #F70046;
+.special-price.custom-text:before{
+    font-weight: bold;
+    color: #403f3f;
+    content: "Now Only";
+    margin: 10px 10px;
 }
