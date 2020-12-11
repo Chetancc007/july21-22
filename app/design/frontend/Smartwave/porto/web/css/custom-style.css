@@ -132,3 +132,18 @@
     font-weight: normal;
     color: #F70046;
 }
+.price-box.price-final_price {
+    display: inline-block;
+}
+.product-info-main .product-info-price .price-box .price-final_price>span{
+    margin-left: 10px;
+    margin-top: -2px;
+}
+span.special-price.custom-text:before {
+    content: "Now Only";
+    margin-top: 2px;
+    font-size: 20px;
+    margin-right: 10px;
+    color: #F70046;
+    display: contents;
+}
