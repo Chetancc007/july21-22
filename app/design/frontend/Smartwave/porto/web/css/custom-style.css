@@ -101,9 +101,9 @@
     padding-bottom: 5px;
 } */
 
-.catalog-product-view .special-price.custom-text:before{
-    font-weight: bold;
-    color: #403f3f;
+.special-price.custom-text:before{
+    /*font-weight: bold;*/
+    /*color: #403f3f;*/
     content: "Now Only";
     margin-top: 2px;
     font-size: 20px;
@@ -127,9 +127,8 @@
 .special-price {
     display: flex !important;
 }
-.special-price.custom-text:before{
-    font-weight: bold;
-    color: #403f3f;
-    content: "Now Only";
-    margin: 10px 10px;
+.product-info-price .price-box .price-container span.price {
+    font-size: 20px;
+    font-weight: normal;
+    color: #F70046;
 }
