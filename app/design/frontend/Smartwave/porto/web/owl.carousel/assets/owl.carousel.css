@@ -117,6 +117,7 @@
   display: block;
   max-width: 100%;
   -webkit-transform-style: preserve-3d;
+  width: 1284px;
 }
 .owl-carousel.owl-text-select-on .owl-item {
   -webkit-user-select: auto;
