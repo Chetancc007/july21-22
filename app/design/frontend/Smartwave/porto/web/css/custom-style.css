@@ -165,3 +165,12 @@
     margin-left: 5px;
     line-height: 1.7 !important;
 }
+.page-layout-1column .product.media{
+    margin-top: -170px;
+}
+.home-slider .container {
+    width: 100%;
+}
+.checkout-cart-index header.page-header.type23 {
+    z-index: 0 !important;
+}
