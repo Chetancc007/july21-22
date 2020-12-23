@@ -172,5 +172,5 @@
     width: 100%;
 }
 .checkout-cart-index header.page-header.type23 {
-    z-index: 0 !important;
+    z-index: 55 !important;
 }
