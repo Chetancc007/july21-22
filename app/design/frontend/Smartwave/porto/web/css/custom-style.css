@@ -179,6 +179,9 @@
 .page-header.type23 .search-category{
     display: block !important;
 }
-#banner-slider-demo-27 img {
-    width: 1284px;
+#banner-slider-demo-27 .owl-carousel .owl-item img {
+    width: 1284px !important;
+}
+.owl-theme .owl-controls .owl-nav [class*=owl-]{
+    margin: 40px !important;
 }
