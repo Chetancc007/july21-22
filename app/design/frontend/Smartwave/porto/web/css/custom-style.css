@@ -185,3 +185,7 @@
 .owl-theme .owl-controls .owl-nav [class*=owl-]{
     margin: 40px !important;
 }
+
+#amasty-main-image{
+    max-width: 300px;
+}
