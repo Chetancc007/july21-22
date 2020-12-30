@@ -166,7 +166,9 @@
     line-height: 1.7 !important;
 }
 .page-layout-1column .product.media{
-    margin-top: -170px;
+    /*margin-top: -170px;*/
+    width: 300px;
+    object-fit: cover;
 }
 .home-slider .container {
     width: 100%;
