@@ -187,5 +187,5 @@
 }
 
 #amasty-main-image{
-    max-width: 300px;
+    max-width: 300px !important;
 }
