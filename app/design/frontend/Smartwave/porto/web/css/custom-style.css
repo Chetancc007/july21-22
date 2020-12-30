@@ -165,11 +165,9 @@
     margin-left: 5px;
     line-height: 1.7 !important;
 }
-.page-layout-1column .product.media{
-    /*margin-top: -170px;*/
-    width: 300px;
-    object-fit: cover;
-}
+/*.page-layout-1column .product.media{
+    margin-top: -170px;
+}*/
 .home-slider .container {
     width: 100%;
     max-width: 100% !important;
