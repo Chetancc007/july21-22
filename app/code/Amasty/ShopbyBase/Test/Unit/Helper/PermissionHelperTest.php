@@ -49,7 +49,7 @@ class PermissionHelperTest extends \PHPUnit\Framework\TestCase
      */
     private $customerSession;
 
-    public function setup(): void
+    public function setUp(): void
     {
         $this->permissionHelper = $this->getMockBuilder(PermissionHelper::class)
             ->disableOriginalConstructor()

@@ -30,7 +30,7 @@ class CategoryTest extends \PHPUnit\Framework\TestCase
      */
     private $plugin;
 
-    public function setUp()
+    public function setUp(): void
     {
         $layerResolver = $this->createMock(\Magento\Catalog\Model\Layer\Resolver::class);
         $layer = $this->createMock(\Magento\Catalog\Model\Layer::class);

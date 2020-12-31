@@ -6,13 +6,14 @@
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Shopby\Model\Layer\Filter;
 
+use Magento\Framework\Api\Search\SearchResultInterface;
 use Magento\Framework\Exception\StateException;
-use Magento\Search\Model\SearchEngine;
 use Amasty\Shopby\Model\Layer\Filter\Traits\FromToDecimal;
 use Amasty\Shopby\Model\Source\DisplayMode;
-use Magento\Catalog\Model\Layer\Filter\Dynamic\AlgorithmFactory;
 use Amasty\Shopby\Api\Data\FromToFilterInterface;
 
 class Price extends \Magento\CatalogSearch\Model\Layer\Filter\Price implements FromToFilterInterface
@@ -64,9 +65,9 @@ class Price extends \Magento\CatalogSearch\Model\Layer\Filter\Price implements F
     private $groupHelper;
 
     /**
-     * @var SearchEngine
+     * @var \Magento\Search\Api\SearchInterface
      */
-    private $searchEngine;
+    private $search;
 
     /**
      * @var \Magento\Framework\Message\ManagerInterface
@@ -89,7 +90,7 @@ class Price extends \Magento\CatalogSearch\Model\Layer\Filter\Price implements F
         \Amasty\Shopby\Model\Request $shopbyRequest,
         \Amasty\Shopby\Helper\Group $groupHelper,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        SearchEngine $searchEngine,
+        \Magento\Search\Api\SearchInterface $search,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         array $data = []
     ) {
@@ -101,7 +102,7 @@ class Price extends \Magento\CatalogSearch\Model\Layer\Filter\Price implements F
         $this->groupHelper = $groupHelper;
         $this->scopeConfig = $scopeConfig;
         $this->priceCurrency = $priceCurrency;
-        $this->searchEngine = $searchEngine;
+        $this->search = $search;
         $this->messageManager = $messageManager;
         parent::__construct(
             $filterItemFactory,
@@ -222,12 +223,12 @@ class Price extends \Magento\CatalogSearch\Model\Layer\Filter\Price implements F
             $includeBorders = $this->isSliderOrFromTo($displayMode) ? self::DELTA_FOR_BORDERS_RANGE : 0;
 
             //apply delta
-            $values[0] = isset($values[0]) && $values[0] ? ((float)$values[0] - $includeBorders) : '';
-            $values[1] = isset($values[1]) && $values[1] ? ((float)$values[1] + $includeBorders) : '';
+            $values[0] = isset($values[0]) && $values[0] ? (floatval($values[0]) - $includeBorders) : '';
+            $values[1] = isset($values[1]) && $values[1] ? (floatval($values[1]) + $includeBorders) : '';
 
             //apply rate
-            $values[0] = $values[0] ? (float)$values[0] / $this->getCurrencyRate() : '';
-            $values[1] = $values[1] ? (float)$values[1] / $this->getCurrencyRate() : '';
+            $values[0] = $values[0] ? floatval($values[0]) / $this->getCurrencyRate() : '';
+            $values[1] = $values[1] ? floatval($values[1]) / $this->getCurrencyRate() : '';
             $newValue = $values[0] . '-' . $values[1];
 
             if (!$validateFilter) {
@@ -266,42 +267,17 @@ class Price extends \Magento\CatalogSearch\Model\Layer\Filter\Price implements F
     }
 
     /**
-     * @return \Magento\Framework\Search\Response\QueryResponse|\Magento\Framework\Search\ResponseInterface|null
-     */
-    private function getAlteredQueryResponse()
-    {
-        $alteredQueryResponse = null;
-        if ($this->hasCurrentValue()) {
-            $requestBuilder = $this->getMemRequestBuilder();
-            $filterSetting = $this->settingHelper->getSettingByLayerFilter($this);
-            $rangeCalculation = $this->scopeConfig->getValue(AlgorithmFactory::XML_PATH_RANGE_CALCULATION);
-            if ($rangeCalculation != AlgorithmFactory::RANGE_CALCULATION_IMPROVED || $this->isUnical($filterSetting)) {
-                $attributeCode = $this->getAttributeModel()->getAttributeCode();
-                $requestBuilder->removePlaceholder($attributeCode . '.from');
-                $requestBuilder->removePlaceholder($attributeCode . '.to');
-                $requestBuilder->setAggregationsOnly($attributeCode);
-            }
-            $queryRequest = $requestBuilder->create();
-            $alteredQueryResponse = $this->searchEngine->search($queryRequest);
-        }
-
-        return $alteredQueryResponse;
-    }
-
-    /**
      * @return mixed
      */
     private function getFacetedData()
     {
         $key = 'price_facets' . $this->_requestVar;
         if ($this->coreRegistry->registry($key) === null) {
-            /** @var \Magento\CatalogSearch\Model\ResourceModel\Fulltext\Collection $productCollection */
             $productCollection = $this->getLayer()->getProductCollection();
-            $alteredQueryResponse = $this->getAlteredQueryResponse();
             try {
                 $facets = $productCollection->getFacetedData(
                     $this->getAttributeModel()->getAttributeCode(),
-                    $alteredQueryResponse
+                    $this->getSearchResult()
                 );
             } catch (StateException $e) {
                 if (!$this->messageManager->hasMessages()) {
@@ -319,16 +295,6 @@ class Price extends \Magento\CatalogSearch\Model\Layer\Filter\Price implements F
         }
 
         return $this->coreRegistry->registry($key);
-    }
-
-    /**
-     * @param $filterSetting
-     * @return bool
-     */
-    private function isUnical($filterSetting)
-    {
-        return $this->isSliderOrFromTo($filterSetting->getDisplayMode())
-            || $filterSetting->getAddFromToWidget() === '1';
     }
 
     /**

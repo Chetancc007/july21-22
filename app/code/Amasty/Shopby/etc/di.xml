@@ -115,6 +115,7 @@
                 <item name="rating_summary" xsi:type="string">integer</item>
                 <item name="stock_status" xsi:type="string">integer</item>
                 <item name="am_is_new" xsi:type="string">integer</item>
+                <item name="product_id" xsi:type="string">product_id</item>
                 <item name="am_on_sale"
                       xsi:type="object">Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter\FieldMapper\OnSale</item>
             </argument>
@@ -132,6 +133,8 @@
                       xsi:type="object">Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter\DataMapper\StockStatus</item>
                 <item name="am_on_sale"
                       xsi:type="object">Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter\DataMapper\OnSale</item>
+                <item name="product_id"
+                      xsi:type="object">Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter\DataMapper\ProductId</item>
             </argument>
         </arguments>
     </type>
@@ -147,6 +150,8 @@
                       xsi:type="object">Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter\DataMapper\StockStatus</item>
                 <item name="am_on_sale"
                       xsi:type="object">Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter\DataMapper\OnSale</item>
+                <item name="product_id"
+                      xsi:type="object">Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter\DataMapper\ProductId</item>
             </argument>
         </arguments>
     </type>
@@ -264,11 +269,6 @@
                 type="Amasty\Shopby\Plugin\Catalog\Model\ResourceModel\Product\Indexer\Price\Configurable"/>
     </type>
 
-    <type name="\Magento\Catalog\Model\ResourceModel\Product\Indexer\Price\SimpleProductPrice">
-        <plugin name="Amasty_Shopby::PriceRuleIndexerFixer.2.2.6"
-                type="Amasty\Shopby\Plugin\Catalog\Model\ResourceModel\Product\Indexer\Price\Dimensional\Simple"/>
-    </type>
-
     <type name="\Magento\ConfigurableProduct\Model\ResourceModel\Product\Indexer\Price\Configurable">
         <plugin name="Amasty_Shopby::PriceRuleIndexerFixerConfigurable.2.2.6"
                 type="Amasty\Shopby\Plugin\Catalog\Model\ResourceModel\Product\Indexer\Price\Dimensional\Configurable"/>
@@ -317,5 +317,78 @@
     <type name="Magento\CatalogSearch\Model\Adapter\Mysql\Filter\Preprocessor">
         <plugin name="Amasty_Shopby::PrepareWhereCauseForCustomFilters"
                 type="Amasty\Shopby\Plugin\CatalogSearch\Model\Adapter\Mysql\Filter\Preprocessor"/>
+    </type>
+
+    <type name="Amasty\Shopby\Model\ResourceModel\Fulltext\Collection">
+        <arguments>
+            <argument name="filterBuilder" xsi:type="object">Magento\Framework\Api\FilterBuilder</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="mysqlSearchResultWrapper" type="Amasty\ShopbyBase\Model\Di\Wrapper">
+        <arguments>
+            <argument name="name" xsi:type="string">Magento\CatalogSearch\Model\ResourceModel\Fulltext\Collection\SearchResultApplierFactory</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Amasty\Shopby\Model\ResourceModel\Fulltext\Collection\SearchResultApplier">
+        <arguments>
+            <argument name="mysqlSearchResultApplierFactory" xsi:type="object">mysqlSearchResultWrapper</argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\CatalogSearch\Model\Search\FilterMapper\StockStatusFilter">
+        <plugin name="adapt_stock_status_filter" disabled="true"/>
+        <plugin name="Amasty_Shopby::FixStockStatusFilterSearchQuery"
+                type="Amasty\Shopby\Plugin\CatalogSearch\Model\Search\FilterMapper\StockStatusFilterPlugin"/>
+    </type>
+
+    <type name="Magento\InventoryIndexer\Indexer\Stock\Strategy\Sync">
+        <plugin name="configurable_product_full_index" sortOrder="1"/>
+        <plugin name="configurable_product_index_list" sortOrder="1"/>
+    </type>
+
+    <type name="Magento\InventoryIndexer\Indexer\Stock\Strategy\Sync">
+        <plugin name="grouped_product_index_list" sortOrder="2"/>
+        <plugin name="grouped_product_index_full" sortOrder="2"/>
+    </type>
+
+    <virtualType name="amInventoryStockResolver" type="Amasty\ShopbyBase\Model\Di\Wrapper">
+        <arguments>
+            <argument name="name" xsi:type="string">Magento\InventorySalesApi\Api\StockResolverInterface</argument>
+            <argument name="getShared" xsi:type="boolean">true</argument>
+            <argument name="isProxy" xsi:type="boolean">true</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="amInventoryDefaultStockProvider" type="Amasty\ShopbyBase\Model\Di\Wrapper">
+        <arguments>
+            <argument name="name" xsi:type="string">Magento\InventoryCatalogApi\Api\DefaultStockProviderInterface</argument>
+            <argument name="getShared" xsi:type="boolean">true</argument>
+            <argument name="isProxy" xsi:type="boolean">true</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="amInventoryStockIndexTableNameResolver" type="Amasty\ShopbyBase\Model\Di\Wrapper">
+        <arguments>
+            <argument name="name" xsi:type="string">Magento\InventoryIndexer\Model\StockIndexTableNameResolverInterface</argument>
+            <argument name="isProxy" xsi:type="boolean">true</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Amasty\Shopby\Model\CatalogSearch\Indexer\Fulltext\DataProvider">
+        <arguments>
+            <argument name="stockResolver" xsi:type="object">amInventoryStockResolver</argument>
+            <argument name="defaultStockProvider" xsi:type="object">amInventoryDefaultStockProvider</argument>
+            <argument name="stockIndexTableNameResolver" xsi:type="object">amInventoryStockIndexTableNameResolver</argument>
+        </arguments>
+    </type>
+
+    <type name="Amasty\Shopby\Plugin\CatalogSearch\Model\Search\FilterMapper\StockStatusFilterPlugin">
+        <arguments>
+            <argument name="stockResolver" xsi:type="object">amInventoryStockResolver</argument>
+            <argument name="defaultStockProvider" xsi:type="object">amInventoryDefaultStockProvider</argument>
+            <argument name="stockIndexTableNameResolver" xsi:type="object">amInventoryStockIndexTableNameResolver</argument>
+        </arguments>
     </type>
 </config>

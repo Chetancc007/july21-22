@@ -51,6 +51,10 @@
         <plugin name="Amasty_ShopbyBrand::linksTitle"
                 type="Amasty\ShopbyBrand\Plugin\Catalog\Block\Product\View\BlockHtmlTitlePlugin" />
     </type>
+    <type name="Amasty\Mage24Fix\Block\Theme\Html\Title">
+        <plugin name="Amasty_ShopbyBrand::linksTitle"
+                type="Amasty\ShopbyBrand\Plugin\Catalog\Block\Product\View\BlockHtmlTitlePlugin" />
+    </type>
     <type name="Amasty\Shopby\Model\Layer\Filter\Attribute">
         <plugin name="remove-brand-from-filter" type="Amasty\ShopbyBrand\Plugin\AttributeFilterPlugin"/>
     </type>

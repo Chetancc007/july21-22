@@ -9,12 +9,9 @@
 namespace Amasty\Shopby\Plugin\CatalogRule\Model\Indexer;
 
 use Magento\Catalog\Model\Indexer\Product\Price\Processor;
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Indexer\IndexerRegistry;
 
-/**
- * Class RuleProductPricesPersistor
- * @package Amasty\Shopby\Plugin\CatalogRule\Model\Indexer
- */
 class RuleProductPricesPersistor
 {
     /**
@@ -22,9 +19,22 @@ class RuleProductPricesPersistor
      */
     private $indexerRegistry;
 
-    public function __construct(IndexerRegistry $indexerRegistry)
-    {
+    /**
+     * @var \Amasty\Base\Model\MagentoVersion
+     */
+    private $magentoVersion;
+
+    public function __construct(
+        IndexerRegistry $indexerRegistry,
+        \Amasty\Base\Model\MagentoVersion $magentoVersion
+    ) {
         $this->indexerRegistry = $indexerRegistry;
+        $this->magentoVersion = $magentoVersion;
+    }
+
+    public function isEnabled(): bool
+    {
+        return version_compare($this->magentoVersion->get(), '2.3', '<');
     }
 
     /**
@@ -34,7 +44,7 @@ class RuleProductPricesPersistor
      */
     public function afterExecute($subject, $result)
     {
-        if ($result) {
+        if ($result && $this->isEnabled()) {
             $this->indexerRegistry->get(Processor::INDEXER_ID)->invalidate();
         }
 

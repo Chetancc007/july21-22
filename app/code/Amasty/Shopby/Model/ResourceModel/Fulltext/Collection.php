@@ -8,42 +8,70 @@
 
 namespace Amasty\Shopby\Model\ResourceModel\Fulltext;
 
-use Amasty\Shopby\Helper\Category;
-use Amasty\Shopby\Helper\Group;
-use Magento\CatalogInventory\Helper\Stock;
+use Amasty\Shopby\Model\ResourceModel\Fulltext\Collection\SearchCriteriaResolver;
+use Amasty\Shopby\Model\ResourceModel\Fulltext\Collection\SearchResultApplier;
+use Amasty\Shopby\Model\ResourceModel\Fulltext\Collection\TotalRecordsResolver;
+use Magento\CatalogSearch\Model\ResourceModel\Fulltext\Collection\SearchCriteriaResolver as MysqlSearchCriteriaResolver;
+use Magento\CatalogSearch\Model\ResourceModel\Fulltext\Collection\SearchResultApplierInterface;
+use Magento\CatalogSearch\Model\ResourceModel\Fulltext\Collection\TotalRecordsResolver as MysqlTotalRecordsResolver;
+use Magento\CatalogSearch\Model\Search\RequestGenerator;
+use Magento\Elasticsearch\Model\ResourceModel\Fulltext\Collection\SearchCriteriaResolver
+    as ElasticSearchCriteriaResolver;
+use Magento\Elasticsearch\Model\ResourceModel\Fulltext\Collection\TotalRecordsResolver as ElasticTotalRecordsResolver;
+use Magento\Framework\Api\Search\SearchCriteria;
+use Amasty\Shopby\Model\Search\SearchCriteriaBuilderProvider;
+use Magento\Framework\Api\Search\SearchResultFactory;
+use Magento\Framework\Api\Search\SearchResultInterface;
 use Magento\Framework\DB\Select;
-use Magento\Framework\Search\Response\QueryResponse;
-use Magento\Framework\Search\Adapter\Mysql\TemporaryStorage;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Search\EngineResolverInterface;
+use Magento\Framework\Search\Request\EmptyRequestDataException;
+use Magento\Framework\Search\Request\NonExistingRequestNameException;
 use Magento\Framework\Exception\StateException;
-use Magento\Framework\Phrase;
 
-/**
- * Fulltext Collection
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- */
 class Collection extends \Magento\Catalog\Model\ResourceModel\Product\Collection
 {
-    /**
-     * @var  QueryResponse
-     */
-    private $queryResponse;
+    const MYSQL_ENGINE = 'mysql';
 
     /**
-     * Catalog search data
-     *
-     * @var \Magento\Search\Model\QueryFactory
+     * @var SearchCriteriaBuilderProvider
      */
-    private $queryFactory = null;
+    private $searchCriteriaBuilderProvider;
 
     /**
-     * @var \Amasty\Shopby\Model\Request\Builder
+     * @var \Magento\Framework\Api\FilterBuilder
      */
-    private $requestBuilder;
+    private $filterBuilder;
 
     /**
-     * @var \Magento\Search\Model\SearchEngine
+     * @var SearchCriteriaResolver
      */
-    private $searchEngine;
+    private $searchCriteriaResolver;
+
+    /**
+     * @var array
+     */
+    private $searchOrders;
+
+    /**
+     * @var \Magento\Framework\Api\Search\SearchResultInterface
+     */
+    private $searchResult;
+
+    /**
+     * @var \Magento\Search\Api\SearchInterface
+     */
+    private $search;
+
+    /**
+     * @var TotalRecordsResolver
+     */
+    private $totalRecordsResolver;
+
+    /**
+     * @var SearchResultApplier
+     */
+    private $searchResultApplier;
 
     /**
      * @var string
@@ -51,39 +79,24 @@ class Collection extends \Magento\Catalog\Model\ResourceModel\Product\Collection
     private $queryText;
 
     /**
-     * @var string|null
-     */
-    private $relevanceOrderDirection;
-
-    /**
      * @var string
      */
     private $searchRequestName;
 
     /**
-     * @var \Magento\Framework\Search\Adapter\Mysql\TemporaryStorageFactory
+     * @var SearchCriteriaBuilderProvider
      */
-    private $temporaryStorageFactory;
+    private $memCriteriaBuilderProvider;
 
     /**
-     * @var \Amasty\Shopby\Model\Layer\Cms\Manager
+     * @var EngineResolverInterface
      */
-    private $cmsManager;
+    private $engineResolver;
 
     /**
-     * @var Stock
+     * @var SearchResultFactory
      */
-    private $stockHelper;
-
-    /**
-     * @var Group
-     */
-    private $groupHelper;
-
-    /**
-     * @var \Amasty\Shopby\Model\Request\Builder
-     */
-    private $memRequestBuilder;
+    private $searchResultFactory;
 
     public function __construct(
         \Magento\Framework\Data\Collection\EntityFactory $entityFactory,
@@ -105,19 +118,18 @@ class Collection extends \Magento\Catalog\Model\ResourceModel\Product\Collection
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Framework\Stdlib\DateTime $dateTime,
         \Magento\Customer\Api\GroupManagementInterface $groupManagement,
-        \Magento\Search\Model\QueryFactory $queryFactory,
-        \Amasty\Shopby\Model\Request\BuilderFactory $requestBuilderFactory,
-        \Magento\Search\Model\SearchEngine $searchEngine,
-        \Magento\Framework\Search\Adapter\Mysql\TemporaryStorageFactory $temporaryStorageFactory,
-        \Amasty\Shopby\Model\Layer\Cms\Manager $cmsManager,
-        Stock $stockHelper,
-        Group $groupHelper,
+        \Magento\Framework\Api\FilterBuilder $filterBuilder,
+        SearchCriteriaBuilderProvider $searchCriteriaBuilderProvider,
+        \Magento\Search\Api\SearchInterface $search,
+        TotalRecordsResolver $totalRecordsResolver,
+        SearchCriteriaResolver $searchCriteriaResolver,
+        SearchResultApplier $searchResultApplier,
+        EngineResolverInterface $engineResolver,
+        SearchResultFactory $searchResultFactory,
         $connection = null,
         $searchRequestName = 'catalog_view_container'
     ) {
-        $this->queryFactory = $queryFactory;
         $this->searchRequestName = $searchRequestName;
-        $this->groupHelper = $groupHelper;
         parent::__construct(
             $entityFactory,
             $logger,
@@ -141,11 +153,14 @@ class Collection extends \Magento\Catalog\Model\ResourceModel\Product\Collection
             $connection
         );
 
-        $this->requestBuilder = $requestBuilderFactory->create();
-        $this->searchEngine = $searchEngine;
-        $this->temporaryStorageFactory = $temporaryStorageFactory;
-        $this->cmsManager = $cmsManager;
-        $this->stockHelper = $stockHelper;
+        $this->filterBuilder = $filterBuilder;
+        $this->searchCriteriaBuilderProvider = $searchCriteriaBuilderProvider;
+        $this->search = $search;
+        $this->totalRecordsResolver = $totalRecordsResolver;
+        $this->searchCriteriaResolver = $searchCriteriaResolver;
+        $this->searchResultApplier = $searchResultApplier;
+        $this->engineResolver = $engineResolver;
+        $this->searchResultFactory = $searchResultFactory;
     }
 
     /**
@@ -160,48 +175,115 @@ class Collection extends \Magento\Catalog\Model\ResourceModel\Product\Collection
         return $this;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function setRequestData($builder)
+    public function getSearchCriteria(?array $attributeCodesForRemove): SearchCriteria
     {
-        $this->_select->reset();
-        $this->requestBuilder = $builder;
-        $this->queryResponse = null;
-        $this->_isFiltersRendered = false;
-    }
-
-    /**
-     * @return \Amasty\Shopby\Model\Request\Builder
-     */
-    public function getMemRequestBuilder()
-    {
-        if ($this->memRequestBuilder === null) {
-            $this->memRequestBuilder = clone $this->requestBuilder;
-            $this->memRequestBuilder->bindDimension('scope', $this->getStoreId());
-            if ($this->queryText) {
-                $this->memRequestBuilder->bind('search_term', $this->queryText);
+        $searchCriteriaBuilderProvider = clone $this->searchCriteriaBuilderProvider;
+        $this->prepareSearchTermFilter($searchCriteriaBuilderProvider);
+        $this->preparePriceAggregation($searchCriteriaBuilderProvider);
+        if (is_array($attributeCodesForRemove) && !empty($attributeCodesForRemove)) {
+            foreach ($attributeCodesForRemove as $code) {
+                $searchCriteriaBuilderProvider->removeFilter($code);
             }
-
-            $priceRangeCalculation = $this->getPriceRangeCalculation();
-            if ($priceRangeCalculation) {
-                $this->memRequestBuilder->bind('price_dynamic_algorithm', $priceRangeCalculation);
-            }
-
-            $this->memRequestBuilder->setRequestName($this->searchRequestName);
         }
-        return $this->memRequestBuilder;
+
+        return $this->getSearchCriteriaResolver($searchCriteriaBuilderProvider)->resolve();
     }
 
     /**
-     * @return string
+     * @param array $filter
+     * @return SearchCriteria
      */
-    protected function getPriceRangeCalculation()
+    public function getMemSearchCriteria(array $filter = []): SearchCriteria
     {
-        return $this->_scopeConfig->getValue(
+        $searchCriteriaBuilderProvider = clone $this->getMemSearchCriteriaBuilderProvider();
+
+        foreach ($filter as $field => $value) {
+            $searchCriteriaBuilderProvider->addFilter($field, $value);
+        }
+
+        return $this->getSearchCriteriaResolver($searchCriteriaBuilderProvider)->resolve();
+    }
+
+    /**
+     * @return SearchCriteriaBuilderProvider
+     */
+    private function getMemSearchCriteriaBuilderProvider()
+    {
+        if ($this->memCriteriaBuilderProvider === null) {
+            $this->memCriteriaBuilderProvider = clone $this->searchCriteriaBuilderProvider;
+            $this->memCriteriaBuilderProvider->addFilter('scope', $this->getStoreId());
+            if ($this->queryText) {
+                $this->prepareSearchTermFilter($this->memCriteriaBuilderProvider);
+            }
+        }
+
+        return $this->memCriteriaBuilderProvider;
+    }
+
+    /**
+     * @throws LocalizedException
+     */
+    protected function _renderFiltersBefore()
+    {
+        if ($this->isLoaded()) {
+            return;
+        }
+
+        if ($this->searchRequestName !== 'quick_search_container' || strlen(trim($this->queryText))) {
+            $this->prepareSearchTermFilter($this->searchCriteriaBuilderProvider);
+            $this->preparePriceAggregation($this->searchCriteriaBuilderProvider);
+
+            $searchCriteria = $this->getSearchCriteriaResolver()->resolve();
+            try {
+                $this->searchResult =  $this->search->search($searchCriteria);
+                $this->_totalRecords = $this->getTotalRecordsResolver($this->searchResult)->resolve();
+            } catch (EmptyRequestDataException $e) {
+                $this->searchResult = $this->createEmptyResult();
+            } catch (NonExistingRequestNameException $e) {
+                $this->_logger->error($e->getMessage());
+                throw new LocalizedException(__('An error occurred. For details, see the error log.'));
+            }
+        } else {
+            $this->searchResult = $this->createEmptyResult();
+        }
+
+        $this->getSearchResultApplier($this->searchResult)->apply();
+        parent::_renderFiltersBefore();
+    }
+
+    /**
+     * @return SearchResultInterface
+     */
+    private function createEmptyResult()
+    {
+        return $this->searchResultFactory->create()->setItems([]);
+    }
+
+    /**
+     * @param SearchResultInterface $searchResult
+     * @return MysqlTotalRecordsResolver|ElasticTotalRecordsResolver
+     */
+    private function getTotalRecordsResolver(SearchResultInterface $searchResult)
+    {
+        return $this->totalRecordsResolver->getResolver(['searchResult' => $searchResult]);
+    }
+
+    private function prepareSearchTermFilter(SearchCriteriaBuilderProvider $searchCriteriaBuilderProvider): void
+    {
+        if ($this->queryText) {
+            $searchCriteriaBuilderProvider->addFilter('search_term', $this->queryText);
+        }
+    }
+
+    private function preparePriceAggregation(SearchCriteriaBuilderProvider $searchCriteriaBuilderProvider): void
+    {
+        $priceRangeCalculation = $this->_scopeConfig->getValue(
             \Magento\Catalog\Model\Layer\Filter\Dynamic\AlgorithmFactory::XML_PATH_RANGE_CALCULATION,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
+        if ($priceRangeCalculation) {
+            $searchCriteriaBuilderProvider->addFilter('price_dynamic_algorithm', $priceRangeCalculation);
+        }
     }
 
     /**
@@ -213,13 +295,19 @@ class Collection extends \Magento\Catalog\Model\ResourceModel\Product\Collection
      */
     public function setOrder($attribute, $dir = Select::SQL_DESC)
     {
-        if ($attribute === 'relevance') {
-            $this->relevanceOrderDirection = $dir;
-        } else {
+        $field = (string)$this->_getMappedField($attribute);
+        $direction = strtoupper($dir) == self::SORT_ORDER_ASC ? self::SORT_ORDER_ASC : self::SORT_ORDER_DESC;
+        $this->searchOrders[$field] = $direction;
+        if ($this->isUseDefaultFilterStrategy()) {
             parent::setOrder($attribute, $dir);
         }
 
         return $this;
+    }
+
+    private function isUseDefaultFilterStrategy(): bool
+    {
+        return $this->engineResolver->getCurrentSearchEngine() == self::MYSQL_ENGINE;
     }
 
     /**
@@ -233,31 +321,68 @@ class Collection extends \Magento\Catalog\Model\ResourceModel\Product\Collection
     }
 
     /**
-     * @param $field
-     * @param QueryResponse|null $outerResponse
-     * @return array
+     * @param string $attribute
+     * @param string $dir
+     * @return \Magento\Catalog\Model\ResourceModel\Product\Collection
      */
-    public function getFacetedData($field, QueryResponse $outerResponse = null)
+    public function addAttributeToSort($attribute, $dir = self::SORT_ORDER_ASC)
     {
-        if (!$outerResponse) {
+        if ($this->isUseDefaultFilterStrategy()) {
+            return parent::addAttributeToSort($attribute, $dir);
+        }
+
+        $this->setOrder($attribute, $dir);
+        if ($attribute == 'position') {
+            $this->setOrder('product_id', $dir);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param $field
+     * @param null $searchResult
+     * @return array
+     * @throws StateException
+     */
+    public function getFacetedData($field, $searchResult = null)
+    {
+        if (!$searchResult) {
             $this->_renderFilters();
         }
 
-        $response = $outerResponse ?: $this->queryResponse;
+        $searchResult = $searchResult ?: $this->searchResult;
 
-        $aggregations = $response->getAggregations();
-        $bucket = $aggregations->getBucket($field . '_bucket');
         $result = [];
-        if (!$bucket) {
-            throw new StateException(new Phrase('Bucket does not exist'));
+        $aggregations = $searchResult->getAggregations();
+        // This behavior is for case with empty object when we got EmptyRequestDataException
+        if (null !== $aggregations) {
+            $bucket = $aggregations->getBucket($field . RequestGenerator::BUCKET_SUFFIX);
+            if ($bucket) {
+                foreach ($bucket->getValues() as $value) {
+                    $metrics = $value->getMetrics();
+                    $result[$metrics['value']] = $metrics;
+                }
+            } else {
+                throw new StateException(__("The bucket doesn't exist."));
+            }
         }
-
-        foreach ($bucket->getValues() as $value) {
-            $metrics = $value->getMetrics();
-            $result[$metrics['value']] = $metrics;
-        }
-
         return $result;
+    }
+
+    /**
+     * @param array $visibility
+     * @return $this|Collection
+     */
+    public function setVisibility($visibility)
+    {
+        $this->addFieldToFilter('visibility', $visibility);
+
+        if ($this->isUseDefaultFilterStrategy()) {
+            parent::setVisibility($visibility);
+        }
+
+        return $this;
     }
 
     /**
@@ -277,85 +402,84 @@ class Collection extends \Magento\Catalog\Model\ResourceModel\Product\Collection
      */
     public function addCategoryFilter(\Magento\Catalog\Model\Category $category)
     {
-        $this->addFieldToFilter(Category::ATTRIBUTE_CODE, $category->getId());
-        return parent::addCategoryFilter($category);
+        if (!$this->isUseDefaultFilterStrategy()) {
+            $this->setFlag('has_category_filter', true);
+            $this->_productLimitationPrice();
+        }
+
+        $this->addFieldToFilter('category_ids', $category->getId());
+
+        return $this;
     }
 
     /**
-     * Apply attribute filter to facet collection
-     *
-     * @param string $field
-     * @param null $condition
-     * @return $this
+     * @param false $printQuery
+     * @param false $logQuery
+     * @return $this|Collection
+     * @throws LocalizedException
      */
-    public function addFieldToFilter($field, $condition = null)
+    public function _loadEntities($printQuery = false, $logQuery = false)
     {
-        if ($this->queryResponse !== null) {
-            throw new \RuntimeException('Illegal state');
+        $this->getEntity();
+
+        $currentSearchEngine = $this->engineResolver->getCurrentSearchEngine();
+        if ($this->_pageSize && $currentSearchEngine === self::MYSQL_ENGINE) {
+            $this->getSelect()->limitPage($this->getCurPage(), $this->_pageSize);
         }
 
-        if (!is_array($condition) || !in_array(key($condition), ['from', 'to'], true)) {
-            // See app/code/Magento/Catalog/Model/ResourceModel/Product/Indexer/Eav/AbstractEav::_getIndexableAttributesCondition()
-            // Visibility filter wasn't in index before 2.2
-            $this->requestBuilder->bind($field, $condition);
-        } else {
-            if (isset($condition['from'])) {
-                $this->requestBuilder->bind("{$field}.from", $condition['from']);
+        $this->printLogQuery($printQuery, $logQuery);
+
+        try {
+            $query = $this->getSelect();
+            $rows = $this->_fetchAll($query);
+        } catch (\Exception $e) {
+            $this->printLogQuery(false, true, $query);
+            throw $e;
+        }
+
+        $position = 0;
+        foreach ($rows as $value) {
+            if ($this->getFlag('has_category_filter')) {
+                $value['cat_index_position'] = $position++;
             }
-            if (isset($condition['to'])) {
-                $this->requestBuilder->bind("{$field}.to", $condition['to']);
+            $object = $this->getNewEmptyItem()->setData($value);
+            $this->addItem($object);
+            if (isset($this->_itemsById[$object->getId()])) {
+                $this->_itemsById[$object->getId()][] = $object;
+            } else {
+                $this->_itemsById[$object->getId()] = [$object];
             }
+        }
+        if ($this->getFlag('has_category_filter')) {
+            $this->setFlag('has_category_filter', false);
         }
 
         return $this;
     }
 
     /**
-     * Set product visibility filter for enabled products
-     *
-     * @param array $visibility
-     * @return $this
+     * @param mixed $field
+     * @param null $condition
+     * @return $this|Collection|\Magento\Framework\Data\Collection\AbstractDb
      */
-    public function setVisibility($visibility)
+    public function addFieldToFilter($field, $condition = null)
     {
-        $this->addFieldToFilter('visibility', $visibility);
-        return parent::setVisibility($visibility);
-    }
-
-    /**
-     * Load product collection before filters rendering
-     */
-    protected function _renderFiltersBefore()
-    {
-        $this->requestBuilder->bindDimension('scope', $this->getStoreId());
-        if ($this->queryText) {
-            $this->requestBuilder->bind('search_term', $this->queryText);
+        if ($this->searchResult !== null) {
+            throw new \RuntimeException('Illegal state');
         }
 
-        $priceRangeCalculation = $this->getPriceRangeCalculation();
-        if ($priceRangeCalculation) {
-            $this->requestBuilder->bind('price_dynamic_algorithm', $priceRangeCalculation);
+        if (!is_array($condition) || !in_array(key($condition), ['from', 'to'], true)) {
+            $this->searchCriteriaBuilderProvider->addFilter($field, $condition);
+        } else {
+            if (isset($condition['from'])) {
+                $this->searchCriteriaBuilderProvider->addFilter("{$field}.from", $condition['from']);
+            }
+            if (isset($condition['to'])) {
+                $this->searchCriteriaBuilderProvider->addFilter("{$field}.to", $condition['to']);
+            }
         }
 
-        $this->requestBuilder->setRequestName($this->searchRequestName);
-        $this->memRequestBuilder = clone $this->requestBuilder;
-        $queryRequest = $this->requestBuilder->create();
-        $this->queryResponse = $this->searchEngine->search($queryRequest);
-
-        $temporaryStorage = $this->temporaryStorageFactory->create();
-        $table = $temporaryStorage->storeApiDocuments($this->queryResponse->getIterator());
-
-        $this->getSelect()->joinInner(
-            [
-                'search_result' => $table->getName(),
-            ],
-            'e.entity_id = search_result.' . TemporaryStorage::FIELD_ENTITY_ID,
-            []
-        );
-
-        $this->cmsManager->setIndexStorageTable($table);
-
-        parent::_renderFiltersBefore();
+        return $this;
     }
 
     /**
@@ -364,66 +488,42 @@ class Collection extends \Magento\Catalog\Model\ResourceModel\Product\Collection
     protected function _beforeLoad()
     {
         $this->setOrder('entity_id');
-        $this->stockHelper->addIsInStockFilterToCollection($this);
 
         return parent::_beforeLoad();
     }
 
-    /**
-     * Add order by entity_id
-     *
-     * @return $this
-     */
-    protected function _renderOrders()
+    private function getSearchResultApplier(SearchResultInterface $searchResult): SearchResultApplierInterface
     {
-        if (!$this->_isOrdersRendered) {
-            if ($this->relevanceOrderDirection) {
-                $this->getSelect()->order(
-                    'search_result.'. TemporaryStorage::FIELD_SCORE . ' ' . $this->relevanceOrderDirection
-                );
-            }
-
-            parent::_renderOrders();
-        }
-
-        return $this;
+        return $this->searchResultApplier->getApplier(
+            [
+                'collection' => $this,
+                'searchResult' => $searchResult,
+                'orders' => $this->_orders,
+                'size' => $this->getPageSize(),
+                'currentPage' => (int)$this->_curPage,
+            ]
+        );
     }
 
     /**
-     * Filter Product by Categories using index table
-     *
-     * @param array $categoriesFilter
-     * @return $this
+     * @param SearchCriteriaBuilderProvider|null $searchCriteriaBuilder
+     * @return MysqlSearchCriteriaResolver|ElasticSearchCriteriaResolver
      */
-    public function addIndexCategoriesFilter(array $categoriesFilter)
+    private function getSearchCriteriaResolver(SearchCriteriaBuilderProvider $searchCriteriaBuilderProvider = null)
     {
-        foreach ($categoriesFilter as $conditionType => $values) {
-            $categorySelect = $this->getConnection()->select()->from(
-                ['cat' => $this->getTable('catalog_category_product_index')],
-                'cat.product_id'
-            )->where($this->getConnection()->prepareSqlCondition('cat.category_id', ['in' => $values]));
-            $selectCondition = [
-                $this->mapConditionType($conditionType) => $categorySelect
-            ];
-            $whereCondition = $this->getConnection()->prepareSqlCondition('e.entity_id', $selectCondition);
-            $this->getSelect()->where($whereCondition);
-            $this->requestBuilder->bind(Category::ATTRIBUTE_CODE, $values);
-        }
-        return $this;
-    }
+        $builder = $searchCriteriaBuilderProvider
+            ? $searchCriteriaBuilderProvider->create()
+            : $this->searchCriteriaBuilderProvider->create();
 
-    /**
-     * Map equal and not equal conditions to in and not in
-     *
-     * @param string $conditionType
-     * @return mixed
-     */
-    private function mapConditionType($conditionType)
-    {
-        $conditionsMap = [
-            'eq' => 'in',
-            'neq' => 'nin'
-        ];
-        return isset($conditionsMap[$conditionType]) ? $conditionsMap[$conditionType] : $conditionType;
+        return $this->searchCriteriaResolver->getResolver(
+            [
+                'builder' => $builder,
+                'collection' => $this,
+                'searchRequestName' => $this->searchRequestName,
+                'currentPage' => (int)$this->_curPage,
+                'size' => $this->getPageSize(),
+                'orders' => $this->searchOrders,
+            ]
+        );
     }
 }

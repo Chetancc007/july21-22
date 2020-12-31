@@ -6,6 +6,8 @@
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter;
 
 interface DataMapperInterface
@@ -19,10 +21,15 @@ interface DataMapperInterface
      * @param array $context
      * @return array
      */
-    public function map($entityId, array $entityIndexData, $storeId, $context = []);
+    public function map($entityId, array $entityIndexData, $storeId, $context = []): array;
 
     /**
      * @return bool
      */
-    public function isAllowed();
+    public function isAllowed(): bool;
+
+    /**
+     * @return string
+     */
+    public function getFieldName(): string;
 }

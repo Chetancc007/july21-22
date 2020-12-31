@@ -6,16 +6,14 @@
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter\DataMapper;
 
 use Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter\DataMapperInterface;
 use Magento\Customer\Model\ResourceModel\Group\CollectionFactory;
 use Magento\Store\Model\ScopeInterface;
 
-/**
- * Class OnSale
- * @package Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter\DataMapper
- */
 class OnSale implements DataMapperInterface
 {
     const FIELD_NAME = 'am_on_sale';
@@ -72,7 +70,7 @@ class OnSale implements DataMapperInterface
      * @return array
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function map($entityId, array $entityIndexData, $storeId, $context = [])
+    public function map($entityId, array $entityIndexData, $storeId, $context = []): array
     {
         $collection = $this->customerGrouprCollectionFactory->create();
         $mappedData = [];
@@ -87,7 +85,7 @@ class OnSale implements DataMapperInterface
     /**
      * @return bool
      */
-    public function isAllowed()
+    public function isAllowed(): bool
     {
         return $this->scopeConfig->isSetFlag('amshopby/am_on_sale_filter/enabled', ScopeInterface::SCOPE_STORE);
     }
@@ -143,5 +141,10 @@ class OnSale implements DataMapperInterface
             }
         }
         return $this->onSaleProductIds[$storeId];
+    }
+
+    public function getFieldName(): string
+    {
+        return self::FIELD_NAME;
     }
 }

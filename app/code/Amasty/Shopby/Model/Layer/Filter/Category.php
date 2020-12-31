@@ -6,21 +6,21 @@
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Shopby\Model\Layer\Filter;
 
 use Amasty\Shopby\Model\ResourceModel\Fulltext\Collection as ShopbyFulltextCollection;
+use Magento\Framework\Api\Search\SearchCriteria;
+use Magento\Framework\Api\Search\SearchResultInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Exception\StateException;
-use Magento\Search\Model\SearchEngine;
 use Amasty\Shopby\Model\Source\RenderCategoriesLevel;
 use Amasty\Shopby\Helper\Category as CategoryHelper;
 use Amasty\Shopby\Model\Layer\Filter\Traits\FilterTrait;
 use Amasty\Shopby\Model\Source\CategoryTreeDisplayMode;
 use Magento\Framework\App\ProductMetadata;
 
-/**
- * Layer category filter
- */
 class Category extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
 {
     use FilterTrait;
@@ -82,7 +82,7 @@ class Category extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
     private $shopbyRequest;
 
     /**
-     * @var \Amasty\Shopby\Helper\Category
+     * @var CategoryHelper
      */
     private $categoryHelper;
 
@@ -92,9 +92,9 @@ class Category extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
     private $categoryFactory;
 
     /**
-     * @var SearchEngine
+     * @var \Magento\Search\Api\SearchInterface
      */
-    private $searchEngine;
+    private $search;
 
     /**
      * @var \Magento\Framework\Message\ManagerInterface
@@ -126,8 +126,8 @@ class Category extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
         \Amasty\Shopby\Model\Layer\Filter\CategoryItemsFactory $categoryItemsFactory,
         \Amasty\Shopby\Helper\Data $helper,
         \Amasty\Shopby\Model\Request $shopbyRequest,
-        \Amasty\Shopby\Helper\Category $categoryHelper,
-        SearchEngine $searchEngine,
+        CategoryHelper $categoryHelper,
+        \Magento\Search\Api\SearchInterface $search,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\App\ProductMetadataInterface $productMetadata,
         \Psr\Log\LoggerInterface $logger,
@@ -152,7 +152,7 @@ class Category extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
         $this->shopbyRequest = $shopbyRequest;
         $this->categoryHelper = $categoryHelper;
         $this->categoryFactory = $categoryFactory;
-        $this->searchEngine = $searchEngine;
+        $this->search = $search;
         $this->messageManager = $messageManager;
         $this->productMetadata = $productMetadata;
         $this->logger = $logger;
@@ -179,11 +179,9 @@ class Category extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
         $categoryIds = array_unique($categoryIds);
         /** @var ShopbyFulltextCollection $productCollection */
         $productCollection = $this->getLayer()->getProductCollection();
-
+        $category = $this->dataProvider->getCategory();
         if ($this->isMultiselect() && $request->getParam('id') != $categoryId) {
             $this->setCurrentValue($categoryIds);
-            $productCollection->addIndexCategoriesFilter(['in' => $categoryIds]);
-            $category = $this->getLayer()->getCurrentCategory();
             $child = $category->getCollection()
                 ->addFieldToFilter($category->getIdFieldName(), ['in' => $categoryIds])
                 ->addAttributeToSelect('name');
@@ -200,12 +198,16 @@ class Category extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
         } else {
             $this->setCurrentValue($categoryIds);
             $this->dataProvider->setCategoryId($categoryId);
-            $category = $this->dataProvider->getCategory();
-            $productCollection->addCategoryFilter($category);
             if ($request->getParam('id') != $category->getId() && $this->dataProvider->isValid()) {
-                $this->getLayer()->getState()->addFilter($this->_createItem($category->getName(), $categoryId));
+                $this->getLayer()->getState()->addFilter(
+                    $this->_createItem(
+                        $this->dataProvider->getCategory()->getName(),
+                        $categoryId
+                    )
+                );
             }
         }
+        $productCollection->addFieldToFilter(CategoryHelper::ATTRIBUTE_CODE, $categoryIds);
 
         return $this;
     }
@@ -437,67 +439,21 @@ class Category extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
     protected function getFacetedData()
     {
         $optionsFacetedData = [];
-        if ($this->tryCategoryBucket()) {
-            $productCollection = $this->getProductCollection();
-            $optionsFacetedData = $productCollection->getFacetedData(
-                self::FILTER_FIELD,
-                $this->getAlteredQueryResponse()
-            );
+
+        $productCollection = $this->getProductCollection();
+        if ($productCollection instanceof ShopbyFulltextCollection) {
+            $result = $this->getSearchResult();
+            try {
+                $optionsFacetedData = $productCollection->getFacetedData(
+                    self::FILTER_FIELD,
+                    $result
+                );
+            } catch (StateException $e) {
+                $this->catchBucketException();
+            }
         }
 
         return $optionsFacetedData;
-    }
-
-    /**
-     * Check is current filter has results
-     *
-     * @return bool
-     */
-    private function tryCategoryBucket()
-    {
-        $productCollection = $this->getProductCollection();
-        if (!($productCollection instanceof ShopbyFulltextCollection)) {
-            //fix fatal with Call to undefined method getMemRequestBuilder()
-            $this->messageManager->addErrorMessage(
-                __('Something went wrong during rendering of navigation filters. Please try again later.')
-            );
-            $this->logger->error(
-                __('Something went wrong during rendering of navigation filters. Please try again later.')
-            );
-            return false;
-        }
-
-        $alteredQueryResponse = $this->searchEngine->search($this->buildQueryRequest($this->getCurrentCategoryId()));
-        try {
-            $productCollection->getFacetedData('category', $alteredQueryResponse);
-        } catch (StateException $e) {
-            $this->catchBucketException();
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @return int|null
-     */
-    protected function getCurrentCategoryId()
-    {
-        if (is_array($this->currentValue)) {
-            $categoryId = current($this->currentValue);
-            try {
-                $category = $this->categoryRepository->get(
-                    $categoryId,
-                    $this->categoryManager->getCurrentStoreId()
-                );
-            } catch (NoSuchEntityException $e) {
-                $category = $this->getRootCategory();
-            }
-        } else {
-            $category = $this->getRootCategory();
-        }
-
-        return $category->getId();
     }
 
     /**
@@ -564,23 +520,20 @@ class Category extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
         return $this->getData('root_category');
     }
 
-    /**
-     * @return \Magento\Framework\Search\ResponseInterface|null
-     */
-    private function getAlteredQueryResponse()
+    private function getSearchResult(): ?SearchResultInterface
     {
-        $alteredQueryResponse = null;
-
+        $searchResult = null;
         $isCurrentLevel = $this->getRenderCategoriesLevel() == RenderCategoriesLevel::CURRENT_CATEGORY_LEVEL;
         $isRootLevel = $this->getRenderCategoriesLevel() == RenderCategoriesLevel::ROOT_CATEGORY;
         $excludeCurrentLevel = $isCurrentLevel || $isRootLevel || $this->isRenderAllTree();
 
         if ($this->hasCurrentValue() || ($excludeCurrentLevel && $this->isMultiselect())) {
-            $categoryId = $this->getCategoryIdByLevel($isCurrentLevel);
-            $alteredQueryResponse = $this->searchEngine->search($this->buildQueryRequest($categoryId));
+            //TODO: need rewrite
+            $categoryId = (int)$this->getCategoryIdByLevel($isCurrentLevel);
+            $searchResult = $this->search->search($this->buildSearchCriteria($categoryId));
         }
 
-        return $alteredQueryResponse;
+        return $searchResult;
     }
 
     /**
@@ -590,24 +543,20 @@ class Category extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
      */
     protected function getCategoryIdByLevel($isCurrentLevel)
     {
-        return ($isCurrentLevel && $this->isMultiselect() || $this->getCategoriesTreeDept() == self::MIN_CATEGORY_DEPTH)
+        $isCurrentLevelMultiselect = $isCurrentLevel && $this->isMultiselect();
+        $isCurrentCategory = !$this->isRenderAllTree()
+            && ($isCurrentLevelMultiselect || $this->getCategoriesTreeDept() == self::MIN_CATEGORY_DEPTH);
+
+        return $isCurrentCategory
             ? $this->getLayer()->getCurrentCategory()->getId()
             : $this->getRootCategory()->getId();
     }
 
-    /**
-     * @param int $categoryId
-     * @return \Magento\Framework\Search\RequestInterface
-     */
-    protected function buildQueryRequest($categoryId)
+    protected function buildSearchCriteria(int $categoryId): SearchCriteria
     {
-        $requestBuilder = $this->getMemRequestBuilder();
-        $requestBuilder->removePlaceholder(CategoryHelper::ATTRIBUTE_CODE);
-        $requestBuilder->bind(CategoryHelper::ATTRIBUTE_CODE, $categoryId);
-        $requestBuilder->setAggregationsOnly(CategoryHelper::ATTRIBUTE_CODE);
-        $queryRequest = $requestBuilder->create();
+        $filter[CategoryHelper::ATTRIBUTE_CODE] = $categoryId;
 
-        return $queryRequest;
+        return $this->getProductCollection()->getMemSearchCriteria($filter);
     }
 
     /**

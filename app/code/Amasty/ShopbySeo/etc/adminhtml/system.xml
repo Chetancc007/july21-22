@@ -91,7 +91,7 @@
                     <comment>Please refer per-filter settings to make exclusions.</comment>
                 </field>
                 <field id="noindex_paginated" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Noindex for paginated pages</label>
+                    <label>Noindex for Paginated Pages</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <depends>
                         <field id="enabled">1</field>
@@ -104,7 +104,7 @@
                 <field id="category" translate="label comment" type="select" sortOrder="10" showInDefault="1"
                        showInWebsite="1" showInStore="1">
                     <label>Category Pages</label>
-                    <comment><![CDATA[Set the structure of canonical urls for category pages. Need help with the setting? Please consult the <a target="_blank" href="https://amasty.com/docs/doku.php?id=magento_2:improved_layered_navigation&utm_source=extension&utm_medium=link&utm_campaign=iln_canonical_url_settings_m2#canonical_url_settings">user guide</a> to configure properly.]]></comment>
+                    <frontend_model>Amasty\ShopbySeo\Block\Adminhtml\System\Config\Field\Category</frontend_model>
                     <source_model>Amasty\ShopbySeo\Model\Source\Canonical\Category</source_model>
                 </field>
                 <field id="root" translate="label comment" type="select" sortOrder="20" showInDefault="1"

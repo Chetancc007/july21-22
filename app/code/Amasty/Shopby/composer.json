@@ -3,19 +3,22 @@
     "description": "Improved Layered Navigation by Amasty",
     "require": {
         "php": "^7.1.0",
-        "amasty/base": ">=1.10.7",
+        "amasty/base": ">=1.11.1",
         "magento/module-layered-navigation": ">=100.2.0",
+        "magento/module-catalog-search": ">=101.0.2",
         "magento/module-swatches": ">=100.2.0",
-        "amasty/module-shop-by-base": ">=2.13.8",
-        "amasty/module-shop-by-brand": ">=2.10.12",
-        "amasty/shopby-seo": ">=2.11.7",
-        "amasty/module-improved-layered-navigation-page": ">=2.7.7"
+        "amasty/module-shop-by-base": ">=2.13.12",
+        "amasty/module-shop-by-brand": ">=2.10.15",
+        "amasty/shopby-seo": ">=2.11.11",
+        "amasty/module-improved-layered-navigation-page": ">=2.7.9"
     },
     "suggest": {
-        "amasty/shopby-graphql": "Install shopby-graph-ql module to activate GraphQl and Shopby integration."
+        "amasty/shopby-graphql": "Install shopby-graph-ql module to activate GraphQl and Shopby integration.",
+        "amasty/module-shopby-mftf-2": "Install module-shopby-mftf-2 module to implement mftf-tests for Magento 2.3.6+ versions.",
+        "amasty/module-shopby-mftf-3": "Install module-shopby-mftf-3 module to implement mftf-tests for Magento 2.4.1+ versions."
     },
     "type": "magento2-module",
-    "version": "2.14.5",
+    "version": "2.15.3",
     "license": [
         "Commercial"
     ],

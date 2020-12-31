@@ -44,13 +44,14 @@ class BrandSlider extends BrandListAbstract implements \Magento\Widget\Block\Blo
     protected function getItemData(Option $option, OptionSettingInterface $setting)
     {
         $result = [];
-        if ($setting->getIsFeatured()) {
+        if ($setting->getIsShowInSlider()) {
             $result = [
-                'label'    => $setting->getLabel() ?: $option->getLabel(),
-                'url'      => $this->helper->getBrandUrl($option),
-                'img'      => $setting->getSliderImageUrl(),
+                'brandId' => $option->getValue(),
+                'label' => $setting->getLabel() ?: $option->getLabel(),
+                'url' => $this->helper->getBrandUrl($option),
+                'img' => $setting->getSliderImageUrl(),
                 'position' => $setting->getSliderPosition(),
-                'alt'      => $setting->getSmallImageAlt() ? : $setting->getLabel()
+                'alt' => $setting->getSmallImageAlt() ?: $setting->getLabel()
             ];
         }
 

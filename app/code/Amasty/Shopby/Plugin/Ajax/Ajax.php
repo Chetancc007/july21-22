@@ -124,7 +124,7 @@ class Ajax
         if (!$request instanceof Http) {
             return false;
         }
-        $isAjax = $request->isXmlHttpRequest() && $request->isAjax();
+        $isAjax = $request->isXmlHttpRequest() && $request->isAjax() && $request->getParam('shopbyAjax', false);
         $isScroll = $request->getParam('is_scroll');
         return $this->helper->isAjaxEnabled() && $isAjax && !$isScroll;
     }
@@ -144,15 +144,9 @@ class Ajax
             $products = $layout->getBlock('search.result');
         }
 
-        $productsCount = 0;
         $productList = null;
-        if ($products) {
-            $tags = $this->addXTagCache($products, $tags);
-            $productList = $products->getChildBlock('product_list') ?: $products->getChildBlock('search_result_list');
-            $productsCount = $productList
-                ? $productList->getLoadedProductCollection()->getSize()
-                : $products->getResultCount();
-        }
+
+        $categoryProducts = $products ? $this->applyEventChanges($products->toHtml()) : '';
 
         $navigation = $layout->getBlock('catalog.leftnav') ?: $layout->getBlock('catalogsearch.leftnav');
         if ($navigation) {
@@ -165,8 +159,6 @@ class Ajax
 
         $jsInit = $layout->getBlock('amasty.shopby.jsinit');
         $tags = $this->addXTagCache($jsInit, $tags);
-
-        $categoryProducts = $products ? $this->applyEventChanges($products->toHtml()) : '';
 
         $navigationTop = null;
         if (strpos($categoryProducts, 'amasty-catalog-topnav') === false) {
@@ -209,6 +201,11 @@ class Ajax
             : false;
 
         $isDisplayModePage = $currentCategory && $currentCategory->getDisplayMode() == Category::DM_PAGE;
+        
+        if ($products) {
+            $tags = $this->addXTagCache($products, $tags);
+            $productList = $products->getChildBlock('product_list') ?: $products->getChildBlock('search_result_list');
+        }
 
         $responseData = [
             'categoryProducts'=> $categoryProducts . $swatchesChooseHtml . $this->getAdditionalConfigs($layout),
@@ -225,7 +222,6 @@ class Ajax
             'bottomCmsBlock' => $this->getBlockHtml($layout, 'amshopby.bottom'),
             'url' => $this->stateHelper->getCurrentUrl(),
             'tags' => implode(',', array_unique($tags + [\Magento\PageCache\Model\Cache\Type::CACHE_TAG])),
-            'productsCount' => $productsCount,
             'js_init' => $jsInit ? $jsInit->toHtml() : '',
             'isDisplayModePage' => $isDisplayModePage,
             'currentCategoryId' => $currentCategory ? $currentCategory->getId() ?: 0 : 0,
@@ -234,6 +230,13 @@ class Ajax
             'store_switcher' => $this->getBlockHtml($layout, 'store_switcher'),
             'behaviour' => $this->getBlockHtml($layout, 'wishlist_behaviour')
         ];
+
+        $productsCount = $productList
+            ? $productList->getLoadedProductCollection()->getSize()
+            : $products->getResultCount();
+
+        $responseData['productsCount'] = $productsCount;
+
         if ($layout->getBlock('category.amshopby.ajax')) {
             $responseData['newClearUrl'] = $layout->getBlock('category.amshopby.ajax')->getClearUrl();
         }

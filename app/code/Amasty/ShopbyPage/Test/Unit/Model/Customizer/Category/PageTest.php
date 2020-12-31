@@ -56,7 +56,7 @@ class PageTest extends \PHPUnit\Framework\TestCase
      */
     private $filterSettingHelper;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->shopbyHelper = $this->createMock(\Amasty\Shopby\Helper\Data::class);
         $this->scopeConfig = $this->createMock(\Magento\Framework\App\Config\ScopeConfigInterface::class);

@@ -48,7 +48,7 @@ class ElementTest extends \PHPUnit\Framework\TestCase
     /**
      * @throws \ReflectionException
      */
-    protected function setup(): void
+    protected function setUp(): void
     {
         $this->dataObject = $this->getObjectManager()->getObject(\Amasty\ShopbyBase\Model\OptionSetting::class);
         $this->dataObject->setData('current_store_id', 1);

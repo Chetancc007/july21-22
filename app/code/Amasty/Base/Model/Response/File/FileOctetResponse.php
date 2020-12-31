@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Amasty\Base\Model\Response\File;
 
+use Amasty\Base\Model\MagentoVersion;
 use Amasty\Base\Model\Response\AbstractOctetResponse;
 use Amasty\Base\Model\Response\DownloadOutput;
 use Amasty\Base\Model\Response\OctetResponseInterface;
@@ -27,25 +28,28 @@ class FileOctetResponse extends AbstractOctetResponse
     private $fileReadFactory;
 
     public function __construct(
+        ReadFactory $fileReadFactory,
+        DownloadOutput $downloadHelper,
+        MagentoVersion $magentoVersion,
         App\Request\Http $request,
         Stdlib\CookieManagerInterface $cookieManager,
         Stdlib\Cookie\CookieMetadataFactory $cookieMetadataFactory,
         App\Http\Context $context,
         Stdlib\DateTime $dateTime,
-        DownloadOutput $downloadHelper,
-        ReadFactory $fileReadFactory,
         ConfigInterface $sessionConfig = null
     ) {
+        $this->fileReadFactory = $fileReadFactory;
+
         parent::__construct(
+            $downloadHelper,
+            $magentoVersion,
             $request,
             $cookieManager,
             $cookieMetadataFactory,
             $context,
             $dateTime,
-            $downloadHelper,
             $sessionConfig
         );
-        $this->fileReadFactory = $fileReadFactory;
     }
 
     public function getReadResourceByPath(string $readResourcePath): ReadInterface

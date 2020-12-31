@@ -69,6 +69,11 @@ class Data extends AbstractHelper
     /**
      * @var array
      */
+    private $brandOptions;
+
+    /**
+     * @var array
+     */
     private $brandAliases = [];
 
     public function __construct(
@@ -153,17 +158,18 @@ class Data extends AbstractHelper
 
     /**
      * @return \Magento\Eav\Api\Data\AttributeOptionInterface[]|null
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getBrandOptions()
     {
-        try {
-            $result = $this->attributeRepository->get($this->getBrandAttributeCode())->getOptions();
-        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
-            $result = [];
+        if ($this->brandOptions === null) {
+            try {
+                $this->brandOptions = $this->attributeRepository->get($this->getBrandAttributeCode())->getOptions();
+            } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+                $this->brandOptions = [];
+            }
         }
 
-        return $result;
+        return $this->brandOptions;
     }
 
     /**

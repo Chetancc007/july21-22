@@ -9,7 +9,7 @@
 namespace Amasty\Shopby\Model\Layer\Filter;
 
 use Magento\Framework\Exception\StateException;
-use Magento\Search\Model\SearchEngine;
+use Magento\Search\Api\SearchInterface;
 use Magento\Catalog\Model\Layer\Filter\AbstractFilter;
 use Magento\Framework\View\Element\BlockFactory;
 use Amasty\Shopby\Model\Layer\Filter\Traits\CustomTrait;
@@ -26,15 +26,12 @@ class Rating extends AbstractFilter
         5 => 100
     ];
 
+    const ATTRIBUTE_CODE = 'rating_summary';
+
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     private $scopeConfig;
-
-    /**
-     * @var string
-     */
-    private $attributeCode = 'rating_summary';
 
     /**
      * @var  BlockFactory
@@ -47,9 +44,9 @@ class Rating extends AbstractFilter
     private $shopbyRequest;
 
     /**
-     * @var SearchEngine
+     * @var SearchInterface
      */
-    private $searchEngine;
+    private $search;
 
     /**
      * @var \Amasty\Shopby\Helper\FilterSetting
@@ -64,7 +61,7 @@ class Rating extends AbstractFilter
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         BlockFactory $blockFactory,
         \Amasty\Shopby\Model\Request $shopbyRequest,
-        SearchEngine $searchEngine,
+        SearchInterface $search,
         \Amasty\Shopby\Helper\FilterSetting $settingHelper,
         array $data = []
     ) {
@@ -79,7 +76,7 @@ class Rating extends AbstractFilter
         $this->scopeConfig = $scopeConfig;
         $this->blockFactory = $blockFactory;
         $this->shopbyRequest = $shopbyRequest;
-        $this->searchEngine = $searchEngine;
+        $this->search = $search;
         $this->settingHelper = $settingHelper;
     }
 
@@ -105,7 +102,7 @@ class Rating extends AbstractFilter
             $condition = new \Zend_Db_Expr("IS NULL");
         }
 
-        $this->getLayer()->getProductCollection()->addFieldToFilter('rating_summary', $condition);
+        $this->getLayer()->getProductCollection()->addFieldToFilter($this->getAttributeCode(), $condition);
         if ($filter < 5) {
             $name = __('%1 stars & up', $filter);
         } elseif ($filter == 1) {
@@ -204,5 +201,10 @@ class Rating extends AbstractFilter
         $block->setData('star', $countStars);
         $html = $block->toHtml();
         return $html;
+    }
+
+    public function getAttributeCode(): ?string
+    {
+        return self::ATTRIBUTE_CODE;
     }
 }

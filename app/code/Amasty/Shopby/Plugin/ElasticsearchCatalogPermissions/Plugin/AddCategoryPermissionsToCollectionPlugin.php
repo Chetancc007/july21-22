@@ -10,6 +10,7 @@ namespace Amasty\Shopby\Plugin\ElasticsearchCatalogPermissions\Plugin;
 
 use Amasty\Shopby\Model\ResourceModel\Fulltext\Collection;
 use Magento\Customer\Model\Session;
+use Magento\Framework\Api\Search\SearchResultInterface;
 use Magento\Framework\Search\EngineResolverInterface;
 use Magento\Framework\Search\Response\QueryResponse;
 use Magento\Search\Model\EngineResolver;
@@ -90,20 +91,14 @@ class AddCategoryPermissionsToCollectionPlugin
         return [$printQuery, $logQuery];
     }
 
-    /**
-     * Add catalog permissions before get faceted data
-     *
-     * @param Collection $productCollection
-     * @param string $field
-     * @param QueryResponse $outerResponse
-     * @return array
-     * @see Collection::getFacetedData
-     */
-    public function beforeGetFacetedData(Collection $productCollection, $field, QueryResponse $outerResponse = null)
-    {
+    public function beforeGetFacetedData(
+        Collection $productCollection,
+        string $field,
+        SearchResultInterface $searchResult = null
+    ) {
         $this->execute($productCollection);
 
-        return [$field, $outerResponse];
+        return [$field, $searchResult];
     }
 
     /**

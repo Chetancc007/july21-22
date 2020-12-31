@@ -6,14 +6,84 @@
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Shopby\Plugin\Catalog\Model\ResourceModel\Product\Indexer\Price\Dimensional;
 
-/**
- * Class Configurable
- * @package Amasty\Shopby\Plugin\Catalog\Model\ResourceModel\Product\Indexer\Price\Dimensional
- */
-class Configurable extends Simple
+use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Search\Request\IndexScopeResolverInterface as TableResolver;
+use Magento\Store\Model\ScopeInterface;
+
+class Configurable
 {
+    const MAIN_INDEX_TABLE = 'catalog_product_index_price';
+
+    /**
+     * @var ResourceConnection
+     */
+    protected $resource;
+
+    /**
+     * @var array
+     */
+    protected $entityIds;
+
+    /**
+     * @var string
+     */
+    protected $productIdLink;
+
+    /**
+     * @var \Magento\Catalog\Model\ResourceModel\Product\Indexer\Price\DefaultPrice
+     */
+    protected $subject;
+
+    /**
+     * @var array
+     */
+    protected $dimensions;
+
+    /**
+     * @var string
+     */
+    protected $tmpTableSuffix = '_temp';
+
+    /**
+     * @var TableResolver
+     */
+    protected $tableResolver;
+
+    /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     */
+    private $config;
+
+    public function __construct(
+        ResourceConnection $resourceConnection,
+        \Magento\Catalog\Model\ResourceModel\Product $productResource,
+        TableResolver $tableResolver,
+        \Magento\Framework\App\Config\ScopeConfigInterface $config
+    ) {
+        $this->resource = $resourceConnection;
+        $this->productIdLink = $productResource->getLinkField();
+        $this->tableResolver = $tableResolver;
+        $this->config = $config;
+    }
+
+    /**
+     * @param $subject
+     * @param $entityIds
+     * @return array
+     */
+    public function beforeExecuteByDimensions($subject, array $dimensions, \Traversable $entityIds)
+    {
+        $this->subject = $subject;
+        $this->dimensions = $dimensions;
+        $this->entityIds = iterator_to_array($entityIds);
+
+        return [$dimensions, $entityIds];
+    }
+
     /**
      * @param $subject
      * @param $result
@@ -26,12 +96,9 @@ class Configurable extends Simple
         return $result;
     }
 
-    /**
-     * @return void
-     */
-    private function addSpecialPriceToConfigurable()
+    private function addSpecialPriceToConfigurable(): void
     {
-        if (!$this->entityIds) {
+        if (!$this->entityIds && !$this->isOnSaleEnabled()) {
             return;
         }
 
@@ -49,11 +116,12 @@ class Configurable extends Simple
                 'simple_link.parent_id=product_link.row_id',
                 ['parent_id' => 'product_link.entity_id']
             );
+            $select->where('product_link.entity_id IN (?)', $this->entityIds);
         } else {
             $select->columns(['parent_id' => 'simple_link.parent_id']);
+            $select->where('simple_link.parent_id IN (?)', $this->entityIds);
         }
 
-        $select->where('simple_link.parent_id IN (?)', $this->entityIds);
         $select->where('main_table.price > main_table.final_price and main_table.final_price > 0');
 
         $select->group(['simple_link.parent_id', 'main_table.customer_group_id', 'main_table.website_id']);
@@ -73,5 +141,20 @@ class Configurable extends Simple
                 ['price', 'final_price']
             );
         }
+    }
+
+    public function getDataTable(): string
+    {
+        return $this->tableResolver->resolve(self::MAIN_INDEX_TABLE, $this->dimensions);
+    }
+
+    public function getIdxTable(): string
+    {
+        return $this->tableResolver->resolve(self::MAIN_INDEX_TABLE, $this->dimensions) . $this->tmpTableSuffix;
+    }
+
+    private function isOnSaleEnabled(): bool
+    {
+        return $this->config->isSetFlag('amshopby/am_on_sale_filter/enabled', ScopeInterface::SCOPE_STORE);
     }
 }

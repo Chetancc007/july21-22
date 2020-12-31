@@ -6,10 +6,12 @@
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Shopby\Model\Layer\Filter;
 
+use Magento\Framework\Api\Search\SearchResultInterface;
 use Magento\Framework\Exception\StateException;
-use Magento\Search\Model\SearchEngine;
 use Amasty\Shopby\Model\Layer\Filter\Traits\FromToDecimal;
 use Amasty\Shopby\Model\Source\DisplayMode;
 use Amasty\Shopby\Api\Data\FromToFilterInterface;
@@ -53,9 +55,9 @@ class Decimal extends \Magento\CatalogSearch\Model\Layer\Filter\Decimal implemen
     private $groupHelper;
 
     /**
-     * @var SearchEngine
+     * @var \Magento\Search\Api\SearchInterface
      */
-    private $searchEngine;
+    private $search;
 
     /**
      * @var \Magento\Framework\Message\ManagerInterface
@@ -66,6 +68,11 @@ class Decimal extends \Magento\CatalogSearch\Model\Layer\Filter\Decimal implemen
      * @var string
      */
     private $currencySymbol;
+
+    /**
+     * @var string
+     */
+    private $magentoVersion;
 
     public function __construct(
         \Magento\Catalog\Model\Layer\Filter\ItemFactory $filterItemFactory,
@@ -78,8 +85,9 @@ class Decimal extends \Magento\CatalogSearch\Model\Layer\Filter\Decimal implemen
         \Magento\Catalog\Model\Layer\Filter\DataProvider\PriceFactory $dataProviderFactory,
         \Amasty\Shopby\Model\Request $shopbyRequest,
         \Amasty\Shopby\Helper\Group $groupHelper,
-        SearchEngine $searchEngine,
+        \Magento\Search\Api\SearchInterface $search,
         \Magento\Framework\Message\ManagerInterface $messageManager,
+        \Amasty\Base\Model\MagentoVersion $magentoVersion,
         array $data = []
     ) {
         parent::__construct(
@@ -96,8 +104,9 @@ class Decimal extends \Magento\CatalogSearch\Model\Layer\Filter\Decimal implemen
         $this->dataProvider = $dataProviderFactory->create(['layer' => $layer]);
         $this->shopbyRequest = $shopbyRequest;
         $this->groupHelper = $groupHelper;
-        $this->searchEngine = $searchEngine;
+        $this->search = $search;
         $this->messageManager = $messageManager;
+        $this->magentoVersion = $magentoVersion->get();
     }
 
     /**
@@ -153,7 +162,7 @@ class Decimal extends \Magento\CatalogSearch\Model\Layer\Filter\Decimal implemen
         $displayMode = $filterSetting->getDisplayMode();
         $includeBorders = $this->isSliderOrFromTo($displayMode) ? self::DECIMAL_DELTA : 0;
         $from = $from ?: 0;
-        $to = (float)$to ? ($to + $includeBorders) : $to;
+        $to = floatval($to) ? (floatval($to) + $includeBorders) : $to;
 
         return $from . '-' . $to;
     }
@@ -185,7 +194,7 @@ class Decimal extends \Magento\CatalogSearch\Model\Layer\Filter\Decimal implemen
             $count = $aggregation['count'];
             list($from, $to) = explode('_', $key);
 
-            $from = $from == '*' ? '' : $from;
+            $from = $from == '*' ? 0 : $from;
             $to = $to == '*' ? '' : $to;
 
             $label = $this->renderRangeLabel(
@@ -208,45 +217,17 @@ class Decimal extends \Magento\CatalogSearch\Model\Layer\Filter\Decimal implemen
     }
 
     /**
-     * @return \Magento\Framework\Search\Response\QueryResponse|\Magento\Framework\Search\ResponseInterface|null
+     * @return array|null
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    private function getAlteredQueryResponse()
-    {
-        $alteredQueryResponse = null;
-        if ($this->hasCurrentValue()) {
-            $alteredQueryResponse = $this->searchEngine->search($this->buildQueryRequest());
-        }
-
-        return $alteredQueryResponse;
-    }
-
-    /**
-     * @return \Magento\Framework\Search\RequestInterface
-     */
-    private function buildQueryRequest()
-    {
-        $attribute = $this->getAttributeModel();
-        $requestBuilder = $this->getMemRequestBuilder();
-        $requestBuilder->removePlaceholder($attribute->getAttributeCode() . '.from');
-        $requestBuilder->removePlaceholder($attribute->getAttributeCode() . '.to');
-        $requestBuilder->setAggregationsOnly($attribute->getAttributeCode());
-
-        return $requestBuilder->create();
-    }
-
-    /**
-     * @return array
-     */
-    private function getFacetedData()
+    private function getFacetedData(): ?array
     {
         if ($this->facetedData === null) {
             $productCollection = $this->getLayer()->getProductCollection();
-            $alteredQueryResponse = $this->getAlteredQueryResponse();
             try {
                 $this->facetedData = $productCollection->getFacetedData(
                     $this->getAttributeModel()->getAttributeCode(),
-                    $alteredQueryResponse
+                    $this->getSearchResult()
                 );
             } catch (StateException $e) {
                 if (!$this->messageManager->hasMessages()) {
@@ -259,9 +240,57 @@ class Decimal extends \Magento\CatalogSearch\Model\Layer\Filter\Decimal implemen
                 }
                 $this->facetedData = [];
             }
+            $this->prepareFacetedData();
         }
 
         return $this->facetedData;
+    }
+
+    /**
+     * Method for fix faceted data depends on current filter value. If current filter value does not exist in
+     * faceted data results, we have to modify faceted data, so than we can see applied filter with current value
+     * @TODO remove after refactoring
+     *
+     * @return void
+     */
+    private function prepareFacetedData(): void
+    {
+        if ($this->hasCurrentValue()) {
+            $from = $this->isValidFrom() ? $this->getCurrentFrom() : '*';
+            $to = $this->isValidTo() ? $this->getCurrentTo() : '*';
+            $key = $from . '_' . $to;
+            if (!isset($this->facetedData[$key])
+                && isset($this->facetedData['data']['count'])
+                && $this->facetedData['data']['count']
+            ) {
+
+                $this->facetedData = [
+                    $key => [
+                        'value' => $key,
+                        'count' => $this->facetedData['data']['count']
+                    ],
+                    'data' => $this->facetedData['data']
+                ];
+            }
+        }
+    }
+
+    private function isValidFrom(): bool
+    {
+        if (version_compare($this->magentoVersion, '2.4.0', '>')) {
+            return $this->getCurrentFrom() !== null;
+        }
+
+        return (bool)$this->getCurrentFrom();
+    }
+
+    private function isValidTo(): bool
+    {
+        if (version_compare($this->magentoVersion, '2.4.0', '>')) {
+            return $this->getCurrentTo() !== null;
+        }
+
+        return (bool)$this->getCurrentTo();
     }
 
     /**
@@ -361,11 +390,11 @@ class Decimal extends \Magento\CatalogSearch\Model\Layer\Filter\Decimal implemen
      */
     private function formatLabelForStateAndRange($value, $filterSetting)
     {
-        $value = round((float)$value, 2);
+        $value = round(floatval($value), 2);
         if ($filterSetting->getPositionLabel() == PositionLabel::POSITION_BEFORE) {
-            $formattedLabel = sprintf("%s%s", $filterSetting->getUnitsLabel(), $value);
+            $formattedLabel = sprintf("%s%.2F", $filterSetting->getUnitsLabel(), $value);
         } else {
-            $formattedLabel = sprintf("%s%s", $value, $filterSetting->getUnitsLabel());
+            $formattedLabel = sprintf("%.2F%s", $value, $filterSetting->getUnitsLabel());
         }
 
         return $formattedLabel;

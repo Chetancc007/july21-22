@@ -11,7 +11,7 @@ namespace Amasty\Shopby\Model\Layer\Filter;
 use Amasty\Shopby\Model\Layer\Filter\IsNew\Helper as IsNewHelper;
 use Amasty\Shopby\Model\Layer\Filter\Traits\CustomTrait;
 use Magento\Framework\Exception\StateException;
-use Magento\Search\Model\SearchEngine;
+use Magento\Search\Api\SearchInterface;
 use Magento\Store\Model\ScopeInterface;
 
 class IsNew extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
@@ -22,11 +22,7 @@ class IsNew extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
     const FILTER_NOT_NEW = 0;
     const FILTER_LABEL_XML_PATH = 'amshopby/am_is_new_filter/label';
     const FILTER_POSITION_XML_PATH = 'amshopby/am_is_new_filter/position';
-
-    /**
-     * @var string
-     */
-    private $attributeCode = 'am_is_new';
+    const ATTRIBUTE_CODE = 'am_is_new';
 
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
@@ -44,9 +40,9 @@ class IsNew extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
     private $isNewHelper;
 
     /**
-     * @var SearchEngine
+     * @var SearchInterface
      */
-    private $searchEngine;
+    private $search;
 
     /**
      * @var \Amasty\Shopby\Helper\FilterSetting
@@ -61,7 +57,7 @@ class IsNew extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Amasty\Shopby\Model\Request $shopbyRequest,
         IsNewHelper $isNewHelper,
-        SearchEngine $searchEngine,
+        SearchInterface $search,
         \Amasty\Shopby\Helper\FilterSetting $settingHelper,
         array $data = []
     ) {
@@ -77,7 +73,7 @@ class IsNew extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
         $this->scopeConfig = $scopeConfig;
         $this->shopbyRequest = $shopbyRequest;
         $this->isNewHelper = $isNewHelper;
-        $this->searchEngine = $searchEngine;
+        $this->search = $search;
     }
 
     /**
@@ -101,7 +97,7 @@ class IsNew extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
 
         if ($filter == self::FILTER_NEW) {
             $name = __('Yes');
-            $this->getLayer()->getProductCollection()->addFieldToFilter('am_is_new', $filter);
+            $this->getLayer()->getProductCollection()->addFieldToFilter($this->getAttributeCode(), $filter);
             /**
              * @TODO remove this construction usage after 2.5.1
              * $this->isNewHelper->addNewFilter($this->getLayer()->getProductCollection());
@@ -173,5 +169,10 @@ class IsNew extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
                 ? $sum + $item['count']
                 : $sum;
         }, 0);
+    }
+
+    private function getAttributeCode(): ?string
+    {
+        return self::ATTRIBUTE_CODE;
     }
 }

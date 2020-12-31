@@ -6,15 +6,13 @@
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter\DataMapper;
 
 use Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter\DataMapperInterface;
 use Magento\Store\Model\ScopeInterface;
 
-/**
- * Class RatingSummary
- * @package Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter\DataMapper
- */
 class RatingSummary implements DataMapperInterface
 {
     const FIELD_NAME = 'rating_summary';
@@ -52,7 +50,7 @@ class RatingSummary implements DataMapperInterface
      * @return array
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function map($entityId, array $entityIndexData, $storeId, $context = [])
+    public function map($entityId, array $entityIndexData, $storeId, $context = []): array
     {
         /**
          * @var \Magento\Catalog\Model\Product $product
@@ -66,8 +64,13 @@ class RatingSummary implements DataMapperInterface
     /**
      * @return bool
      */
-    public function isAllowed()
+    public function isAllowed(): bool
     {
         return $this->scopeConfig->isSetFlag('amshopby/rating_filter/enabled', ScopeInterface::SCOPE_STORE);
+    }
+
+    public function getFieldName(): string
+    {
+        return self::FIELD_NAME;
     }
 }

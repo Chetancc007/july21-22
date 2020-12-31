@@ -30,7 +30,7 @@ class FilterSettingTest extends \PHPUnit\Framework\TestCase
      */
     private $helper;
 
-    public function setup(): void
+    public function setUp(): void
     {
         $scopeConfig = $this->createMock(\Magento\Framework\App\Config\ScopeConfigInterface::class);
 

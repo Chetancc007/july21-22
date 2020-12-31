@@ -10,10 +10,6 @@ namespace Amasty\Shopby\Plugin\AmastyElastic\Model\Indexer\Data\Product;
 
 use Amasty\Shopby\Helper\Group as GroupHelper;
 
-/**
- * Class ProductDataMapper
- * @package Amasty\Shopby\Plugin\AmastyElastic\Model\Indexer\Data\Product
- */
 class ProductDataMapper
 {
     /**
@@ -43,31 +39,6 @@ class ProductDataMapper
         \Magento\Eav\Model\Entity\Attribute $attribute
     ) {
         return $closure($attribute) + $this->getGroupedOptions($attribute->getAttributeId());
-    }
-
-    /**
-     * @param mixed $subject
-     * @param int $productId
-     * @param array $attributeValue
-     * @param \Magento\Eav\Model\Entity\Attribute $attribute
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     * @return array
-     */
-    public function beforePrepareProductData(
-        $subject,
-        $productId,
-        $attributeValue,
-        \Magento\Eav\Model\Entity\Attribute $attribute
-    ) {
-        if ($attribute->getFrontendInput() == 'select') {
-            $groupedOptions = $this->getGroupedOptions($attribute->getAttributeId());
-            if (!empty($groupedOptions)) {
-                $value = current($attributeValue);
-                $values = explode(',', $value);
-                return [$productId, $values, $attribute];
-            }
-        }
-        return [$productId, $attributeValue, $attribute];
     }
 
     /**

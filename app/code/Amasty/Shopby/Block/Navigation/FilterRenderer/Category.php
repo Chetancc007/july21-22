@@ -8,6 +8,7 @@
 
 namespace Amasty\Shopby\Block\Navigation\FilterRenderer;
 
+use Amasty\Shopby\Model\UrlResolver\UrlResolverInterface;
 use Amasty\ShopbyBase\Api\Data\FilterSettingInterface;
 use Amasty\Shopby\Helper\FilterSetting;
 use Amasty\Shopby\Helper\Data as ShopbyHelper;
@@ -47,6 +48,11 @@ class Category extends \Magento\Framework\View\Element\Template
     protected $layer;
 
     /**
+     * @var UrlResolverInterface
+     */
+    private $urlResolver;
+
+    /**
      * @var array
      */
     private $countByPath = [];
@@ -57,6 +63,7 @@ class Category extends \Magento\Framework\View\Element\Template
         ShopbyHelper $helper,
         Resolver $resolver,
         \Amasty\Shopby\Helper\Category $categoryHelper,
+        UrlResolverInterface $urlResolver,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -64,6 +71,7 @@ class Category extends \Magento\Framework\View\Element\Template
         $this->helper = $helper;
         $this->layer = $resolver->get();
         $this->categoryHelper = $categoryHelper;
+        $this->urlResolver = $urlResolver;
     }
 
     /**
@@ -130,6 +138,14 @@ class Category extends \Magento\Framework\View\Element\Template
     public function collectFilters()
     {
         return $this->helper->collectFilters();
+    }
+
+    /**
+     * @return string
+     */
+    public function getClearUrl(): string
+    {
+        return $this->urlResolver->resolve();
     }
 
     /**

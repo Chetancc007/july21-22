@@ -30,7 +30,7 @@ class PageTest extends \PHPUnit\Framework\TestCase
      */
     private $model;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->model = $this->getMockBuilder(Page::class)
             ->setMethods(['lookupStoreIds', 'getConnection', 'getTable'])

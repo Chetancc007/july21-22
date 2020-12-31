@@ -35,7 +35,7 @@ class AddSelectionTest extends \PHPUnit\Framework\TestCase
      */
     private $attribute;
 
-    public function setUp()
+    public function setUp(): void
     {
         $catalogConfig = $this->createMock(\Magento\Catalog\Model\Config::class);
         $context = $this->createMock(\Magento\Backend\App\Action\Context::class);
@@ -57,12 +57,12 @@ class AddSelectionTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers AddSelection::loadAttribute
-     * @expectedException \Magento\Framework\Exception\LocalizedException
      */
     public function testLoadAttribute()
     {
         $this->attribute->expects($this->any())->method('getId')->will($this->onConsecutiveCalls(1, 0));
         $this->assertEquals($this->attribute, $this->invokeMethod($this->controller, 'loadAttribute'));
+        $this->expectException(\Magento\Framework\Exception\LocalizedException::class);
         $this->invokeMethod($this->controller, 'loadAttribute');
     }
 }

@@ -49,7 +49,7 @@ class OptionSettingTest extends \PHPUnit\Framework\TestCase
      */
     private $attribute;
 
-    public function setup(): void
+    public function setUp(): void
     {
         $this->optionSetting = $this->getObjectManager()
             ->getObject(\Amasty\ShopbyBase\Model\OptionSetting::class);

@@ -10,11 +10,9 @@ namespace Amasty\Shopby\Plugin\CatalogSearch\Model\Indexer\Fulltext\Action;
 
 use Magento\CatalogSearch\Model\Indexer\Fulltext\Action\DataProvider as MagentoDataProvider;
 use Amasty\Shopby\Helper\Group as GroupHelper;
+use Magento\Framework\App\ResourceConnection;
+use Amasty\Shopby\Model\CatalogSearch\Indexer\Fulltext\DataProvider as AmastyDataProvider;
 
-/**
- * Class DataProvider
- * @package Amasty\Shopby\Plugin\CatalogSearch\Model\Indexer\Fulltext\Action
- */
 class DataProvider
 {
     /**
@@ -28,12 +26,23 @@ class DataProvider
     private $groupedOptions;
 
     /**
-     * DataProvider constructor.
-     * @param GroupHelper $groupHelper
+     * @var ResourceConnection
      */
-    public function __construct(GroupHelper $groupHelper)
-    {
+    private $resource;
+
+    /**
+     * @var AmastyDataProvider
+     */
+    private $amastyDataProvider;
+
+    public function __construct(
+        GroupHelper $groupHelper,
+        ResourceConnection $resourceConnection,
+        AmastyDataProvider $amastyDataProvider
+    ) {
         $this->groupHelper = $groupHelper;
+        $this->resource = $resourceConnection;
+        $this->amastyDataProvider = $amastyDataProvider;
     }
 
     /**
@@ -110,5 +119,33 @@ class DataProvider
         }
 
         return $this->groupedOptions;
+    }
+
+    /**
+     * @param MagentoDataProvider $subject
+     * @param callable $proceed
+     * @param string $storeId
+     * @param array $staticFields
+     * @param array|null $productIds
+     * @param int|string $lastProductId
+     * @param int|string $batchSize
+     * @return array
+     */
+    public function aroundGetSearchableProducts(
+        MagentoDataProvider $subject,
+        callable $proceed,
+        $storeId,
+        array $staticFields,
+        $productIds = null,
+        $lastProductId = 0,
+        $batchSize = 100
+    ): array {
+        return $this->amastyDataProvider->getSearchableProducts(
+            (int)$storeId,
+            $staticFields,
+            $productIds,
+            (int)$lastProductId,
+            (int)$batchSize
+        );
     }
 }

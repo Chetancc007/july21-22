@@ -44,7 +44,7 @@ class EditTest extends \PHPUnit\Framework\TestCase
      */
     private $attributeConfig;
 
-    protected function setup(): void
+    protected function setUp(): void
     {
         $this->registry = $this->createMock(\Magento\Framework\Registry::class);
         $displayModeSource = $this->createMock(\Amasty\ShopbyBase\Model\Source\DisplayMode::class);

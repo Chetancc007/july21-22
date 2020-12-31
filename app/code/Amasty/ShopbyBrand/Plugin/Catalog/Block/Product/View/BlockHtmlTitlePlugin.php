@@ -17,11 +17,6 @@ use Amasty\ShopbyBase\Model\OptionSetting;
 use Magento\Store\Model\StoreManagerInterface;
 use Amasty\ShopbyBrand\Model\Source\Tooltip;
 
-/**
- * Class BlockHtmlTitlePlugin
- *
- * @package Amasty\ShopbyBrand\Plugin\Catalog\Block\Product\View
- */
 class BlockHtmlTitlePlugin extends BlockHtmlTitlePluginAbstract
 {
     /**
@@ -45,11 +40,11 @@ class BlockHtmlTitlePlugin extends BlockHtmlTitlePluginAbstract
     /**
      * Add Brand Label to Product Page
      *
-     * @param \Magento\Theme\Block\Html\Title $original
+     * @param mixed $original
      * @param $html
      * @return string
      */
-    public function afterToHtml(\Magento\Theme\Block\Html\Title $original, $html)
+    public function afterToHtml($original, $html)
     {
         if ($this->isShowLogo()) {
             $html = parent::afterToHtml($original, $html);

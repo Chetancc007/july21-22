@@ -37,7 +37,7 @@ class RouterTest extends \PHPUnit\Framework\TestCase
      */
     private $helper;
 
-    public function setUp()
+    public function setUp(): void
     {
         $urlParser = $this->createMock(UrlParser::class);
         $scopeConfig = $this->createMock(\Magento\Framework\App\Config\ScopeConfigInterface::class);

@@ -93,7 +93,8 @@ $filterPathItems = $filterItems->getItems($block->getPath());
         {
             "[data-am-js='filter-item-category-<?= /* @noEscape */ $filterSubcategoriesType ?>']": {
                 "<?= /* @noEscape */ $filterSubcategoriesType ?>" : {
-                    "collectFilters": <?= /* @noEscape */ $block->collectFilters(); ?>
+                    "collectFilters": <?= /* @noEscape */ $block->collectFilters(); ?>,
+                    "clearUrl": "<?= $block->escapeUrl($block->getClearUrl()); ?>"
                 }
             }
         }

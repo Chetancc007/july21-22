@@ -46,7 +46,7 @@ class FilterSettingTest extends \PHPUnit\Framework\TestCase
      */
     private $filterSettings;
 
-    public function setup(): void
+    public function setUp(): void
     {
         $this->model = $this->getObjectManager()->getObject(FilterSetting::class);
         $this->filterSettingFactory = $this

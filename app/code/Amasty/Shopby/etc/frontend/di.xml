@@ -17,6 +17,8 @@
                 type="Amasty\Shopby\Block\Navigation\State"/>
     <preference for="Magento\CatalogSearch\Model\Adapter\Mysql\Plugin\Aggregation\Category\DataProvider"
                 type="Amasty\Shopby\Plugin\Aggregation\Category\DataProvider"/>
+    <preference for="Amasty\Shopby\Model\UrlResolver\UrlResolverInterface"
+                type="Amasty\Shopby\Model\UrlResolver\ClearUrlResolver"/>
 
     <type name="Magento\Framework\App\RouterList">
         <arguments>
@@ -300,6 +302,10 @@
         <plugin name="Amasty_Shopby::linksTitle"
                 type="Amasty\Shopby\Plugin\Catalog\Block\Product\View\BlockHtmlTitlePlugin"/>
     </type>
+    <type name="Amasty\Mage24Fix\Block\Theme\Html\Title">
+        <plugin name="Amasty_Shopby::linksTitle"
+                type="Amasty\Shopby\Plugin\Catalog\Block\Product\View\BlockHtmlTitlePlugin"/>
+    </type>
     <type name="Magento\Swatches\Helper\Data">
         <plugin name="Amasty_Shopby::SwatchAttribute" type="Amasty\Shopby\Plugin\Catalog\Swatches"/>
     </type>
@@ -379,6 +385,13 @@
                 type="Amasty\Shopby\Plugin\Framework\Search\Dynamic\Algorithm\Repository"/>
     </type>
     <!--======================================================================-->
+    <type name="Magento\Framework\Search\Dynamic\Algorithm\Improved">
+        <arguments>
+            <argument name="algorithm" xsi:type="object">Amasty\Shopby\Model\Search\Dynamic\Algorithm</argument>
+        </arguments>
+    </type>
+    <type name="Amasty\Shopby\Model\Search\Dynamic\Algorithm" shared="false" />
+
     <type name="Magento\Theme\Block\Html\Header\Logo">
         <plugin name="Amasty_Shopby::HeaderLogo" type="Amasty\Shopby\Plugin\Theme\Block\Html\Header\Logo" />
     </type>
@@ -405,4 +418,12 @@
     <type name="Magento\Framework\Search\Request">
         <plugin name="Amasty_Shopby::undefinedSearchFix" type="Amasty\ShopbyBase\Plugin\Framework\Search\RequestPlugin" />
     </type>
+
+    <!-- fix magento elastic bug -->
+    <type name="Magento\Elasticsearch\SearchAdapter\Filter\Builder\Range">
+        <plugin name="Amasty_Shopby::magento_elastic_fix"
+                type="Amasty\Shopby\Plugin\Elasticsearch\SearchAdapter\Filter\Builder\RangePlugin" />
+    </type>
+
+    <type name="Amasty\Shopby\Model\Search\SearchCriteriaBuilderProvider" shared="false"/>
 </config>

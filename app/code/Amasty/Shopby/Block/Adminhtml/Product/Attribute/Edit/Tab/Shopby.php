@@ -868,7 +868,6 @@ class Shopby extends \Magento\Backend\Block\Widget\Form\Generic
                 'name' => 'categories_filter',
                 'label' => __('Categories'),
                 'title' => __('Categories'),
-                'style' => 'height: 500px; width: 300px;',
                 'values' => $this->categorySource->toOptionArray(),
             ]
         );

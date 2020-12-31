@@ -6,6 +6,8 @@
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\ShopbyBase\Api\Data;
 
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -13,11 +15,10 @@ use Magento\Framework\Exception\NoSuchEntityException;
 interface OptionSettingRepositoryInterface
 {
     /**
-     * @param int $id
      * @return OptionSettingInterface
      * @throws NoSuchEntityException
      */
-    public function get($id);
+    public function get($value, $field = null);
 
     /**
      * @param string $filterCode

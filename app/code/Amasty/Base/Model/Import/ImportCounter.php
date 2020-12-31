@@ -61,6 +61,6 @@ class ImportCounter
      */
     public function getDeletedCount()
     {
-        return $this->updated;
+        return $this->deleted;
     }
 }

@@ -33,9 +33,9 @@ class MoreFrom extends \Magento\Catalog\Block\Product\AbstractProduct
     /**
      * Item collection
      *
-     * @var \Magento\Catalog\Model\ResourceModel\Product\Collection
+     * @var \Magento\Catalog\Model\ResourceModel\Product\Collection|array
      */
-    protected $_itemCollection;
+    protected $_itemCollection = [];
 
     /**
      * @var \Magento\Catalog\Model\Product\Attribute\Source\Status

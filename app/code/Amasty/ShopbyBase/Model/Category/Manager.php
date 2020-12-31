@@ -11,9 +11,6 @@ namespace Amasty\ShopbyBase\Model\Category;
 use Magento\Framework\Exception\LocalizedException;
 use Psr\Log\LoggerInterface;
 
-/**
- * Class Manager
- */
 class Manager extends \Magento\Framework\DataObject
 {
     const CATEGORY_FORCE_MIXED_MODE = 'amshopby_force_mixed_mode';
@@ -84,12 +81,9 @@ class Manager extends \Magento\Framework\DataObject
         return $this->storeManager->getStore()->getBaseUrl();
     }
 
-    /**
-     * @return int
-     */
-    protected function getCurrentStoreId()
+    public function getCurrentStoreId(): int
     {
-        return $this->storeManager->getStore()->getId();
+        return (int)$this->storeManager->getStore()->getId();
     }
 
     /**

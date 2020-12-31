@@ -7,6 +7,8 @@
 ?>
 <?php
 /** @var \Amasty\ShopbyBrand\Block\Widget\BrandList $block */
+/** @var \Magento\Framework\Escaper $escaper */
+
 $items = $block->getIndex();
 $columns = abs((int)$block->getData('columns'));
 $brandLetters = $block->getAllLetters();
@@ -20,158 +22,162 @@ $filterDisplayAll = $block->getData('filter_display_all');
 $display_zero = $block->getData('display_zero');
 $width = floor(100 / $columns);
 ?>
-<style>
-    .bare-list .ambrands-image {
-        max-width: <?= $block->escapeHtml($imgWidth);?>px;
-        max-height: <?= $block->escapeHtml($imgHeight);?>px;
-    }
 
-    .brand-item .am-image-wrapper {
-        height: <?= $block->escapeHtml($imgWidth);?>px;
-    }
-
-    .brand-item {
-        max-width: <?= $block->escapeHtml($imgWidth);?>px;
-        min-width: <?= $block->escapeHtml($imgWidth);?>px;
-        min-height: <?= $block->escapeHtml($imgWidth + 30);?>px;
-    }
-    .brand-item .no-img {
-        width: <?= $block->escapeHtml($imgWidth);?>px;
-        line-height: <?= $block->escapeHtml($imgWidth);?>px;
-        font-size: <?= $block->escapeHtml($imgWidth * 0.65);?>px;
-    }
-    @media (min-width: 768px) {
-        .brand-images .brands-letter {
-            width:<?= $block->escapeHtml($width) ?>%;
+<div class="am-widget-brandlist">
+    <style>
+        .bare-list .ambrands-image {
+            max-width: <?= $escaper->escapeHtml($imgWidth);?>px;
+            max-height: <?= $escaper->escapeHtml($imgHeight);?>px;
         }
-    }
-</style>
 
-<div class="content">
-<?php if ($items) : ?>
-    <?php if ($isShowSearch || $isShowFilter) :?>
-        <div class="brands-filters">
-            <?= $block->getSearchHtml(); ?>
-            <?php if ($isShowFilter) :?>
-                <div class="letters">
-                    <div class="letters-box">
-                        <a href="javascript:void(0)"
-                           class="letter -letter-all"
-                           data-ambrands-js="filter-letter"
-                           title="<?= $block->escapeHtml(__('All Brands'))?>"
-                        >
-                            <?= $block->escapeHtml(__('All Brands'))?>
-                        </a>
-                    </div>
-                    <div class="letters-box">
-                        <?php if ($filterDisplayAll) :?>
-                            <?php foreach (array_merge(range('A', 'Z'), ['#']) as $letter) :?>
-                                <a href="javascript:void(0)" data-ambrands-js="filter-letter"
-                                   class="letter <?= (!(in_array($letter, $brandLetters)))
-                                       ? '-disabled'
-                                       : 'letter-' . $block->escapeHtml($letter)?>">
-                                    <?= $block->escapeHtml($letter)?></a>
-                            <?php endforeach; ?>
-                        <?php else : ?>
-                            <?php foreach ($brandLetters as $letter) :?>
-                                <a href="javascript:void(0)" data-ambrands-js="filter-letter"
-                                   class="letter letter-<?= $block->escapeHtml($letter)?>">
-                                    <?= $block->escapeHtml($letter)?>
-                                </a>
-                            <?php endforeach;  ?>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            <?php endif; ?>
-        </div>
-    <?php endif; ?>
-    <?php foreach ($items as $letters) : ?>
-    <div class="brand-images">
-        <?php foreach ($letters as $letter => $options) : ?>
-        <dl class="brands-letter letter-<?= $block->escapeHtml($letter)?>" data-ambrands-js="brand-letter">
-            <dt class="letter">
-                <span class="title"><?= $block->escapeHtml($letter) ?></span>
-            </dt>
-            <dd>
-                <ul class="bare-list">
-                <?php foreach ($options as $option) : ?>
-                    <li class="brand-item" <?= /** @noEscape */ $block->getTooltipAttribute($option) ?>>
-                        <a href="<?= $block->escapeUrl($option['url']) ?>"
-                           class="item"
-                           title="<?= $block->escapeHtml($option['label']) ?>">
-                            <?php if ($option['img'] && $isShowImages) : ?>
-                                <div class="am-image-wrapper">
-                                    <img class="ambrands-image"
-                                         src="<?= $block->escapeUrl($option['img']) ?>"
-                                         title="<?= $block->escapeHtml($option['alt']) ?>"
-                                         alt="<?= $block->escapeHtml($option['alt']) ?>" />
-                                </div>
-                            <?php else : ?>
-                                <div class="am-image-wrapper">
-                                    <p class="no-img"><?= $block->escapeHtml($letter) ?></p>
-                                </div>
-                            <?php endif ?>
-                                <p class="label"><?= $block->escapeHtml($option['label']) ?></p>
-                            <?php if ($isShowCount) : ?>
-                                <p class="count"><?= $block->escapeHtml($option['cnt']) ?></p>
+        .brand-item .am-image-wrapper {
+            height: <?= $escaper->escapeHtml($imgWidth);?>px;
+        }
+
+        .brand-item {
+            max-width: <?= $escaper->escapeHtml($imgWidth);?>px;
+            min-width: <?= $escaper->escapeHtml($imgWidth);?>px;
+            min-height: <?= $escaper->escapeHtml($imgWidth + 30);?>px;
+        }
+        .brand-item .no-img {
+            width: <?= $escaper->escapeHtml($imgWidth);?>px;
+            line-height: <?= $escaper->escapeHtml($imgWidth);?>px;
+            font-size: <?= $escaper->escapeHtml($imgWidth * 0.65);?>px;
+        }
+        @media (min-width: 768px) {
+            .brand-images .brands-letter {
+                width:<?= $escaper->escapeHtml($width) ?>%;
+            }
+        }
+    </style>
+
+    <div class="content">
+    <?php if ($items): ?>
+        <?php if ($isShowSearch || $isShowFilter):?>
+            <div class="brands-filters">
+                <?= $block->getSearchHtml(); ?>
+                <?php if ($isShowFilter): ?>
+                    <div class="letters">
+                        <div class="letters-box">
+                            <a href="javascript:void(0)"
+                               class="letter -letter-all"
+                               data-ambrands-js="filter-letter"
+                               title="<?= $escaper->escapeHtml(__('All Brands'))?>"
+                            >
+                                <?= $escaper->escapeHtml(__('All Brands'))?>
+                            </a>
+                        </div>
+                        <div class="letters-box">
+                            <?php if ($filterDisplayAll): ?>
+                                <?php foreach (array_merge(range('A', 'Z'), ['#']) as $letter): ?>
+                                    <a href="javascript:void(0)" data-ambrands-js="filter-letter"
+                                       class="letter <?= (!(in_array($letter, $brandLetters)))
+                                           ? '-disabled'
+                                           : 'letter-' . $escaper->escapeHtml($letter)?>">
+                                        <?= $escaper->escapeHtml($letter)?></a>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <?php foreach ($brandLetters as $letter): ?>
+                                    <a href="javascript:void(0)" data-ambrands-js="filter-letter"
+                                       class="letter letter-<?= $escaper->escapeHtml($letter)?>">
+                                        <?= $escaper->escapeHtml($letter)?>
+                                    </a>
+                                <?php endforeach;  ?>
                             <?php endif; ?>
-                        </a>
-                    </li>
-                <?php endforeach ?>
-                </ul>
-            </dd>
-        </dl>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+        <?php foreach ($items as $letters): ?>
+        <div class="brand-images">
+            <?php foreach ($letters as $letter => $options): ?>
+            <dl class="brands-letter letter-<?= $escaper->escapeHtml($letter)?>" data-ambrands-js="brand-letter">
+                <dt class="letter">
+                    <span class="title"><?= $escaper->escapeHtml($letter) ?></span>
+                </dt>
+                <dd>
+                    <ul class="bare-list">
+                    <?php foreach ($options as $option): ?>
+                        <li class="brand-item" <?= /** @noEscape */ $block->getTooltipAttribute($option) ?>>
+                            <a href="<?= $escaper->escapeUrl($option['url']) ?>"
+                               class="item"
+                               title="<?= $escaper->escapeHtml($option['label']) ?>">
+                                <?php if ($option['img'] && $isShowImages): ?>
+                                    <div class="am-image-wrapper">
+                                        <img class="ambrands-image"
+                                             src="<?= $escaper->escapeUrl($option['img']) ?>"
+                                             title="<?= $escaper->escapeHtml($option['alt']) ?>"
+                                             alt="<?= $escaper->escapeHtml($option['alt']) ?>" />
+                                    </div>
+                                <?php else: ?>
+                                    <div class="am-image-wrapper">
+                                        <p class="no-img"><?= $escaper->escapeHtml($letter) ?></p>
+                                    </div>
+                                <?php endif ?>
+                                    <p class="label"><?= $escaper->escapeHtml($option['label']) ?></p>
+                                <?php if ($isShowCount): ?>
+                                    <p class="count"><?= $escaper->escapeHtml($option['cnt']) ?></p>
+                                <?php endif; ?>
+                            </a>
+                        </li>
+                    <?php endforeach ?>
+                    </ul>
+                </dd>
+            </dl>
+            <?php endforeach ?>
+        </div>
         <?php endforeach ?>
+        <div style="clear:both;"></div>
+    <?php else: ?>
+        <?= $escaper->escapeHtml(
+            __(
+                'Please select brand attribute in Stores -> Configuration -> Amasty Extensions -> Improved Layered Navigation:
+                        Brands.'
+            )
+        ) ?>
+    <?php endif ?>
     </div>
-    <?php endforeach ?>
-    <div style="clear:both;"></div>
-<?php else : ?>
-    <?= $block->escapeHtml(
-        __(
-            'Please select brand attribute in Stores -> Configuration -> Amasty Extensions -> Improved Layered Navigation:
-                    Brands.'
-        )
-    ) ?>
-<?php endif ?>
+
+    <script>
+        require([
+            'jquery',
+            'Amasty_ShopbyBrand/js/brand-filter',
+            'domReady!'
+        ], function ($) {
+            $('[data-ambrands-js="filter-letter"]').on('click', function(e) {
+                e.preventDefault();
+                $(this).applyBrandFilter('[data-ambrands-js="brand-letter"]');
+            });
+        });
+
+        <?php if ($block->isTooltipEnabled()): ?>
+        require([
+            'jquery',
+            "mage/tooltip"
+        ], function ($) {
+            $('[data-amshopby-js="brand-tooltip"]').tooltip({
+                position: {
+                    my: "left-20 bottom",
+                    at: "right top",
+                    collision: "flip flip",
+                    using: function (position, feedback) {
+                        $(this).css(position);
+                        $("<div>")
+                            .addClass("arrow")
+                            .addClass(feedback.vertical)
+                            .addClass(feedback.horizontal)
+                            .appendTo(this);
+                    }
+                },
+                tooltipClass: "amshopby-brand-tooltip",
+                content: function () {
+                    var current = $(this).is('li') ? $(this) : $(this).parent();
+                    return current.data('tooltip-content');
+                }
+            });
+        });
+        <?php endif ?>
+    </script>
 </div>
 
-<script>
-    require([
-        'jquery',
-        'Amasty_ShopbyBrand/js/brand-filter',
-        'domReady!'
-    ], function ($) {
-        $('[data-ambrands-js="filter-letter"]').on('click', function(e) {
-            e.preventDefault();
-            $(this).applyBrandFilter('[data-ambrands-js="brand-letter"]');
-        });
-    });
-
-    <?php if ($block->isTooltipEnabled()) :?>
-    require([
-        'jquery',
-        "mage/tooltip"
-    ], function ($) {
-        $('[data-amshopby-js="brand-tooltip"]').tooltip({
-            position: {
-                my: "left-20 bottom",
-                at: "right top",
-                collision: "flip flip",
-                using: function (position, feedback) {
-                    $(this).css(position);
-                    $("<div>")
-                        .addClass("arrow")
-                        .addClass(feedback.vertical)
-                        .addClass(feedback.horizontal)
-                        .appendTo(this);
-                }
-            },
-            tooltipClass: "amshopby-brand-tooltip",
-            content: function () {
-                var current = $(this).is('li') ? $(this) : $(this).parent();
-                return current.data('tooltip-content');
-            }
-        });
-    });
-    <?php endif ?>
-</script>

@@ -9,7 +9,7 @@
 namespace Amasty\Shopby\Model\Layer\Filter;
 
 use Magento\Framework\Exception\StateException;
-use Magento\Search\Model\SearchEngine;
+use Magento\Search\Api\SearchInterface;
 use Amasty\Shopby\Model\Layer\Filter\OnSale\Helper;
 use Amasty\Shopby\Model\Layer\Filter\Traits\CustomTrait;
 use Magento\Store\Model\ScopeInterface;
@@ -20,10 +20,7 @@ class OnSale extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
 
     const FILTER_ON_SALE = 1;
 
-    /**
-     * @var string
-     */
-    private $attributeCode = 'am_on_sale';
+    const ATTRIBUTE_CODE = 'am_on_sale';
 
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
@@ -41,9 +38,9 @@ class OnSale extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
     private $helper;
 
     /**
-     * @var SearchEngine
+     * @var SearchInterface
      */
-    private $searchEngine;
+    private $search;
 
     /**
      * @var \Amasty\Shopby\Helper\FilterSetting
@@ -59,7 +56,7 @@ class OnSale extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
         \Amasty\Shopby\Model\Request $shopbyRequest,
         Helper $helper,
         \Amasty\Shopby\Helper\FilterSetting $settingHelper,
-        SearchEngine $searchEngine,
+        SearchInterface $search,
         array $data = []
     ) {
         parent::__construct(
@@ -74,7 +71,7 @@ class OnSale extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
         $this->scopeConfig = $scopeConfig;
         $this->shopbyRequest = $shopbyRequest;
         $this->helper = $helper;
-        $this->searchEngine = $searchEngine;
+        $this->search = $search;
     }
 
     /**
@@ -95,7 +92,7 @@ class OnSale extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
 
         $this->setCurrentValue($filter);
         if ($filter == self::FILTER_ON_SALE) {
-            $this->getLayer()->getProductCollection()->addFieldToFilter('am_on_sale', $filter);
+            $this->getLayer()->getProductCollection()->addFieldToFilter($this->getAttributeCode(), $filter);
             $name = __('Yes');
             $this->getLayer()->getState()->addFilter($this->_createItem($name, $filter));
         }
@@ -164,5 +161,10 @@ class OnSale extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
         }
 
         return $this->itemDataBuilder->build();
+    }
+
+    private function getAttributeCode(): ?string
+    {
+        return self::ATTRIBUTE_CODE;
     }
 }

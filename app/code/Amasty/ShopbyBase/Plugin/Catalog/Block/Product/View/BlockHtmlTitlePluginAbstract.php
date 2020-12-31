@@ -82,13 +82,13 @@ abstract class BlockHtmlTitlePluginAbstract
     /**
      * Add Brand Label to Product Page
      *
-     * @param \Magento\Theme\Block\Html\Title $original
+     * @param mixed $original
      * @param $html
      *
      * @return string
      */
     public function afterToHtml(
-        \Magento\Theme\Block\Html\Title $original,
+        $original,
         $html
     ) {
         $logoHtml = $this->generateLogoHtml();

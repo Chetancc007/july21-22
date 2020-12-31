@@ -42,11 +42,11 @@ class Request extends \Magento\Framework\DataObject
         $param = $this->getParams($filter);
 
         if ($filter instanceof FromToFilterInterface) {
-            //filter with param "0.0-100" doesn't work. Should use "-100" instead. Fix the slider issue.
-            $prefixesToRemove = ['0-', '0.-', '0,-', '0.0-', '0,0-', '0.00-', '0,00-'];
+            //filter with param "0.0-100" doesn't work. Should use "0-100" instead. Fix the slider issue.
+            $prefixesToRemove = ['0.00', '0,00', '0.0', '0,0', '0.', '0,', '0-,'];
             foreach ($prefixesToRemove as $prefix) {
                 if (substr($param, 0, strlen($prefix)) == $prefix) {
-                    $param = substr($param, strlen($prefix) - 1);
+                    $param = str_replace($prefix, 0, $param);
                 }
             }
         }
@@ -61,9 +61,7 @@ class Request extends \Magento\Framework\DataObject
     private function getParams($filter)
     {
         $param = $this->getParam($filter->getRequestVar());
-        if ($filter->getRequestVar() == \Amasty\Shopby\Model\Source\DisplayMode::ATTRUBUTE_PRICE
-            && $param
-        ) {
+        if ($filter->getRequestVar() == \Amasty\Shopby\Model\Source\DisplayMode::ATTRUBUTE_PRICE && $param) {
             $param = $this->getParam(Price::AM_BASE_PRICE) ?: $param;
         }
 
@@ -99,6 +97,7 @@ class Request extends \Magento\Framework\DataObject
             $data = implode(',', $bulkParams[$requestVar]);
         } else {
             $data = $this->request->getParam($requestVar);
+            $data = $data ? (string)$data : $data;
         }
 
         return $data;

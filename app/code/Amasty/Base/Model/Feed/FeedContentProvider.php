@@ -10,7 +10,6 @@ namespace Amasty\Base\Model\Feed;
 
 use Magento\Framework\HTTP\Adapter\Curl;
 use Magento\Framework\HTTP\Adapter\CurlFactory;
-use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -39,11 +38,6 @@ class FeedContentProvider
     private $curlFactory;
 
     /**
-     * @var ProductMetadataInterface
-     */
-    private $productMetadata;
-
-    /**
      * @var StoreManagerInterface
      */
     private $storeManager;
@@ -55,11 +49,9 @@ class FeedContentProvider
 
     public function __construct(
         CurlFactory $curlFactory,
-        ProductMetadataInterface $productMetadata,
         StoreManagerInterface $storeManager
     ) {
         $this->curlFactory = $curlFactory;
-        $this->productMetadata = $productMetadata;
         $this->storeManager = $storeManager;
     }
 
@@ -75,9 +67,7 @@ class FeedContentProvider
         $curlObject->setConfig(
             [
                 'timeout' => 2,
-                'useragent' => $this->productMetadata->getName()
-                    . '/' . $this->productMetadata->getVersion()
-                    . ' (' . $this->productMetadata->getEdition() . ')'
+                'useragent' => 'Amasty Base Feed'
             ]
         );
         $curlObject->write(\Zend_Http_Client::GET, $url, '1.0');

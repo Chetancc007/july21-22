@@ -12,9 +12,14 @@
                 type="Amasty\ShopbyBase\Plugin\Catalog\Block\Category\View" sortOrder="100"/>
     </type>
 
-    <type name="\Magento\Catalog\Model\Category">
+    <type name="\Magento\Catalog\Model\Category\Image">
         <plugin name="Amasty_ShopbyBase::catalogCategory"
                 type="Amasty\ShopbyBase\Plugin\Catalog\Model\Category" sortOrder="100"/>
+    </type>
+
+    <type name="\Magento\Catalog\Model\Category\Image">
+        <plugin name="Amasty_ShopbyBase::customizeCategoryImage"
+                type="Amasty\ShopbyBase\Plugin\Catalog\Model\Category\ImagePlugin" sortOrder="100"/>
     </type>
 
     <type name="Magento\Framework\View\Page\Title">

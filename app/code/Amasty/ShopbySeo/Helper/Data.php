@@ -146,18 +146,19 @@ class Data extends AbstractHelper
      */
     public function getOptionsSeoData()
     {
-        $cache_id = 'amshopby_seo_options_data' . $this->storeManager->getStore()->getId();
-        if ($this->optionsSeoData === null && $this->cacheState->isEnabled(Type::TYPE_IDENTIFIER)) {
+        $storeId = $this->storeManager->getStore()->getId();
+        $cache_id = 'amshopby_seo_options_data' . $storeId;
+        if (!isset($this->optionsSeoData[$storeId]) && $this->cacheState->isEnabled(Type::TYPE_IDENTIFIER)) {
             $cached = $this->cache->load($cache_id);
             if ($cached !== false) {
-                $this->optionsSeoData = \Zend\Serializer\Serializer::unserialize($cached);
+                $this->optionsSeoData[$storeId] = \Zend\Serializer\Serializer::unserialize($cached);
             }
         }
-        if ($this->optionsSeoData === null) {
-            $this->optionsSeoData = [];
+        if (!isset($this->optionsSeoData[$storeId])) {
+            $this->optionsSeoData[$storeId] = [];
             $aliasHash = [];
 
-            $dynamicAliases = $this->loadDynamicAliasesExcluding(array_values($aliasHash));
+            $dynamicAliases = $this->loadDynamicAliasesExcluding(array_values($aliasHash), $storeId);
             $ids = [];
             foreach ($dynamicAliases as $row) {
                 $attributeCode = isset($row['attribute_code']) ? $row['attribute_code'] : '';
@@ -167,7 +168,7 @@ class Data extends AbstractHelper
 
                 $alias = $this->buildUniqueAlias($row['value'], $aliasHash);
                 $optionId = $row['option_id'];
-                $this->optionsSeoData[$row['attribute_code']][$optionId] = $alias;
+                $this->optionsSeoData[$storeId][$row['attribute_code']][$optionId] = $alias;
                 $aliasHash[$alias] = $optionId;
             }
             $hardcodedAliases = $this->loadHardcodedAliases();
@@ -179,7 +180,7 @@ class Data extends AbstractHelper
                 }
                 if (in_array($attributeCode, $ids)) {
                     $alias = $this->buildUniqueAlias($row['url_alias'], $aliasHash, $row['value']);
-                    $this->optionsSeoData[$attributeCode][$row['value']] = $alias;
+                    $this->optionsSeoData[$storeId][$attributeCode][$row['value']] = $alias;
                     $aliasHash[$alias] = $row['value'];
                 }
             }
@@ -188,31 +189,33 @@ class Data extends AbstractHelper
                 if ($data) {
                     foreach ($data as $key => $record) {
                         $alias = $this->buildUniqueAlias($record, $aliasHash);
-                        $this->optionsSeoData[$code][$key] = $alias;
+                        $this->optionsSeoData[$storeId][$code][$key] = $alias;
                         $aliasHash[$record] = $key;
                     }
                 }
             }
             if ($this->cacheState->isEnabled(Type::TYPE_IDENTIFIER)) {
                 $this->cache->save(
-                    \Zend\Serializer\Serializer::serialize($this->optionsSeoData),
+                    \Zend\Serializer\Serializer::serialize($this->optionsSeoData[$storeId]),
                     $cache_id,
                     [Type::CACHE_TAG]
                 );
             }
         }
 
-        return $this->optionsSeoData;
+        return $this->optionsSeoData[$storeId];
     }
 
     /**
+     * @param int $storeId
      * @return array
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    private function loadHardcodedAliases()
+    private function loadHardcodedAliases($storeId = null)
     {
         $aliases = [];
-        if ($this->configHelper->isSeoUrlEnabled()) {
-            $storeId = $this->storeManager->getStore()->getId();
+        if ($this->configHelper->isSeoUrlEnabled($storeId)) {
+            $storeId = $storeId ?? $this->storeManager->getStore()->getId();
             $aliases = $this->optionSettingCollectionFactory->create()->getHardcodedAliases($storeId);
         }
 
@@ -221,16 +224,17 @@ class Data extends AbstractHelper
 
     /**
      * @param array $excludeOptionIds
+     * @param int $storeId
      * @return array
      */
-    private function loadDynamicAliasesExcluding($excludeOptionIds = [])
+    private function loadDynamicAliasesExcluding($excludeOptionIds = [], $storeId = null)
     {
         $seoAttributeCodes = $this->getSeoSignificantAttributeCodes();
 
         $collection = $this->optionCollectionFactory->create();
         $collection->join(['a' => 'eav_attribute'], 'a.attribute_id = main_table.attribute_id', ['attribute_code']);
         $collection->addFieldToFilter('attribute_code', ['in' => $seoAttributeCodes]);
-        $collection->setStoreFilter();
+        $collection->setStoreFilter($storeId);
         $select = $collection->getSelect();
         if ($excludeOptionIds) {
             $select->where('`main_table`.`option_id` NOT IN (' . join(',', $excludeOptionIds) . ')');

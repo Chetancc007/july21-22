@@ -6,15 +6,13 @@
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter\DataMapper;
 
 use Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter\DataMapperInterface;
 use Magento\Store\Model\ScopeInterface;
 
-/**
- * Class IsNew
- * @package Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter\DataMapper
- */
 class IsNew implements DataMapperInterface
 {
     const FIELD_NAME = 'am_is_new';
@@ -59,7 +57,7 @@ class IsNew implements DataMapperInterface
      * @return array
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function map($entityId, array $entityIndexData, $storeId, $context = [])
+    public function map($entityId, array $entityIndexData, $storeId, $context = []): array
     {
         $value = isset($context[self::INDEX_DOCUMENT][self::DOCUMENT_FIELD_NAME])
             ? $context[self::INDEX_DOCUMENT][self::DOCUMENT_FIELD_NAME] : $this->isProductNew($entityId, $storeId);
@@ -69,9 +67,12 @@ class IsNew implements DataMapperInterface
     /**
      * @return bool
      */
-    public function isAllowed()
+    public function isAllowed(): bool
     {
-        return $this->scopeConfig->isSetFlag('amshopby/am_is_new_filter/enabled', ScopeInterface::SCOPE_STORE);
+        return $this->scopeConfig->isSetFlag(
+            'amshopby/am_is_new_filter/enabled',
+            ScopeInterface::SCOPE_STORE
+        );
     }
 
     /**
@@ -98,5 +99,10 @@ class IsNew implements DataMapperInterface
             }
         }
         return $this->newProductIds[$storeId];
+    }
+
+    public function getFieldName(): string
+    {
+        return self::FIELD_NAME;
     }
 }

@@ -179,7 +179,7 @@
                 </item>
             </argument>
         </column>
-        <column name="is_featured">
+        <column name="is_show_in_slider">
             <argument name="data" xsi:type="array">
                 <item name="options" xsi:type="object">Magento\Config\Model\Config\Source\Yesno</item>
                 <item name="config" xsi:type="array">
@@ -188,6 +188,7 @@
                     <item name="dataType" xsi:type="string">select</item>
                     <item name="sorting" xsi:type="string">desc</item>
                     <item name="label" xsi:type="string" translate="true">Show in Slider</item>
+                    <item name="sortOrder" xsi:type="number">30</item>
                 </item>
             </argument>
         </column>
@@ -196,6 +197,7 @@
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">textRange</item>
                     <item name="label" xsi:type="string" translate="true">Position in Slider</item>
+                    <item name="sortOrder" xsi:type="number">40</item>
                 </item>
             </argument>
         </column>
@@ -206,6 +208,7 @@
                     <item name="visible" xsi:type="boolean">true</item>
                     <item name="filter" xsi:type="string">text</item>
                     <item name="label" xsi:type="string" translate="true">URL alias</item>
+                    <item name="sortOrder" xsi:type="number">50</item>
                 </item>
             </argument>
         </column>
@@ -257,6 +260,7 @@
                     <item name="visible" xsi:type="boolean">true</item>
                     <item name="filter" xsi:type="string">text</item>
                     <item name="label" xsi:type="string" translate="true">Description</item>
+                    <item name="sortOrder" xsi:type="number">60</item>
                 </item>
             </argument>
         </column>
@@ -265,9 +269,9 @@
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="indexField" xsi:type="string">option_setting_id</item>
+                    <item name="sortOrder" xsi:type="number">100</item>
                 </item>
             </argument>
         </actionsColumn>
-
     </columns>
 </listing>

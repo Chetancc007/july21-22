@@ -53,6 +53,7 @@ class BrandList extends BrandListAbstract implements \Magento\Widget\Block\Block
         \Amasty\ShopbyBrand\Helper\Data $brandHelper,
         \Amasty\ShopbyBrand\Model\ProductCount $productCount,
         DataPersistorInterface $dataPersistor,
+        \Amasty\ShopbyBrand\Model\BrandSettingProvider $brandSettingProvider,
         array $data = []
     ) {
         parent::__construct(
@@ -67,6 +68,7 @@ class BrandList extends BrandListAbstract implements \Magento\Widget\Block\Block
             $messageManager,
             $amUrlBuilder,
             $productCount,
+            $brandSettingProvider,
             $data
         );
 

@@ -10,6 +10,7 @@ namespace Amasty\Shopby\Model\Layer\Filter\Traits;
 
 use \Amasty\Shopby\Model\Source\DisplayMode;
 use Amasty\Shopby\Model\Source\PositionLabel;
+use Magento\Framework\Api\Search\SearchResultInterface;
 
 trait FromToDecimal
 {
@@ -184,12 +185,8 @@ trait FromToDecimal
                 $max *= $this->getCurrencyRate();
             }
 
-            $from = $this->getCurrentFrom() !== null
-                ? $this->getCurrentFrom() ? floatval($this->getCurrentFrom()) : ''
-                : null;
-            $to = $this->getCurrentTo() !== null
-                ? $this->getCurrentTo() ? floatval($this->getCurrentTo()) : ''
-                : null;
+            $from = $this->getCurrentFrom() !== null ? floatval($this->getCurrentFrom()) : '';
+            $to = $this->getCurrentFrom() !== null ? floatval($this->getCurrentTo()) : '';
             $template = $this->getTemplateForSlider($filterSetting);
 
             $config =
@@ -304,5 +301,19 @@ trait FromToDecimal
     {
         return $displayMode == \Amasty\Shopby\Model\Source\DisplayMode::MODE_SLIDER ||
             $displayMode == \Amasty\Shopby\Model\Source\DisplayMode::MODE_FROM_TO_ONLY;
+    }
+
+    private function getSearchResult(): ?SearchResultInterface
+    {
+        $alteredQueryResponse = null;
+        if ($this->hasCurrentValue()) {
+            $searchCriteria = $this->getProductCollection()->getSearchCriteria([
+                $this->getAttributeCode() . '.from',
+                $this->getAttributeCode() . '.to'
+            ]);
+            $alteredQueryResponse = $this->search->search($searchCriteria);
+        }
+
+        return $alteredQueryResponse;
     }
 }

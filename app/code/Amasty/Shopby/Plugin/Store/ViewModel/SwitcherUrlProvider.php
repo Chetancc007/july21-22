@@ -13,10 +13,6 @@ use Magento\Framework\App\Request\DataPersistorInterface;
 use Magento\Store\Model\Store;
 use Amasty\ShopbyBase\Helper\Data;
 
-/**
- * Class SwitcherUrlProvider
- * @package Amasty\Shopby\Plugin\Store\ViewModel
- */
 class SwitcherUrlProvider
 {
     const STORE_PARAM_NAME = '___store';
@@ -42,15 +38,22 @@ class SwitcherUrlProvider
      */
     private $dataPersistor;
 
+    /**
+     * @var \Magento\Store\Model\App\Emulation
+     */
+    private $emulation;
+
     public function __construct(
         \Amasty\ShopbyBase\Api\UrlBuilderInterface $urlBuilder,
         \Magento\Framework\Url\EncoderInterface $encoder,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Store\Model\App\Emulation $emulation,
         DataPersistorInterface $dataPersistor
     ) {
         $this->urlBuilder = $urlBuilder;
         $this->encoder = $encoder;
         $this->storeManager = $storeManager;
+        $this->emulation = $emulation;
         $this->dataPersistor = $dataPersistor;
     }
 
@@ -63,14 +66,21 @@ class SwitcherUrlProvider
      */
     public function aroundGetTargetStoreRedirectUrl($subject, callable $proceed, Store $store)
     {
+        $this->emulation->startEnvironmentEmulation(
+            $store->getStoreId(),
+            \Magento\Framework\App\Area::AREA_FRONTEND,
+            true
+        );
+
         $params['_current'] = true;
         $params['_use_rewrite'] = true;
-        $params['_query'] = ['_' => null, 'shopbyAjax' => null, 'amshopby' => null];
         $params['_scope'] = $store;
+        $params['_query'] = ['_' => null, 'shopbyAjax' => null, 'amshopby' => null];
         $this->dataPersistor->set(Data::SHOPBY_SWITCHER_STORE_ID, $store->getId());
         $currentUrl = $this->urlBuilder->getUrl('*/*/*', $params);
         $this->dataPersistor->clear(Data::SHOPBY_SWITCHER_STORE_ID);
 
+        $this->emulation->stopEnvironmentEmulation();
         return $this->urlBuilder->getUrl(
             'stores/store/redirect',
             [

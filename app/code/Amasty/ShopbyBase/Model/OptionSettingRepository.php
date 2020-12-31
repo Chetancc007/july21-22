@@ -6,6 +6,8 @@
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\ShopbyBase\Model;
 
 use Amasty\ShopbyBase\Api\Data\OptionSettingRepositoryInterface;
@@ -14,9 +16,6 @@ use Amasty\ShopbyBase\Model\ResourceModel\OptionSetting as OptionSettingResource
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Eav\Model\ResourceModel\Entity\Attribute\Option;
 
-/**
- * OptionSettingRepository
- */
 class OptionSettingRepository implements OptionSettingRepositoryInterface
 {
     /**
@@ -52,14 +51,13 @@ class OptionSettingRepository implements OptionSettingRepositoryInterface
     }
 
     /**
-     * @param int $id
      * @return OptionSettingInterface
      * @throws NoSuchEntityException
      */
-    public function get($id)
+    public function get($value, $field = null)
     {
         $entity = $this->factory->create();
-        $this->resource->load($entity, $id);
+        $this->resource->load($entity, $value, $field);
         if (!$entity->getId()) {
             throw new NoSuchEntityException(__('Requested option setting doesn\'t exist'));
         }

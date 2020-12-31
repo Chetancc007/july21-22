@@ -70,6 +70,7 @@ Categories,Categories
 "Wrong Filter Type","Wrong Filter Type"
 "%1 - %2","%1 - %2"
 above,above
+Relevance,Relevance
 "Select Options","Select Options"
 "You deleted the group.","You deleted the group."
 "We can't find a group to delete.","We can't find a group to delete."
@@ -84,7 +85,6 @@ above,above
 "Requested attribute group doesn't exist","Requested attribute group doesn't exist"
 "Make sure that ""%1"" attribute can be used in layered navigation","Make sure that ""%1"" attribute can be used in layered navigation"
 Category,Category
-"Something went wrong during rendering of navigation filters. Please try again later.","Something went wrong during rendering of navigation filters. Please try again later."
 "Make sure that ""%1""(id:%2) category for current store is anchored","Make sure that ""%1""(id:%2) category for current store is anchored"
 ". '-' .",". '-' ."
 "%1 and above","%1 and above"
@@ -97,7 +97,8 @@ New,New
 "Not Yet Rated","Not Yet Rated"
 "In Stock","In Stock"
 "Out of Stock","Out of Stock"
-"Bucket does not exist","Bucket does not exist"
+"An error occurred. For details, see the error log.","An error occurred. For details, see the error log."
+"The bucket doesn't exist.","The bucket doesn't exist."
 "Invalid method %1::%2","Invalid method %1::%2"
 "Before %1","Before %1"
 "After %1","After %1"
@@ -157,6 +158,7 @@ Instantly,Instantly
 "Hide in Selected Categories","Hide in Selected Categories"
 "Improved Layered Navigation","Improved Layered Navigation"
 Thumbnail,Thumbnail
+"Amasty Improved Layered Navigation supports Magento v.2.3.3+ only","Amasty Improved Layered Navigation supports Magento v.2.3.3+ only"
 "Please remove ""%1"" folder manually.","Please remove ""%1"" folder manually."
 "Please disable Amasty_ShopbyLite module manually.","Please disable Amasty_ShopbyLite module manually."
 exceprion,exceprion

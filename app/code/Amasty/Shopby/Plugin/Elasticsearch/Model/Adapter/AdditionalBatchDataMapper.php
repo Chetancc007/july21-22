@@ -6,12 +6,10 @@
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter;
 
-/**
- * Class AdditionalDataMapper
- * @package Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter
- */
 class AdditionalBatchDataMapper
 {
     /**
@@ -19,10 +17,6 @@ class AdditionalBatchDataMapper
      */
     private $dataMappers = [];
 
-    /**
-     * AdditionalDataMapper constructor.
-     * @param array $dataMappers
-     */
     public function __construct(array $dataMappers = [])
     {
         $this->dataMappers = $dataMappers;
@@ -45,12 +39,15 @@ class AdditionalBatchDataMapper
         array $documentData,
         $storeId,
         $context = []
-    ) {
+    ): array {
         $documentData = $proceed($documentData, $storeId, $context);
         foreach ($documentData as $productId => $document) {
             $context['document'] = $document;
             foreach ($this->dataMappers as $mapper) {
-                if ($mapper instanceof DataMapperInterface && $mapper->isAllowed()) {
+                if ($mapper instanceof DataMapperInterface
+                    && $mapper->isAllowed()
+                    && !isset($document[$mapper->getFieldName()])
+                ) {
                     // @codingStandardsIgnoreLine
                     $document = array_merge($document, $mapper->map($productId, $document, $storeId, $context));
                 }

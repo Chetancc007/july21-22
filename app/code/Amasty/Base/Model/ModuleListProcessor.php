@@ -113,6 +113,7 @@ class ModuleListProcessor
             $module['hasUpdate'] = version_compare($currentVer, $lastVer, '<');
             $module['description'] = $this->replaceAmastyText($ext['name']);
             $module['url'] = !empty($ext['url']) ? $ext['url'] : '';
+            $module['date'] = !empty($ext['date']) ? $ext['date'] : '';
 
             return $module;
         }

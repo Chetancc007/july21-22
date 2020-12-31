@@ -9,25 +9,24 @@
 namespace Amasty\Shopby\Model\Layer\Filter;
 
 use Magento\Framework\Exception\StateException;
-use Magento\Search\Model\SearchEngine;
+use Magento\Search\Api\SearchInterface;
 use Magento\Catalog\Model\Layer\Filter\AbstractFilter;
 use Amasty\Shopby\Model\Layer\Filter\Traits\CustomTrait;
 use \Magento\Store\Model\ScopeInterface;
 use Magento\CatalogSearch\Model\ResourceModel\EngineInterface;
 use Magento\CatalogInventory\Api\StockConfigurationInterface as StockConfigurationInterface;
 
-/**
- * Layer category filter
- */
 class Stock extends AbstractFilter
 {
     use CustomTrait;
+
+    const FILTER_DEFAULT = 0;
 
     const FILTER_IN_STOCK = 1;
 
     const FILTER_OUT_OF_STOCK = 2;
 
-    private $attributeCode = 'stock_status';
+    const ATTRIBUTE_CODE = 'stock_status';
 
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
@@ -40,9 +39,9 @@ class Stock extends AbstractFilter
     private $shopbyRequest;
 
     /**
-     * @var SearchEngine
+     * @var SearchInterface
      */
-    private $searchEngine;
+    private $search;
 
     /**
      * @var int
@@ -67,8 +66,9 @@ class Stock extends AbstractFilter
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Amasty\Shopby\Model\Request $shopbyRequest,
         StockConfigurationInterface $stockConfiguration,
-        SearchEngine $searchEngine,
+        SearchInterface $search,
         \Amasty\Shopby\Helper\FilterSetting $settingHelper,
+        \Magento\Framework\Search\EngineResolverInterface $engineResolver,
         array $data = []
     ) {
         parent::__construct(
@@ -82,10 +82,10 @@ class Stock extends AbstractFilter
         $this->scopeConfig = $scopeConfig;
         $this->shopbyRequest = $shopbyRequest;
         $this->stockConfiguration = $stockConfiguration;
-        $this->searchEngine = $searchEngine;
+        $this->search = $search;
         $this->settingHelper = $settingHelper;
-        $searchEngineType = $scopeConfig->getValue(EngineInterface::CONFIG_ENGINE_PATH, ScopeInterface::SCOPE_STORE);
-        if (strpos($searchEngineType, 'elasticsearch') !== false) {
+        //TODO:: after giving up 2.3.5- set \Amasty\Shopby\Model\ResourceModel\FulltextCollection::MYSQL_ENGINE
+        if ($engineResolver->getCurrentSearchEngine() !== 'mysql') {
             $this->filterOutStock = self::FILTER_OUT_OF_STOCK;
         }
     }
@@ -128,7 +128,7 @@ class Stock extends AbstractFilter
                 );
         } else {
             $applyFilter = $isFilterOutOfStock ? $this->filterOutStock : self::FILTER_IN_STOCK;
-            $this->getLayer()->getProductCollection()->addFieldToFilter($this->attributeCode, $applyFilter);
+            $this->getLayer()->getProductCollection()->addFieldToFilter($this->getAttributeCode(), $applyFilter);
         }
 
         $name = $filter == self::FILTER_IN_STOCK ? __('In Stock') : __('Out of Stock');
@@ -212,5 +212,10 @@ class Stock extends AbstractFilter
         }
 
         return $this->itemDataBuilder->build();
+    }
+
+    private function getAttributeCode(): ?string
+    {
+        return self::ATTRIBUTE_CODE;
     }
 }

@@ -13,7 +13,9 @@ use Amasty\Shopby\Model\GroupAttr\DataProvider as ShopbyDataProvider;
 use Amasty\Shopby\Model\Layer\Filter\Attribute;
 use Amasty\Shopby\Test\Unit\Traits;
 use Amasty\ShopbyBase\Model\FilterSetting;
-use Magento\Framework\Search\Request;
+use Magento\Framework\Api\Search\SearchCriteria;
+use Magento\Framework\Api\Search\SearchResultInterface;
+use Magento\Search\Api\SearchInterface;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 
 /**
@@ -134,35 +136,41 @@ class AttributeTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers Attribute::getAlteredQueryResponse
+     * @covers Attribute::getSearchResult
      *
      * @throws \ReflectionException
      */
-    public function testGetAlteredQueryResponse()
+    public function testGetSearchResult()
     {
-        /** @var Attribute|MockObject $model */
-        $model = $this->createPartialMock(Attribute::class, ['getRequestBuilder']);
-        $this->assertNull($this->invokeMethod($model, 'getAlteredQueryResponse'));
+        $settingHelper = $this->createMock(\Amasty\Shopby\Helper\FilterSetting::class);
+        $search = $this->createPartialMock(SearchInterface::class, ['search']);
+        $layer = $this->createMock(\Magento\Catalog\Model\Layer::class);
+        $model = $this->getObjectManager()->getObject(
+            Attribute::class,
+            [
+                'settingHelper' => $settingHelper,
+                'search' => $search,
+                '_catalogLayer' => $layer,
+            ]
+        );
+        $this->assertNull($this->invokeMethod($model, 'getSearchResult'));
 
         $settingFilter = $this->getObjectManager()->getObject(FilterSetting::class);
-        $settingHelper = $this->createMock(\Amasty\Shopby\Helper\FilterSetting::class);
+
+        $productCollection = $this->createMock(\Amasty\Shopby\Model\ResourceModel\Fulltext\Collection::class);
+        $searchCriteria = $this->createMock(SearchCriteria::class);
+        $searchResult = $this->createMock(SearchResultInterface::class);
+        $attributeModel = $this->createMock(\Magento\Catalog\Model\ResourceModel\Eav\Attribute::class);
         $settingHelper->expects($this->any())->method('getSettingByLayerFilter')->willReturn($settingFilter);
 
-        $requestBuilder = $this->createPartialMock(\Amasty\Shopby\Model\Request\Builder::class, ['create']);
-        $requestBuilder->expects($this->any())->method('create')->willReturnCallback(
-            function () {
-                return $this->getObjectManager()->getObject(Request::class);
-            }
-        );
-        $model->expects($this->any())->method('getRequestBuilder')->willReturn($requestBuilder);
+        $search->expects($this->any())->method('search')->willReturn($searchResult);
+        $layer->expects($this->any())->method('getProductCollection')->willReturn($productCollection);
+        $productCollection->expects($this->any())->method('getSearchCriteria')->willReturn($searchCriteria);
+        $attributeModel->expects($this->any())->method('getAttributeCode')->willReturn('test');
 
-        $searchEngine = $this->createPartialMock(\Magento\Search\Model\SearchEngine::class, ['search']);
-        $searchEngine->expects($this->any())->method('search')->willReturnArgument(0);
-
-        $this->setProperty($model, 'settingHelper', $settingHelper, Attribute::class);
-        $this->setProperty($model, 'searchEngine', $searchEngine, Attribute::class);
         $this->setProperty($model, 'currentValue', 'test');
+        $model->setData('attribute_model', $attributeModel);
 
-        $this->assertInstanceOf(Request::class, $this->invokeMethod($model, 'getAlteredQueryResponse'));
+        $this->assertInstanceOf(SearchResultInterface::class, $this->invokeMethod($model, 'getSearchResult'));
     }
 }

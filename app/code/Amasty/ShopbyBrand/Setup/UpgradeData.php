@@ -9,6 +9,7 @@
 namespace Amasty\ShopbyBrand\Setup;
 
 use Amasty\ShopbyBrand\Setup\Operation\DropStoreSpecificBrandAttributeSettings;
+use Amasty\ShopbyBrand\Setup\Operation\FillShowInSlider;
 use Magento\Framework\Setup\UpgradeDataInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
@@ -74,6 +75,11 @@ class UpgradeData implements UpgradeDataInterface
      */
     private $dropStoreSpecificBrandAttributeSettings;
 
+    /**
+     * @var FillShowInSlider
+     */
+    private $fillShowInSlider;
+
     public function __construct(
         \Magento\Cms\Model\PageFactory $pageFactory,
         WriterInterface $configWriter,
@@ -85,7 +91,8 @@ class UpgradeData implements UpgradeDataInterface
         \Amasty\ShopbyBase\Api\Data\FilterSettingRepositoryInterface $filterSettingRepository,
         \Magento\Framework\App\State $appState,
         \Amasty\ShopbyBrand\Setup\Operation\ReplaceProductListingSetting $replaceListingSetting,
-        DropStoreSpecificBrandAttributeSettings $dropStoreSpecificBrandAttributeSettings
+        DropStoreSpecificBrandAttributeSettings $dropStoreSpecificBrandAttributeSettings,
+        FillShowInSlider $fillShowInSlider
     ) {
         $this->_pageFactory = $pageFactory;
         $this->_configWriter = $configWriter;
@@ -98,6 +105,7 @@ class UpgradeData implements UpgradeDataInterface
         $this->appState = $appState;
         $this->replaceListingSetting = $replaceListingSetting;
         $this->dropStoreSpecificBrandAttributeSettings = $dropStoreSpecificBrandAttributeSettings;
+        $this->fillShowInSlider = $fillShowInSlider;
     }
 
     /**
@@ -145,6 +153,10 @@ class UpgradeData implements UpgradeDataInterface
             $this->dropStoreSpecificBrandAttributeSettings->execute();
         }
 
+        if (version_compare($context->getVersion(), '2.10.12', '<')) {
+            $this->fillShowInSlider->execute();
+        }
+
         $setup->endSetup();
     }
 
@@ -160,7 +172,7 @@ class UpgradeData implements UpgradeDataInterface
 </span></p><p style="text-align: left;"><span style="font-size: medium;"><strong><br /></strong></span></p>
 <p><img src="{{media url="wysiwyg/collection/collection-performance.jpg"}}" alt="" /></p>
 <p>{{widget type="Amasty\ShopbyBrand\Block\Widget\BrandSlider" template="widget/brand_list/slider.phtml"}}</p>
-<p>{{widget type="Amasty\ShopbyBrand\Block\Widget\BrandList" columns="3" 
+<p>{{widget type="Amasty\ShopbyBrand\Block\Widget\BrandList" columns="3"
 template="widget/brand_list/index.phtml"}}</p>';
         $page = $this->_pageFactory->create();
         $page->setTitle('All Brands Page')

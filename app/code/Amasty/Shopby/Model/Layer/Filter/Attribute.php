@@ -4,12 +4,17 @@
  * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
  * @package Amasty_Shopby
  */
+
+
+declare(strict_types=1);
+
 namespace Amasty\Shopby\Model\Layer\Filter;
 
 use Magento\Catalog\Model\Layer;
+use Magento\Framework\Api\Search\SearchResultInterface;
 use Magento\Framework\Exception\StateException;
-use Magento\Search\Model\SearchEngine;
 use Amasty\Shopby\Helper\FilterSetting;
+use Magento\Search\Api\SearchInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Amasty\ShopbyBase\Api\Data\FilterSettingInterface;
 use Magento\Catalog\Model\Layer\Filter\AbstractFilter;
@@ -22,9 +27,6 @@ use Magento\Catalog\Model\Layer\Filter\Item\DataBuilder as ItemDataBuilder;
 use Amasty\Shopby\Model\Search\RequestGenerator as ShopbyRequestGenerator;
 use \Magento\Store\Model\Store;
 
-/**
- * Layer attribute filter
- */
 class Attribute extends AbstractFilter
 {
     use FilterTrait;
@@ -40,9 +42,9 @@ class Attribute extends AbstractFilter
     private $filterSetting;
 
     /**
-     * @var SearchEngine
+     * @var SearchInterface
      */
-    private $searchEngine;
+    private $search;
 
     /**
      * @var  FilterSetting
@@ -80,7 +82,7 @@ class Attribute extends AbstractFilter
         Layer $layer,
         ItemDataBuilder $itemDataBuilder,
         TagFilter $tagFilter,
-        SearchEngine $searchEngine,
+        SearchInterface $search,
         FilterSetting $settingHelper,
         ScopeConfigInterface $scopeConfig,
         \Amasty\Shopby\Model\Request $shopbyRequest,
@@ -102,7 +104,7 @@ class Attribute extends AbstractFilter
         $this->shopbyRequest = $shopbyRequest;
         $this->groupHelper = $groupHelper;
         $this->scopeConfig = $scopeConfig;
-        $this->searchEngine = $searchEngine;
+        $this->search = $search;
         $this->optionSettingHelper = $optionSettingHelper;
         $this->messageManager = $messageManager;
     }
@@ -152,14 +154,16 @@ class Attribute extends AbstractFilter
             }
         } else {
             $optionValues = $requestedOptions;
+            $groupOptionValues = [];
             foreach ($optionValues as $key => $value) {
                 $optionsFromGroup = $this->groupHelper->getFakeGroupOptionIdsByCode($groups, $value);
                 if ($optionsFromGroup) {
                     unset($optionValues[$key]);
                     // @codingStandardsIgnoreLine
-                    $optionValues = array_merge($optionValues, $optionsFromGroup);
+                    $groupOptionValues = array_merge($groupOptionValues, $optionsFromGroup);
                 }
             }
+            $optionValues = array_merge($optionValues, $groupOptionValues);
 
             $productCollection->addFieldToFilter($attribute->getAttributeCode(), $optionValues);
         }
@@ -417,10 +421,12 @@ class Attribute extends AbstractFilter
     protected function convertOptionsFacetedData($optionsFacetedData)
     {
         $attributeValue = $this->shopbyRequest->getFilterParam($this);
-        $values = explode(",", $attributeValue);
-        foreach ($values as $value) {
-            if (!empty($value) && !array_key_exists($value, $optionsFacetedData)) {
-                $optionsFacetedData[$value] = ['value' => $value, 'count' => 0];
+        if ($attributeValue) {
+            $values = explode(',', $attributeValue);
+            foreach ($values as $value) {
+                if (!empty($value) && !array_key_exists($value, $optionsFacetedData)) {
+                    $optionsFacetedData[$value] = ['value' => $value, 'count' => 0];
+                }
             }
         }
 
@@ -441,7 +447,7 @@ class Attribute extends AbstractFilter
         try {
             $optionsFacetedData = $productCollectionOrigin->getFacetedData(
                 $attribute->getAttributeCode(),
-                $this->getAlteredQueryResponse()
+                $this->getSearchResult()
             );
         } catch (StateException $e) {
             if (!$this->messageManager->hasMessages()) {
@@ -458,37 +464,16 @@ class Attribute extends AbstractFilter
         return $optionsFacetedData;
     }
 
-    /**
-     * @return \Magento\Framework\Search\ResponseInterface|null
-     *
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    private function getAlteredQueryResponse()
+    private function getSearchResult(): ?SearchResultInterface
     {
-        $alteredQueryResponse = null;
+        $searchResult = null;
 
         if ($this->hasCurrentValue() && !$this->getFilterSetting()->isUseAndLogic()) {
-            $requestBuilder = $this->getRequestBuilder();
-            $queryRequest = $requestBuilder->create();
-            $alteredQueryResponse = $this->searchEngine->search($queryRequest);
+            $searchCriteria = $this->getProductCollection()->getSearchCriteria([$this->getAttributeCode()]);
+            $searchResult = $this->search->search($searchCriteria);
         }
 
-        return $alteredQueryResponse;
-    }
-
-    /**
-     * @return \Amasty\Shopby\Model\Request\Builder
-     *
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    protected function getRequestBuilder()
-    {
-        $requestBuilder = $this->getMemRequestBuilder();
-        $attributeCode = $this->getAttributeModel()->getAttributeCode();
-        $requestBuilder->removePlaceholder($attributeCode);
-        $requestBuilder->setAggregationsOnly($attributeCode);
-
-        return $requestBuilder;
+        return $searchResult;
     }
 
     /**

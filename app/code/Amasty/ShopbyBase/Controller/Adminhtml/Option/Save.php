@@ -8,10 +8,12 @@
 
 namespace Amasty\ShopbyBase\Controller\Adminhtml\Option;
 
+use Amasty\ShopbyBase\Api\Data\OptionSettingRepositoryInterface;
 use Amasty\ShopbyBase\Model\Cache\Type;
 use Magento\Backend\App\Action;
 use Magento\Framework\App\Cache\TypeListInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Psr\Log\LoggerInterface;
 
 class Save extends \Amasty\ShopbyBase\Controller\Adminhtml\Option
@@ -26,14 +28,21 @@ class Save extends \Amasty\ShopbyBase\Controller\Adminhtml\Option
      */
     private $logger;
 
+    /**
+     * @var OptionSettingRepositoryInterface
+     */
+    private $optionSettingRepository;
+
     public function __construct(
         Action\Context $context,
         TypeListInterface $typeList,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        OptionSettingRepositoryInterface $optionSettingRepository
     ) {
         parent::__construct($context);
         $this->cacheTypeList = $typeList;
         $this->logger = $logger;
+        $this->optionSettingRepository = $optionSettingRepository;
     }
 
     /**
@@ -42,10 +51,23 @@ class Save extends \Amasty\ShopbyBase\Controller\Adminhtml\Option
     public function execute()
     {
         $filterCode = $this->getRequest()->getParam('filter_code');
-        $optionId = $this->getRequest()->getParam('option_id');
-        $storeId = $this->getRequest()->getParam('store', 0);
+        $optionId = (int)$this->getRequest()->getParam('option_id');
+        $storeId = (int)$this->getRequest()->getParam('store', 0);
         if ($data = $this->getRequest()->getPostValue()) {
             try {
+                $issetUrlAlias = isset($data['url_alias']) && $data['url_alias'];
+                if ($issetUrlAlias && !$this->isUniqueAlias($data['url_alias'], $optionId)) {
+                    $this->messageManager->addErrorMessage(
+                        __('A brand with the same URL alias already exists. Please enter a unique value.')
+                    );
+                    if ($this->getRequest()->isAjax()) {
+                        $this->_redirectRefer();
+                    } else {
+                        $this->redirectBack($filterCode, $optionId, $storeId);
+                    }
+
+                    return;
+                }
                 /** @var \Amasty\ShopbyBase\Model\OptionSetting $model */
                 $model = $this->_objectManager->create(\Amasty\ShopbyBase\Model\OptionSetting::class);
                 $data = $this->filterData($data);
@@ -57,15 +79,7 @@ class Save extends \Amasty\ShopbyBase\Controller\Adminhtml\Option
                 $this->_session->setPageData(false);
 
                 if ($this->getRequest()->getParam('back')) {
-                    $this->_redirect(
-                        '*/*/edit',
-                        [
-                            'filter_code' => $filterCode,
-                            'option_id' => $optionId,
-                            'store' => $storeId
-                        ]
-                    );
-
+                    $this->redirectBack($filterCode, $optionId, $storeId);
                     return;
                 }
                 $this->_redirectRefer();
@@ -85,6 +99,18 @@ class Save extends \Amasty\ShopbyBase\Controller\Adminhtml\Option
             }
         }
         $this->_redirectRefer();
+    }
+
+    private function redirectBack(string $filterCode, int $optionId, int $storeId): void
+    {
+        $this->_redirect(
+            '*/*/edit',
+            [
+                'filter_code' => $filterCode,
+                'option_id' => $optionId,
+                'store' => $storeId
+            ]
+        );
     }
 
     protected function _redirectRefer()
@@ -107,5 +133,17 @@ class Save extends \Amasty\ShopbyBase\Controller\Adminhtml\Option
         $data = $inputFilter->getUnescaped();
 
         return $data;
+    }
+
+    private function isUniqueAlias(string $alias, int $optionId): bool
+    {
+        try {
+            $option = $this->optionSettingRepository->get($alias, 'url_alias');
+            $isUnique = $option->getValue() == $optionId;
+        } catch (NoSuchEntityException $e) {
+            $isUnique = true;
+        }
+
+        return $isUnique;
     }
 }

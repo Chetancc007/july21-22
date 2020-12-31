@@ -6,6 +6,8 @@
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Shopby\Model\Layer\Filter\Traits;
 
 trait CustomTrait
@@ -13,31 +15,13 @@ trait CustomTrait
     use FilterTrait;
 
     /**
-     * @return \Magento\Framework\Search\Response\QueryResponse|\Magento\Framework\Search\ResponseInterface|null
-     */
-    private function getAlteredQueryResponse()
-    {
-        $alteredQueryResponse = null;
-        if ($this->hasCurrentValue()) {
-            $requestBuilder = $this->getMemRequestBuilder();
-            $requestBuilder->removePlaceholder($this->attributeCode);
-            $queryRequest = $requestBuilder->create();
-            $alteredQueryResponse = $this->searchEngine->search($queryRequest);
-        }
-
-        return $alteredQueryResponse;
-    }
-
-    /**
      * @return array
      */
     private function getFacetedData()
     {
         $collection = $this->getProductCollection();
-        $alteredQueryResponse = $this->getAlteredQueryResponse();
-        $optionsFacetedData = $collection->getFacetedData($this->attributeCode, $alteredQueryResponse);
 
-        return $optionsFacetedData;
+        return $collection->getFacetedData($this->getAttributeCode(), $this->getSearchResult());
     }
 
     /**

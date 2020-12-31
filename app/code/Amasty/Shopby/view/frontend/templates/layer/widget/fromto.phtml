@@ -26,7 +26,7 @@
         data-amshopby-filter="<?= /* @noEscape */ $filterCode;?>"
         data-amshopby-filter-request-var="<?= /* @noEscape */ $block->getFilter()->getRequestVar(); ?>">
         <input
-            <?php if ($from !== null && $to !== null) :?>
+            <?php if ($from && $to): ?>
                 value="<?= /* @noEscape */ $from . '-' . $to;?>"
             <?php endif; ?>
             type="hidden"
@@ -48,7 +48,7 @@
                 type="number"
                 placeholder="<?= $block->escapeHtml(__('To'))?>"
                 />
-            <?php if (!$block->collectFilters()) :?>
+            <?php if (!$block->collectFilters()):?>
                 <button class="am-filter-go"
                         title="<?= $block->escapeHtml(__('Apply filter'));?>"
                         data-amshopby-fromto="go">
@@ -73,7 +73,7 @@
                 "isSlider": <?= /* @noEscape */ ($fromToType == 'slider' ? '1' : '0')?>,
                 "isDropdown": <?= /* @noEscape */ ($fromToType == 'dropdown' ? '1' : '0')?>,
                 "url": "<?= /* @noEscape */ $block->getSliderUrlTemplate(); ?>",
-                "step":<?= /* @noEscape */ ($fromToType == 'slider' ? $block->escapeHtml((float)($step)) : '0') ?>
+                "step":<?= /* @noEscape */ ($fromToType == 'slider' ? $block->escapeHtml((float)($step)): '0') ?>
         }
     }
 }

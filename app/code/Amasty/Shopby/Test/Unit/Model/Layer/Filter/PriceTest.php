@@ -81,8 +81,6 @@ class PriceTest extends \PHPUnit\Framework\TestCase
         $attributeModel = $this->createMock(\Magento\Catalog\Model\ResourceModel\Eav\Attribute::class);
         $this->groupHelper = $this->createMock(\Amasty\Shopby\Helper\Group::class);
         $searchEngine = $this->createMock(\Magento\Search\Model\SearchEngine::class);
-        $requestBuilder = $this->createMock(\Amasty\Shopby\Model\Request\Builder::class);
-        $request = $this->createMock(\Magento\Framework\Search\RequestInterface::class);
         $priceCurrency = $this->createMock(\Magento\Framework\Pricing\PriceCurrencyInterface::class);
         $this->shopbyRequest = $this->createMock(\Amasty\Shopby\Model\Request::class);
         $this->scopeConfig = $this->createMock(\Magento\Framework\App\Config\ScopeConfigInterface::class);
@@ -91,9 +89,9 @@ class PriceTest extends \PHPUnit\Framework\TestCase
         $this->dataProvider = $this->createMock(\Magento\Catalog\Model\Layer\Filter\DataProvider\Price::class);
         $dataProviderFactory = $this->createMock(\Magento\Catalog\Model\Layer\Filter\DataProvider\PriceFactory::class);
         $this->storeMock = $this->getMockBuilder(StoreInterface::class)
-                 ->setMethods(['getId', 'getCurrentCurrencyRate'])
-                ->disableOriginalConstructor()
-                ->getMockForAbstractClass();
+            ->setMethods(['getId', 'getCurrentCurrencyRate'])
+            ->disableOriginalConstructor()
+            ->getMockForAbstractClass();
         $messageManager = $this->getMockBuilder(\Magento\Framework\Message\ManagerInterface::class)
             ->setMethods(['hasMessages', 'addErrorMessage'])
             ->disableOriginalConstructor()
@@ -105,9 +103,6 @@ class PriceTest extends \PHPUnit\Framework\TestCase
         $filterItem->expects($this->any())->method('setValue')->willReturn($filterItem);
         $filterItem->expects($this->any())->method('setValue')->willReturn($filterItem);
         $searchEngine->expects($this->any())->method('search')->willReturn(true);
-        $requestBuilder->expects($this->any())->method('removePlaceholder')->willReturn($requestBuilder);
-        $requestBuilder->expects($this->any())->method('setAggregationsOnly')->willReturn($requestBuilder);
-        $requestBuilder->expects($this->any())->method('create')->willReturn($request);
         $messageManager->expects($this->any())->method('hasMessages')->willReturn(true);
         $messageManager->expects($this->any())->method('addErrorMessage')->willReturn(true);
         $this->storeMock->expects($this->any())->method('getId')->willReturn(1);
@@ -187,28 +182,9 @@ class PriceTest extends \PHPUnit\Framework\TestCase
     /**
      * @throws \ReflectionException
      */
-    public function testGetAlteredQueryResponse()
+    public function testGetSearchResult()
     {
-        $this->assertNull($this->invokeMethod($this->model, 'getAlteredQueryResponse'));
-    }
-
-    /**
-     * @throws \ReflectionException
-     */
-    public function testIsUnical()
-    {
-        $settingFilter = $this->getObjectManager()->getObject(FilterSetting::class);
-        $this->assertFalse($this->invokeMethod($this->model, 'isUnical', [$settingFilter]));
-        $settingFilter->setDisplayMode(2);
-        $this->assertTrue($this->invokeMethod($this->model, 'isUnical', [$settingFilter]));
-        $settingFilter->setDisplayMode(3);
-        $this->assertTrue($this->invokeMethod($this->model, 'isUnical', [$settingFilter]));
-        $settingFilter->setDisplayMode(1);
-        $settingFilter->setAddFromToWidget('1');
-        $this->assertTrue($this->invokeMethod($this->model, 'isUnical', [$settingFilter]));
-        $settingFilter->setDisplayMode(1);
-        $settingFilter->setAddFromToWidget('0');
-        $this->assertFalse($this->invokeMethod($this->model, 'isUnical', [$settingFilter]));
+        $this->assertNull($this->invokeMethod($this->model, 'getSearchResult'));
     }
 
     /**
@@ -218,17 +194,17 @@ class PriceTest extends \PHPUnit\Framework\TestCase
     {
         $this->storeMock->expects($this->any())->method('getCurrentCurrencyRate')->willReturn(1);
         $this->assertEquals(
-            '10 - 19.99',
-            (string)$this->invokeMethod($this->model, '_renderRangeLabel', [10, 20])
+            '10 - 20',
+            (string)$this->invokeMethod($this->model, 'renderRangeLabel', [10, 20])
         );
         $this->assertEquals(
             '10 and above',
-            (string)$this->invokeMethod($this->model, '_renderRangeLabel', [10, ''])
+            (string)$this->invokeMethod($this->model, 'renderRangeLabel', [10, ''])
         );
         $this->dataProvider->expects($this->any())->method('getOnePriceIntervalValue')->willReturn(true);
         $this->assertEquals(
             '10',
-            (string)$this->invokeMethod($this->model, '_renderRangeLabel', [10, 10])
+            (string)$this->invokeMethod($this->model, 'renderRangeLabel', [10, 10])
         );
     }
 

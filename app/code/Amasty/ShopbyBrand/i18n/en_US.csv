@@ -42,11 +42,6 @@ Other,Other
 "Small Image","Small Image"
 "Small Image Alt","Small Image Alt"
 "Show in Brand Slider","Show in Brand Slider"
-"Please kindly keep in mind, that if ‘Yes’ is chosen, the current attribute’s 
-                        option will be considered as Featured and displayed at the top of attribute’s filter in 
-                        layered navigation","Please kindly keep in mind, that if ‘Yes’ is chosen, the current attribute’s 
-                        option will be considered as Featured and displayed at the top of attribute’s filter in 
-                        layered navigation"
 "Position in Slider","Position in Slider"
 "Please make sure Sort By ""Position"" is selected in the following setting group:
                                   STORES -> Configuration -> Improved Layered Navigation: Brands -> Brand Slider","Please make sure Sort By ""Position"" is selected in the following setting group:
@@ -64,6 +59,9 @@ Brands,Brands
 "Out of stock","Out of stock"
 "Add to Wish List","Add to Wish List"
 "Add to Compare","Add to Compare"
+"Please select brand attribute in Stores -> Configuration -> Amasty Extensions -> Improved Layered Navigation:
+                        Brands.","Please select brand attribute in Stores -> Configuration -> Amasty Extensions -> Improved Layered Navigation:
+                        Brands."
 "Improved Layered Navigation: Brands","Improved Layered Navigation: Brands"
 Information,Information
 General,General

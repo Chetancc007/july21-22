@@ -7,7 +7,7 @@
         "amasty/module-mage24fix": ">=1.0.0"
     },
     "type": "magento2-module",
-    "version": "2.13.8",
+    "version": "2.13.12",
     "license": [
         "Commercial"
     ],

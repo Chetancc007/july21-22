@@ -46,11 +46,12 @@ class Config extends AbstractHelper
     }
 
     /**
+     * @param $storeId = null
      * @return bool
      */
-    public function isSeoUrlEnabled()
+    public function isSeoUrlEnabled($storeId = null)
     {
-        return (bool)$this->getModuleConfig('url/mode');
+        return (bool)$this->getModuleConfig('url/mode', $storeId);
     }
 
     /**

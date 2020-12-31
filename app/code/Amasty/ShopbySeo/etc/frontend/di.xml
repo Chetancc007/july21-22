@@ -74,4 +74,8 @@
     <type name="Amasty\ShopbyBrand\Model\UrlBuilder\Adapter">
         <plugin name="Amasty_ShopbySeo::AddSeoSuffix" type="Amasty\ShopbySeo\Plugin\ShopbyBrand\Model\UrlBuilder\Adapter" />
     </type>
+
+    <type name="Magento\Framework\Controller\ResultInterface">
+        <plugin name="Amasty_ShopbySeo::processPageResult" type="Amasty\ShopbySeo\Plugin\Framework\Controller\ProcessPageResultPlugin" sortOrder="-1" />
+    </type>
 </config>

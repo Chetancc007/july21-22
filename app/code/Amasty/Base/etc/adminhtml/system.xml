@@ -16,10 +16,6 @@
             <label><![CDATA[Extensions &amp; Notifications]]></label>
             <tab>amasty</tab>
             <resource>Amasty_Base::config</resource>
-            <group id="amasty_search" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Search</label>
-                <frontend_model>Amasty\Base\Block\Search</frontend_model>
-            </group>
             <group id="extensions" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="0"
                    showInStore="0">
                 <label>Installed Extensions</label>

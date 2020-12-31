@@ -30,7 +30,7 @@ class AttributeConfigTest extends \PHPUnit\Framework\TestCase
      */
     private $model;
 
-    protected function setup(): void
+    protected function setUp(): void
     {
         /** @var \Amasty\ShopbyBrand\Model\FilterSetting\AttributeListProvider|MockObject $provider */
         $provider = $this->createPartialMock(

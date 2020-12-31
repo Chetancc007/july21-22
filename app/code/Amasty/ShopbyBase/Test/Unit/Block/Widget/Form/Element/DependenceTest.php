@@ -34,7 +34,7 @@ class DependenceTest extends \PHPUnit\Framework\TestCase
      */
     private $block;
 
-    protected function setup(): void
+    protected function setUp(): void
     {
         $this->displayModeSource = $this->createMock(\Amasty\ShopbyBase\Model\Source\DisplayMode::class);
 

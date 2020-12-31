@@ -8,20 +8,15 @@
 
 namespace Amasty\Shopby\Plugin\Catalog\Model;
 
+use Magento\Catalog\Model\ImageUploader;
+
 class ImageUploaderPlugin
 {
-    /**
-     * Fix for magento 234
-     * @param \Magento\Catalog\Model\ImageUploader $subject
-     * @param string $path
-     * @return string
-     */
-    public function beforeMoveFileFromTmp(\Magento\Catalog\Model\ImageUploader $subject, $path)
+    public function beforeMoveFileFromTmp(ImageUploader $subject, $path, $returnRelativePath = false): array
     {
         $posLastSlash = strripos($path, '/');
+        $path = $posLastSlash && strpos($path, '/category/') !== false ? substr($path, $posLastSlash + 1) : $path;
 
-        return $posLastSlash && strpos($path, '/category/') !== false
-            ? substr($path, $posLastSlash + 1)
-            : $path;
+        return [$path, $returnRelativePath];
     }
 }

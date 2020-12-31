@@ -31,7 +31,7 @@ class CategoryTest extends \PHPUnit\Framework\TestCase
      */
     private $model;
 
-    protected function setup(): void
+    protected function setUp(): void
     {
         /** @var \Amasty\ShopbySeo\Model\Customizer\Category\Seo|MockObject $seoModifier */
         $seoModifier = $this->createPartialMock(\Amasty\ShopbySeo\Model\Customizer\Category\Seo::class, ['prepareData']);

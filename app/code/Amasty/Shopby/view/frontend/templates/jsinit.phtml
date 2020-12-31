@@ -13,7 +13,8 @@
         {
             "[data-am-js='filter-item-default']": {
                 "amShopbyFilterItemDefault": {
-                    "collectFilters": <?= /* @noEscape */ $block->collectFilters(); ?>
+                    "collectFilters": <?= /* @noEscape */ $block->collectFilters(); ?>,
+                    "clearUrl": "<?= $block->escapeUrl($block->getClearUrl()); ?>"
                 }
             }
         }

@@ -37,7 +37,7 @@ class ValueTest extends \PHPUnit\Framework\TestCase
      */
     private $coreRegistry;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->coreRegistry = $this->createMock(Registry::class);
 

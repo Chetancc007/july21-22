@@ -19,11 +19,6 @@ use Magento\Eav\Model\Entity\Attribute\Option;
 use Amasty\ShopbyBrand\Helper\Data as DataHelper;
 use \Magento\Framework\Exception\StateException;
 
-/**
- * Class BrandListAbstract
- *
- * @package Amasty\ShopbyBrand\Block\Widget
- */
 abstract class BrandListAbstract extends \Magento\Framework\View\Element\Template
 {
     const PATH_BRAND_ATTRIBUTE_CODE = 'amshopby_brand/general/attribute_code';
@@ -88,6 +83,11 @@ abstract class BrandListAbstract extends \Magento\Framework\View\Element\Templat
      */
     private $amUrlBuilder;
 
+    /**
+     * @var \Amasty\ShopbyBrand\Model\BrandSettingProvider
+     */
+    private $brandSettingProvider;
+
     public function __construct(
         Context $context,
         Repository $repository,
@@ -100,6 +100,7 @@ abstract class BrandListAbstract extends \Magento\Framework\View\Element\Templat
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Amasty\ShopbyBase\Api\UrlBuilderInterface $amUrlBuilder,
         \Amasty\ShopbyBrand\Model\ProductCount $productCount,
+        \Amasty\ShopbyBrand\Model\BrandSettingProvider $brandSettingProvider,
         array $data = []
     ) {
         $this->repository = $repository;
@@ -112,6 +113,8 @@ abstract class BrandListAbstract extends \Magento\Framework\View\Element\Templat
         $this->optionSettingFactory = $optionSettingFactory;
         $this->amUrlBuilder = $amUrlBuilder;
         $this->productCount = $productCount;
+        $this->brandSettingProvider = $brandSettingProvider;
+
         parent::__construct($context, $data);
     }
 
@@ -123,50 +126,30 @@ abstract class BrandListAbstract extends \Magento\Framework\View\Element\Templat
         if ($this->items === null) {
             $this->items = [];
             $attributeCode = $this->helper->getBrandAttributeCode();
+
             if (!$attributeCode) {
                 return $this->items;
             }
 
-            $options = $this->repository->get($attributeCode)->getOptions();
+            $options = $this->helper->getBrandOptions();
             array_shift($options);
+            $storeId = (int)$this->_storeManager->getStore()->getId();
 
             foreach ($options as $option) {
-                $setting = $this->getBrandOptionSettingByValue($option->getValue());
+                $optionValue = (int)$option->getValue();
+                $setting = $this->brandSettingProvider->getItemByStoreIdAndValue($storeId, $optionValue)
+                    ?? $this->optionSettingFactory->create();
                 $data = $this->getItemData($option, $setting);
+
                 if ($data) {
                     $this->items[] = $data;
                 }
             }
-
         }
 
         return $this->items;
     }
 
-    /**
-     * @param int $value
-     * @return OptionSettingInterface
-     */
-    private function getBrandOptionSettingByValue($value)
-    {
-        if (empty($this->settingByValue)) {
-            $filterCode = \Amasty\ShopbyBase\Helper\FilterSetting::ATTR_PREFIX .
-                $this->helper->getBrandAttributeCode();
-
-            $stores = [0,  $this->_storeManager->getStore()->getId()];
-            $collection = $this->optionSettingCollectionFactory->create()
-                ->addFieldToFilter('store_id', $stores)
-                ->addFieldToFilter('filter_code', $filterCode)
-                ->addOrder('store_id', 'ASC'); //current store values will rewrite defaults
-            foreach ($collection as $item) {
-                $this->settingByValue[$item->getValue()] = $item;
-            }
-        }
-        
-        return isset($this->settingByValue[$value])
-            ? $this->settingByValue[$value] : $this->optionSettingFactory->create() ;
-    }
-    
     /**
      * @param \Magento\Eav\Model\Entity\Attribute\Option $option
      * @param \Amasty\ShopbyBase\Api\Data\OptionSettingInterface $setting
@@ -223,6 +206,13 @@ abstract class BrandListAbstract extends \Magento\Framework\View\Element\Templat
      */
     protected function _beforeToHtml()
     {
+        $this->initializeBlockConfiguration();
+
+        return parent::_beforeToHtml();
+    }
+
+    public function initializeBlockConfiguration()
+    {
         $configValues = $this->_scopeConfig->getValue(
             $this->getConfigValuesPath(),
             ScopeInterface::SCOPE_STORE
@@ -234,8 +224,6 @@ abstract class BrandListAbstract extends \Magento\Framework\View\Element\Templat
         }
 
         $this->applySorting();
-
-        return parent::_beforeToHtml();
     }
 
     /**

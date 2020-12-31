@@ -169,7 +169,8 @@ $relNofollow = $filterSetting ? $filterSetting->isAddNofollow() : false;
 {
     ".<?= /* @noEscape */ $extraClass; ?>": {
         "amShopbyFilterSwatch": {
-            "collectFilters": <?= /* @noEscape */ $block->collectFilters();?>
+            "collectFilters": <?= /* @noEscape */ $block->collectFilters();?>,
+            "clearUrl": "<?= $block->escapeUrl($block->getClearUrl()); ?>"
         }
     }
 }

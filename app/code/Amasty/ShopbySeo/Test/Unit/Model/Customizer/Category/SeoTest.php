@@ -61,7 +61,7 @@ class SeoTest extends \PHPUnit\Framework\TestCase
      */
     protected $urlBuilder;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->urlBuilder = $this->createMock(\Amasty\ShopbyBase\Model\UrlBuilder::class);
         $layout = $this->createMock(\Magento\Framework\View\LayoutInterface::class);

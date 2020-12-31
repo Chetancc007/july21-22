@@ -11,6 +11,8 @@ namespace Amasty\Shopby\Test\Unit\Model\Layer\Filter;
 use Amasty\Shopby\Model\Layer\Filter\Decimal;
 use Amasty\Shopby\Test\Unit\Traits;
 use Amasty\ShopbyBase\Model\FilterSetting;
+use Magento\Framework\Api\Search\SearchCriteria;
+use Magento\Framework\Api\Search\SearchResultInterface;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 
 /**
@@ -58,12 +60,13 @@ class DecimalTest extends \PHPUnit\Framework\TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $attributeModel = $this->createMock(\Magento\Catalog\Model\ResourceModel\Eav\Attribute::class);
+        $attributeModel->expects($this->any())->method('getAttributeCode')->willReturn('test');
         $this->groupHelper = $this->createMock(\Amasty\Shopby\Helper\Group::class);
-        $searchEngine = $this->createMock(\Magento\Search\Model\SearchEngine::class);
+        $search = $this->createMock(\Magento\Search\Api\SearchInterface::class);
         $layer = $this->createMock(\Magento\Catalog\Model\Layer::class);
         $this->productCollection = $this->createMock(\Amasty\Shopby\Model\ResourceModel\Fulltext\Collection::class);
-        $requestBuilder = $this->createMock(\Amasty\Shopby\Model\Request\Builder::class);
-        $request = $this->createMock(\Magento\Framework\Search\RequestInterface::class);
+        $searchCriteria = $this->createMock(SearchCriteria::class);
+        $searchResult = $this->createMock(SearchResultInterface::class);
         $priceCurrency = $this->createMock(\Magento\Framework\Pricing\PriceCurrencyInterface::class);
         $messageManager = $this->getMockBuilder(\Magento\Framework\Message\ManagerInterface::class)
             ->setMethods(['hasMessages', 'addErrorMessage'])
@@ -75,12 +78,9 @@ class DecimalTest extends \PHPUnit\Framework\TestCase
         $filterItem->expects($this->any())->method('setLabel')->willReturn($filterItem);
         $filterItem->expects($this->any())->method('setValue')->willReturn($filterItem);
         $filterItem->expects($this->any())->method('setValue')->willReturn($filterItem);
-        $searchEngine->expects($this->any())->method('search')->willReturn(true);
+        $search->expects($this->any())->method('search')->willReturn($searchResult);
         $layer->expects($this->any())->method('getProductCollection')->willReturn($this->productCollection);
-        $this->productCollection->expects($this->any())->method('getMemRequestBuilder')->willReturn($requestBuilder);
-        $requestBuilder->expects($this->any())->method('removePlaceholder')->willReturn($requestBuilder);
-        $requestBuilder->expects($this->any())->method('setAggregationsOnly')->willReturn($requestBuilder);
-        $requestBuilder->expects($this->any())->method('create')->willReturn($request);
+        $this->productCollection->expects($this->any())->method('getSearchCriteria')->willReturn($searchCriteria);
         $messageManager->expects($this->any())->method('hasMessages')->willReturn(true);
         $messageManager->expects($this->any())->method('addErrorMessage')->willReturn(true);
         $priceCurrency->expects($this->any())->method('format')->willReturnArgument(0);
@@ -91,7 +91,7 @@ class DecimalTest extends \PHPUnit\Framework\TestCase
                 'settingHelper' => $this->settingHelper,
                 'filterItemFactory' => $filterItemFactory,
                 'groupHelper' => $this->groupHelper,
-                'searchEngine' => $searchEngine,
+                'search' => $search,
                 'messageManager' => $messageManager,
                 'priceCurrency' => $priceCurrency,
             ]
@@ -173,13 +173,13 @@ class DecimalTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @covers Decimal::getAlteredQueryResponse
+     * @covers Decimal::getSearchResult
      */
-    public function testGetAlteredQueryResponse()
+    public function testGetSearchResult()
     {
-        $this->assertNull($this->invokeMethod($this->model, 'getAlteredQueryResponse'));
+        $this->assertNull($this->invokeMethod($this->model, 'getSearchResult'));
         $this->setProperty($this->model, 'currentValue', 'test');
-        $this->assertTrue($this->invokeMethod($this->model, 'getAlteredQueryResponse'));
+        $this->assertInstanceOf(SearchResultInterface::class, $this->invokeMethod($this->model, 'getSearchResult'));
     }
 
     /**
@@ -270,30 +270,30 @@ class DecimalTest extends \PHPUnit\Framework\TestCase
         $settingFilter->setPositionLabel(0)->setData('units_label', '$');
 
         $this->assertEquals(
-            '$10 - $19.99',
+            '$10.00 - $19.99',
             (string)$this->invokeMethod($this->model, 'getRangeLabel', ['10', '20', $settingFilter])
         );
 
         $settingFilter->setPositionLabel(1)->setData('units_label', '$');
         $this->assertEquals(
-            '10$ - 19.99$',
+            '10.00$ - 19.99$',
             (string)$this->invokeMethod($this->model, 'getRangeLabel', ['10', '20', $settingFilter])
         );
 
         $this->assertEquals(
-            '10$ and above',
+            '10.00$ and above',
             (string)$this->invokeMethod($this->model, 'getRangeLabel', ['10', '', $settingFilter])
         );
 
         $settingFilter->setDisplayMode(\Amasty\Shopby\Model\Source\DisplayMode::MODE_SLIDER);
         $this->assertEquals(
-            '10$ - 20$',
+            '10.00$ - 20.00$',
             (string)$this->invokeMethod($this->model, 'getRangeLabel', ['10', '20', $settingFilter])
         );
 
         $settingFilter->setDisplayMode(\Amasty\Shopby\Model\Source\DisplayMode::MODE_FROM_TO_ONLY);
         $this->assertEquals(
-            '10$ - 20$',
+            '10.00$ - 20.00$',
             (string)$this->invokeMethod($this->model, 'getRangeLabel', ['10', '20', $settingFilter])
         );
     }
@@ -306,12 +306,12 @@ class DecimalTest extends \PHPUnit\Framework\TestCase
         $settingFilter = $this->getObjectManager()->getObject(FilterSetting::class);
         $settingFilter->setPositionLabel(0)->setData('units_label', '$');
         $this->assertEquals(
-            '$10',
+            '$10.00',
             $this->invokeMethod($this->model, 'formatLabelForStateAndRange', ['10', $settingFilter])
         );
         $settingFilter->setPositionLabel(1)->setData('units_label', '$');
         $this->assertEquals(
-            '10$',
+            '10.00$',
             $this->invokeMethod($this->model, 'formatLabelForStateAndRange', ['10', $settingFilter])
         );
     }

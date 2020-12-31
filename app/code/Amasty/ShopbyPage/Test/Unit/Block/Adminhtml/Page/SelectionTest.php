@@ -12,9 +12,6 @@ use Amasty\ShopbyPage\Block\Adminhtml\Page\Selection;
 use Amasty\ShopbyPage\Test\Unit\Traits;
 use PHPUnit\Framework\MockObject\MockObject;
 
-/**
- * Class SelectionTest
- */
 class SelectionTest extends \PHPUnit\Framework\TestCase
 {
     use Traits\ObjectManagerTrait;
@@ -36,7 +33,7 @@ class SelectionTest extends \PHPUnit\Framework\TestCase
      */
     private $model;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->registry = $this->createMock(\Magento\Framework\Registry::class);
         $this->model = $this->getMockBuilder(\Amasty\ShopbyPage\Model\Page::class)

@@ -6,6 +6,8 @@
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\ShopbyBase\Api\Data;
 
 interface OptionSettingInterface
@@ -25,10 +27,10 @@ interface OptionSettingInterface
     const TOP_CMS_BLOCK_ID = 'top_cms_block_id';
     const BOTTOM_CMS_BLOCK_ID = 'bottom_cms_block_id';
     const IS_FEATURED = 'is_featured';
+    const IS_SHOW_IN_SLIDER = 'is_show_in_slider';
     const SLIDER_POSITION = 'slider_position';
     const SLIDER_IMAGE = 'slider_image';
     const SMALL_IMAGE_ALT = 'small_image_alt';
-
 
     /**
      * @param bool $shouldParse
@@ -56,6 +58,8 @@ interface OptionSettingInterface
      * @return bool
      */
     public function getIsFeatured();
+
+    public function getIsShowInSlider(): bool;
 
     /**
      * @return string
@@ -129,6 +133,8 @@ interface OptionSettingInterface
      * @return OptionSettingInterface
      */
     public function setIsFeatured($isFeatured);
+
+    public function setIsShowInSlider(bool $isShowInSlider): OptionSettingInterface;
 
     /**
      * @param string $image

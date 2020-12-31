@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Amasty\Base\Model\Response;
 
+use Amasty\Base\Model\MagentoVersion;
 use Magento\Framework\App;
 use Magento\Framework\Filesystem\File\ReadInterface;
 use Magento\Framework\Session\Config\ConfigInterface;
@@ -34,17 +35,24 @@ abstract class AbstractOctetResponse extends App\Response\Http implements OctetR
     protected $readResource;
 
     public function __construct(
+        DownloadOutput $downloadHelper,
+        MagentoVersion $magentoVersion,
         App\Request\Http $request,
         Stdlib\CookieManagerInterface $cookieManager,
         Stdlib\Cookie\CookieMetadataFactory $cookieMetadataFactory,
         App\Http\Context $context,
         Stdlib\DateTime $dateTime,
-        DownloadOutput $downloadHelper,
         ConfigInterface $sessionConfig = null
     ) {
-        parent::__construct($request, $cookieManager, $cookieMetadataFactory, $context, $dateTime, $sessionConfig);
         $this->downloadHelper = $downloadHelper;
         $this->initHeaders();
+        $arguments = [$request, $cookieManager, $cookieMetadataFactory, $context, $dateTime];
+
+        if (version_compare($magentoVersion->get(), '2.2.4', '>')) {
+            $arguments[] = $sessionConfig;
+        }
+
+        parent::__construct(...$arguments);
     }
 
     /**

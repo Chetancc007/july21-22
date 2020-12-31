@@ -9,7 +9,12 @@
 namespace Amasty\Shopby\Test\Unit\Model\ResourceModel\Fulltext;
 
 use Amasty\Shopby\Model\ResourceModel\Fulltext\Collection;
+use Amasty\Shopby\Model\ResourceModel\Fulltext\Collection\SearchCriteriaResolver;
+use Amasty\Shopby\Model\Search\SearchCriteriaBuilderProvider;
 use Amasty\Shopby\Test\Unit\Traits;
+use Magento\CatalogSearch\Model\ResourceModel\Fulltext\Collection\SearchCriteriaResolver as MysqlSearchCriteriaResolver;
+use Magento\Framework\Api\Filter;
+use Magento\Framework\Api\Search\SearchCriteria;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
@@ -42,30 +47,42 @@ class CollectionTest extends \PHPUnit\Framework\TestCase
             ->disableOriginalConstructor()
             ->setMethods(['getStoreId'])
             ->getMock();
-
-        $requestBuilder = $this->getObjectManager()->getObject(\Amasty\Shopby\Model\Request\Builder::class);
-
         $scopeConfig = $this->createMock(\Magento\Framework\App\Config::class);
+        $searchCriteriaBuilderProvider = $this->createMock(SearchCriteriaBuilderProvider::class);
+        $filterBuilder = $this->createMock(\Magento\Framework\Api\FilterBuilder::class);
+        $filter = $this->createMock(Filter::class);
+        $searchCriteriaResolver = $this->createMock(SearchCriteriaResolver::class);
+        $resolver = $this->createMock(MysqlSearchCriteriaResolver::class);
+
         $scopeConfig->expects($this->any())->method('getValue')
             ->with(\Magento\Catalog\Model\Layer\Filter\Dynamic\AlgorithmFactory::XML_PATH_RANGE_CALCULATION)
             ->willReturn('test');
+        $searchCriteriaResolver->expects($this->any())->method('getResolver')->willReturn($resolver);
+        $filterBuilder->expects($this->any())->method('create')->willReturn($filter);
 
-        $this->setProperty($this->collection, 'requestBuilder', $requestBuilder, Collection::class);
         $this->setProperty($this->collection, '_scopeConfig', $scopeConfig, Collection::class);
+        $this->setProperty($this->collection, 'filterBuilder', $filterBuilder, Collection::class);
+        $this->setProperty($this->collection, 'searchCriteriaResolver', $searchCriteriaResolver, Collection::class);
+        $this->setProperty(
+            $this->collection,
+            'memCriteriaBuilderProvider',
+            $searchCriteriaBuilderProvider,
+            Collection::class
+        );
     }
 
     /**
-     * @covers Collection::getMemRequestBuilder
+     * @covers Collection::getMemSearchCriteria
      */
-    public function testGetMemRequestBuilder()
+    public function testGetMemSearchCriteria()
     {
         $this->collection->expects($this->any())->method('getStoreId')->willReturn(self::STORE_ID);
 
-        $result = $this->collection->getMemRequestBuilder();
-        $this->assertInstanceOf(\Amasty\Shopby\Model\Request\Builder::class, $result);
+        $result = $this->collection->getMemSearchCriteria();
+        $this->assertInstanceOf(SearchCriteria::class, $result);
 
-        $result = $this->collection->getMemRequestBuilder();
-        $this->assertInstanceOf(\Amasty\Shopby\Model\Request\Builder::class, $result);
+        $result = $this->collection->getMemSearchCriteria();
+        $this->assertInstanceOf(SearchCriteria::class, $result);
     }
 
     /**

@@ -11,12 +11,10 @@
     <container name="root">
         <container name="page.main.actions" as="page_main_actions" htmlTag="div" htmlClass="page-main-actions">
             <block class="Magento\Backend\Block\Store\Switcher" name="store_switcher">
-                <action method="setUseConfirm">
-                    <argument name="params" xsi:type="string">1</argument>
-                </action>
-                <action method="setIsUsingIframe">
-                    <argument name="params" xsi:type="string">1</argument>
-                </action>
+                <arguments>
+                    <argument name="use_confirm" xsi:type="string">1</argument>
+                    <argument name="is_using_iframe" xsi:type="string">1</argument>
+                </arguments>
             </block>
         </container>
         <container name="messages.wrapper" as="messages.wrapper" htmlTag="div" htmlId="messages">

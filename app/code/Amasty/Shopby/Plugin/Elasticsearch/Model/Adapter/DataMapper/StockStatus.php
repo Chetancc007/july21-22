@@ -6,16 +6,14 @@
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter\DataMapper;
 
 use Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter\DataMapperInterface;
 use Amasty\Shopby\Model\Layer\Filter\Stock as FilterStock;
 use Magento\Store\Model\ScopeInterface;
 
-/**
- * Class StockStatus
- * @package Amasty\Shopby\Plugin\Elasticsearch\Model\Adapter\DataMapper
- */
 class StockStatus implements DataMapperInterface
 {
     const FIELD_NAME = 'stock_status';
@@ -31,6 +29,11 @@ class StockStatus implements DataMapperInterface
      * @var array
      */
     private $inStockProductIds = [];
+
+    /**
+     * @var array
+     */
+    private $allStockProductIds = [];
 
     /**
      * @var \Magento\CatalogInventory\Model\ResourceModel\Stock\Status
@@ -60,27 +63,32 @@ class StockStatus implements DataMapperInterface
      * @return array
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function map($entityId, array $entityIndexData, $storeId, $context = [])
+    public function map($entityId, array $entityIndexData, $storeId, $context = []): array
     {
         $value = isset($context[self::INDEX_DOCUMENT][self::DOCUMENT_FIELD_NAME])
             ? $context[self::INDEX_DOCUMENT][self::DOCUMENT_FIELD_NAME]
-            : $this->isProductInStock($entityId, $storeId);
+            : $this->isProductInStock($entityId, (int)$storeId);
         return [self::FIELD_NAME => $value];
     }
 
     /**
-     * @param $entityId
-     * @param $storeId
+     * @param int $entityId
+     * @param int $storeId
      * @return int
      */
-    private function isProductInStock($entityId, $storeId)
+    private function isProductInStock(int $entityId, int $storeId): int
     {
-        return in_array($entityId, $this->getInStockProductIds($storeId))
-            ? FilterStock::FILTER_IN_STOCK : FilterStock::FILTER_OUT_OF_STOCK;
+        if (in_array($entityId, $this->getInStockProductIds($storeId))) {
+            return FilterStock::FILTER_IN_STOCK;
+        } elseif (in_array($entityId, $this->getAllStockProductIds($storeId))) {
+            return FilterStock::FILTER_OUT_OF_STOCK;
+        }
+
+        return FilterStock::FILTER_DEFAULT;
     }
 
     /**
-     * @param $storeId
+     * @param int $storeId
      * @return array
      */
     private function getInStockProductIds($storeId)
@@ -95,10 +103,30 @@ class StockStatus implements DataMapperInterface
     }
 
     /**
+     * @param int $storeId
+     * @return array
+     */
+    private function getAllStockProductIds(int $storeId): array
+    {
+        if (!isset($this->allStockProductIds[$storeId])) {
+            $collection = $this->productCollectionFactory->create()->addStoreFilter($storeId);
+            $this->stockStatusResource->addStockDataToCollection($collection, false);
+            $this->allStockProductIds[$storeId] = $collection->getAllIds();
+        }
+
+        return $this->allStockProductIds[$storeId];
+    }
+
+    /**
      * @return bool
      */
-    public function isAllowed()
+    public function isAllowed(): bool
     {
         return $this->scopeConfig->isSetFlag('amshopby/stock_filter/enabled', ScopeInterface::SCOPE_STORE);
+    }
+
+    public function getFieldName(): string
+    {
+        return self::FIELD_NAME;
     }
 }

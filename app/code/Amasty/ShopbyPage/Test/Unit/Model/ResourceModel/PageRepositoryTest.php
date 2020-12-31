@@ -30,7 +30,7 @@ class PageRepositoryTest extends \PHPUnit\Framework\TestCase
      */
     private $model;
 
-    public function setUp()
+    public function setUp(): void
     {
         $serializer = $this->createMock(\Amasty\Base\Model\Serializer::class);
         $pageFactory = $this->createMock(\Amasty\ShopbyPage\Model\PageFactory::class);
@@ -163,10 +163,10 @@ class PageRepositoryTest extends \PHPUnit\Framework\TestCase
     /**
      * @covers PageRepository::processConditionsField
      *
-     * @expectedException \Magento\Framework\Exception\NoSuchEntityException
      */
     public function testGet()
     {
+        $this->expectException(\Magento\Framework\Exception\NoSuchEntityException::class);
         $this->model->get(1);
     }
 }

@@ -9,6 +9,7 @@
 namespace Amasty\Shopby\Block\Navigation;
 
 use Amasty\Shopby\Model\Source\DisplayMode;
+use Amasty\Shopby\Model\UrlResolver\UrlResolverInterface;
 use Magento\Catalog\Model\Layer\Filter\Item as FilterItem;
 use Magento\Catalog\Model\ResourceModel\Layer\Filter\AttributeFactory;
 use Magento\Eav\Model\Entity\Attribute;
@@ -20,10 +21,6 @@ use \Magento\Store\Model\Store;
 use Amasty\Shopby\Api\Data\GroupAttrInterface;
 use Magento\Swatches\Model\Swatch;
 
-/**
- * Class SwatchRenderer
- * @package Amasty\Shopby\Block\Navigation
- */
 class SwatchRenderer extends RenderLayered implements RendererInterface
 {
     const SWATCH_TYPE_OPTION_IMAGE = 'option_image';
@@ -63,6 +60,11 @@ class SwatchRenderer extends RenderLayered implements RendererInterface
     private $groupHelper;
 
     /**
+     * @var UrlResolverInterface
+     */
+    private $urlResolver;
+
+    /**
      * @var string
      */
     protected $_template = 'layer/filter/swatch/default.phtml';
@@ -78,6 +80,7 @@ class SwatchRenderer extends RenderLayered implements RendererInterface
         \Amasty\ShopbyBase\Helper\OptionSetting $optionSettingHelper,
         FilterSettingHelper $filterSettingHelper,
         \Amasty\Shopby\Helper\Group $groupHelper,
+        UrlResolverInterface $urlResolver,
         array $data = []
     ) {
         parent::__construct(
@@ -93,6 +96,7 @@ class SwatchRenderer extends RenderLayered implements RendererInterface
         $this->helper = $helper;
         $this->optionSettingHelper = $optionSettingHelper;
         $this->urlBuilderHelper = $urlBuilderHelper;
+        $this->urlResolver = $urlResolver;
     }
 
     /**
@@ -313,6 +317,14 @@ class SwatchRenderer extends RenderLayered implements RendererInterface
     public function collectFilters()
     {
         return $this->helper->collectFilters();
+    }
+
+    /**
+     * @return string
+     */
+    public function getClearUrl(): string
+    {
+        return $this->urlResolver->resolve();
     }
 
     /**

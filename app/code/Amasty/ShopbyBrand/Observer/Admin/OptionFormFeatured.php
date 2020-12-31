@@ -8,6 +8,7 @@
 
 namespace Amasty\ShopbyBrand\Observer\Admin;
 
+use Amasty\ShopbyBase\Api\Data\OptionSettingInterface;
 use Amasty\ShopbyBase\Helper\FilterSetting;
 use Magento\Config\Model\Config\Source\Yesno;
 use Magento\Framework\Data\Form;
@@ -44,28 +45,24 @@ class OptionFormFeatured implements ObserverInterface
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        /** @var Form $form */
+        /** @var Form $fieldSet */
         $fieldSet = $observer->getEvent()->getFieldset();
         $setting = $observer->getEvent()->getSetting();
         $brandFilterCode = FilterSetting::ATTR_PREFIX . $this->helper->getBrandAttributeCode();
 
         if ($setting->getFilterCode() == $brandFilterCode) {
             $fieldSet->setData('legend', 'Slider Options');
-            $elements = $fieldSet->getElements();
-            foreach ($elements as $element) {
-                if ($element->getId() == 'is_featured') {
-                    $element->setLabel(__('Show in Brand Slider'))
-                        ->setTitle(__('Show in Brand Slider'))
-                        ->setNote(
-                            __(
-                                'Please kindly keep in mind, that if ‘Yes’ is chosen, the current attribute’s 
-                        option will be considered as Featured and displayed at the top of attribute’s filter in 
-                        layered navigation'
-                            )
-                        );
-                    break;
-                }
-            }
+
+            $fieldSet->addField(
+                OptionSettingInterface::IS_SHOW_IN_SLIDER,
+                'select',
+                [
+                    'name' => OptionSettingInterface::IS_SHOW_IN_SLIDER,
+                    'label' => __('Show in Brand Slider'),
+                    'title' => __('Show in Brand Slider'),
+                    'values'    => $this->yesNoSource->toOptionArray(),
+                ]
+            );
 
             $fieldSet->addField(
                 'slider_position',

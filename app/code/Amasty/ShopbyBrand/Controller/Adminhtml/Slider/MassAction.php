@@ -8,16 +8,13 @@
 
 namespace Amasty\ShopbyBrand\Controller\Adminhtml\Slider;
 
+use Amasty\ShopbyBase\Api\Data\OptionSettingInterface;
 use Amasty\ShopbyBase\Model\ResourceModel\OptionSetting\Collection;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Backend\App\Action\Context;
 use Magento\Ui\Component\MassAction\Filter;
 use Magento\Backend\App\Action;
 
-/**
- * Class MassAction
- * @package Amasty\ShopbyBrand\Controller\Adminhtml\Slider
- */
 class MassAction extends Action
 {
     /** @var Filter */
@@ -60,7 +57,7 @@ class MassAction extends Action
                     $item->getData('filter_code'),
                     $item->getData('value'),
                     $storeId,
-                    ['is_featured' => $value]
+                    [OptionSettingInterface::IS_SHOW_IN_SLIDER => $value]
                 );
             }
             if ($value) {

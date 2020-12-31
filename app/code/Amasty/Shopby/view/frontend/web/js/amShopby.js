@@ -21,6 +21,7 @@ define([
             isAjax: 0,
             collectFilters: 0,
             activeClass: '-active',
+            clearUrl: null,
             selectors: {
                 filterItem: '[data-am-js="shopby-item"]'
             }
@@ -123,8 +124,10 @@ define([
 
         normalizeData: function (data, isSorting, clearFilter) {
             var normalizedData = [],
-                ajaxOptions = $("body.page-with-filter, body.catalogsearch-result-index, body.cms-index-index").amShopbyAjax('option'),
+                ajaxOptions = $("body.page-with-filter, body.catalogsearch-result-index, body.cms-index-index")
+                    .amShopbyAjax('option'),
                 clearUrl;
+
 
             _.each(data, function (item) {
                 if (item && item.value.trim() != '' && item.value != '-1') {
@@ -138,7 +141,6 @@ define([
                             item.value = item.value.replace(/[ \r\n]/g, '');
                         }
                         normalizedData.push(item);
-
                         if (ajaxOptions.isCategorySingleSelect == '1'
                             && item.name === 'amshopby[cat][]'
                             && item.value != ajaxOptions.currentCategoryId
@@ -153,7 +155,12 @@ define([
             });
 
             normalizedData = this.groupDataByName(normalizedData);
-            normalizedData.clearUrl = clearUrl;
+            if (clearUrl && clearUrl.indexOf(this.options.clearUrl) == -1) {
+                normalizedData.clearUrl = clearUrl;
+            } else {
+                normalizedData.clearUrl = this.options.clearUrl;
+            }
+
             return normalizedData;
         },
 

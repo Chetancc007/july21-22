@@ -42,7 +42,7 @@ class UrlTest extends \PHPUnit\Framework\TestCase
      */
     private $request;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->url = $this->getMockBuilder(Url::class)
             ->disableOriginalConstructor()

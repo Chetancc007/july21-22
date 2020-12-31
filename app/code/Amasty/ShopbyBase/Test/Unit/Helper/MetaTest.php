@@ -50,7 +50,7 @@ class MetaTest extends \PHPUnit\Framework\TestCase
      */
     private $pageConfig;
 
-    public function setup(): void
+    public function setUp(): void
     {
         $this->metaHelper = $this->getMockBuilder(Meta::class)
             ->disableOriginalConstructor()

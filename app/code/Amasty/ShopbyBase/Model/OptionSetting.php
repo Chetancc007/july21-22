@@ -6,6 +6,8 @@
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\ShopbyBase\Model;
 
 use Amasty\ShopbyBase\Api\Data\OptionSettingInterface;
@@ -18,11 +20,6 @@ use Magento\Catalog\Model\Product\Attribute\Repository as AttributeRepository;
 use Magento\Framework\UrlInterface;
 use Magento\Widget\Model\Template\Filter as WidgetFilter;
 
-/**
- * Class OptionSetting
- * @method \Amasty\ShopbyBase\Model\ResourceModel\OptionSetting\Collection getCollection()
- * @package Amasty\ShopbyBase\Model
- */
 class OptionSetting extends \Magento\Framework\Model\AbstractModel implements OptionSettingInterface, IdentityInterface
 {
     const CACHE_TAG = 'amshopby_option_setting';
@@ -179,6 +176,11 @@ class OptionSetting extends \Magento\Framework\Model\AbstractModel implements Op
         return (bool) $this->getData(self::IS_FEATURED);
     }
 
+    public function getIsShowInSlider(): bool
+    {
+        return (bool) $this->getData(self::IS_SHOW_IN_SLIDER);
+    }
+
     /**
      * @return string
      */
@@ -312,6 +314,11 @@ class OptionSetting extends \Magento\Framework\Model\AbstractModel implements Op
     public function setIsFeatured($isFeatured)
     {
         return $this->setData(self::IS_FEATURED, $isFeatured);
+    }
+
+    public function setIsShowInSlider(bool $isShowInSlider): OptionSettingInterface
+    {
+        return $this->setData(self::IS_SHOW_IN_SLIDER, $isShowInSlider);
     }
 
     /**

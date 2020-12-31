@@ -8,6 +8,7 @@
 
 namespace Amasty\Shopby\Block\Navigation;
 
+use Amasty\Shopby\Model\UrlResolver\UrlResolverInterface;
 use Magento\Framework\View\Element\Template;
 
 /**
@@ -15,7 +16,6 @@ use Magento\Framework\View\Element\Template;
  */
 class JsInit extends \Magento\Framework\View\Element\Template
 {
-
     /**
      * Path to template file in theme.
      *
@@ -28,12 +28,19 @@ class JsInit extends \Magento\Framework\View\Element\Template
      */
     private $helper;
 
+    /**
+     * @var UrlResolverInterface
+     */
+    private $urlResolver;
+
     public function __construct(
         Template\Context $context,
         \Amasty\Shopby\Helper\Data $helper,
+        UrlResolverInterface $urlResolver,
         array $data = []
     ) {
         $this->helper = $helper;
+        $this->urlResolver = $urlResolver;
         parent::__construct($context, $data);
     }
 
@@ -43,5 +50,13 @@ class JsInit extends \Magento\Framework\View\Element\Template
     public function collectFilters()
     {
         return (int)$this->helper->collectFilters();
+    }
+
+    /**
+     * @return string
+     */
+    public function getClearUrl(): string
+    {
+        return $this->urlResolver->resolve();
     }
 }

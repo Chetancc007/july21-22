@@ -11,6 +11,9 @@ namespace Amasty\Shopby\Model\Layer\Filter;
 use Amasty\Shopby\Model\Layer\Filter\Category;
 use Amasty\Shopby\Model\Source\RenderCategoriesLevel;
 use Amasty\Shopby\Test\Unit\Traits;
+use Magento\Framework\Api\Search\SearchCriteria;
+use Magento\Framework\Api\Search\SearchResultInterface;
+use Magento\Search\Api\SearchInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
@@ -32,14 +35,19 @@ class CategoryTest extends \PHPUnit\Framework\TestCase
     private $settingHelper;
 
     /**
-     * @var Amasty\Shopby\Model\Layer\Filter\Category
+     * @var \Amasty\Shopby\Model\Layer\Filter\Category
      */
     private $model;
 
     /**
-     * @var \Magento\Framework\Search\RequestInterface
+     * @var SearchCriteria
      */
-    private $request;
+    private $searchCriteria;
+
+    /**
+     * @var SearchResultInterface
+     */
+    private $searchResult;
 
     public function setup(): void
     {
@@ -50,48 +58,48 @@ class CategoryTest extends \PHPUnit\Framework\TestCase
                 'isRenderAllTree',
                 'isMultiselect',
                 'getData',
-                'buildQueryRequest',
+                'buildSearchCriteria',
                 'getCategoriesTreeDept',
                 'getLayer',
                 'search'
             ])
             ->getMock();
 
-        $this->request = $this->createMock(\Magento\Framework\Search\RequestInterface::class);
+        $this->searchCriteria = $this->createMock(SearchCriteria::class);
+        $this->searchResult = $this->createMock(SearchResultInterface::class);
     }
 
     /**
-     * @covers Category::getAlteredQueryResponse
+     * @covers Category::getSearchResult
      *
      * @dataProvider getTestDatabase
      *
      * @throws \ReflectionException
      */
-    public function testGetAlteredQueryResponse($value, $expectedResult = null)
+    public function testGetSearchResult($value, $expectedResult = null)
     {
         $this->model->expects($this->any())->method('getRenderCategoriesLevel')->willReturn(3);
         $this->model->expects($this->any())->method('getCategoriesTreeDept')->willReturn(1);
         $this->model->expects($this->any())->method('isRenderAllTree')->willReturn($value);
         $this->model->expects($this->any())->method('isMultiselect')->will($this->returnValue($value));
-        $this->model->expects($this->any())->method('buildQueryRequest')->will($this->returnValue($this->request));
+        $this->model->expects($this->any())->method('buildSearchCriteria')->will($this->returnValue($this->searchCriteria));
 
         $currentCategory = $this->getObjectManager()->getObject(\Magento\Catalog\Model\Category::class);
         $currentCategory->setData('id', 2);
-
 
         $layer = $this->createMock(\Magento\Catalog\Model\Layer::class);
         $layer->expects($this->any())->method('getCurrentCategory')->will($this->returnValue($currentCategory));
         $this->model->expects($this->any())->method('getLayer')->will($this->returnValue($layer));
 
-        $searchEngine = $this->createMock(\Magento\Search\Model\SearchEngine::class);
-        $searchEngine->expects($this->any())->method('search')->will($this->returnValue($expectedResult));
+        $search = $this->createMock(SearchInterface::class);
+        $search->expects($this->any())->method('search')->will($this->returnValue($expectedResult));
 
         $rootCategory = $this->getObjectManager()->getObject(\Magento\Catalog\Model\Category::class);
         $rootCategory->setData('id', 1);
         $this->model->expects($this->any())->method('getData')->with('root_category')->will($this->returnValue($rootCategory));
-        $this->setProperty($this->model, 'searchEngine', $searchEngine, Category::class);
+        $this->setProperty($this->model, 'search', $search, Category::class);
 
-        $resultOrigMethod = $this->invokeMethod($this->model, 'GetAlteredQueryResponse');
+        $resultOrigMethod = $this->invokeMethod($this->model, 'getSearchResult');
         $this->assertEquals($expectedResult, $resultOrigMethod);
     }
 
@@ -102,7 +110,7 @@ class CategoryTest extends \PHPUnit\Framework\TestCase
     {
         return [
             [false],
-            [true, 'test'],
+            [true, $this->searchResult],
         ];
     }
 }

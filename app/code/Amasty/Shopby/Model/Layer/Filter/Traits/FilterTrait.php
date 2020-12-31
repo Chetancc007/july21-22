@@ -6,10 +6,16 @@
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Shopby\Model\Layer\Filter\Traits;
+
+use Magento\Framework\Api\Search\SearchResultInterface;
 
 trait FilterTrait
 {
+    private $attributeCode;
+
     /**
      * @var $currentValue
      */
@@ -29,14 +35,6 @@ trait FilterTrait
     protected function getProductCollection()
     {
         return $this->getLayer()->getProductCollection();
-    }
-
-    /**
-     * @return \Amasty\Shopby\Model\Request\Builder
-     */
-    protected function getMemRequestBuilder()
-    {
-        return clone $this->getProductCollection()->getMemRequestBuilder();
     }
 
     /**
@@ -99,5 +97,21 @@ trait FilterTrait
     private function isHide()
     {
         return (bool)$this->shopbyRequest->getFilterParam($this) && !$this->isVisibleWhenSelected();
+    }
+
+    private function getSearchResult(): ?SearchResultInterface
+    {
+        $alteredQueryResponse = null;
+        if ($this->hasCurrentValue()) {
+            $searchCriteria = $this->getProductCollection()->getSearchCriteria([$this->getAttributeCode()]);
+            $alteredQueryResponse = $this->search->search($searchCriteria);
+        }
+
+        return $alteredQueryResponse;
+    }
+
+    private function getAttributeCode(): ?string
+    {
+        return $this->getAttributeModel()->getAttributeCode();
     }
 }

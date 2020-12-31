@@ -468,10 +468,7 @@ class Builder
             $result = str_replace(' for Magento 2', '', $result);
         } else {
             $result = str_replace('Amasty_', '', $result);
-            preg_match_all('/((?:^|[A-Z])[a-z]+)/', $result, $matches);
-            if (isset($matches[1]) && $matches[1]) {
-                $result = implode(' ', $matches[1]);
-            }
+            $result = preg_replace('/([a-z0-9])([A-Z])/', '$1 $2', $result);
         }
 
         return $result;
