@@ -84,4 +84,5 @@ class Rows
             $this->adapter->updateGroupedOptionsIndex($select);
         }
     }
+    
 }
