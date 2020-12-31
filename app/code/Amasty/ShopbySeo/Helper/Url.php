@@ -577,4 +577,5 @@ class Url extends AbstractHelper
 
         return $this;
     }
+    
 }
