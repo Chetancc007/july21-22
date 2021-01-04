@@ -226,9 +226,9 @@ header.page-header.type23.sticky-header .nav-sections {
     .page-header.type23 .nav-sections-item-content > .navigation {
         position: relative;
     }
-    .page-header.type23 .sw-megamenu.navigation li.level0.fullwidth > .submenu {
+    /*.page-header.type23 .sw-megamenu.navigation li.level0.fullwidth > .submenu {
         margin-left: 0 !important;
-    }
+    }*/
     .page-header.type23 .sw-megamenu.navigation > ul {
         display: flex;
         height: 100%;
