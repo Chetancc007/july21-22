@@ -63,16 +63,11 @@
 
 .stock.unavailable{
     color: red !important;
+    padding-left: 10px;
 }
 #layer-product-list .product-image-photo.default_image{
     z-index: -1 !important;
 }
-
-/*Mahalakshmi add css code*/
-/* div#amasty-main-container {
-    max-width: 250px !important;
-    max-height: 300px !important;
-} */
 .col-md-7.block .footer-middle ul.links li a {
     margin-left: 5px;
 }
@@ -168,4 +163,12 @@
 }
 #amasty-main-container{
     width: 100% !important;
+}
+
+.product.name.product-item-name{
+    padding: 0 20px;
+}
+
+.actions-primary{
+    padding-left: 5px;
 }
