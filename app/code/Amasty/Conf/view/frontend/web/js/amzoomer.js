@@ -291,7 +291,7 @@ define([
                     class: 'amasty-main-image',
                     title: imageObject.caption,
                     alt: imageObject.caption,
-                    src: imageObject.img
+                    src: imageObject.full
                 });
 
                 mainImageContainer.append(element);
