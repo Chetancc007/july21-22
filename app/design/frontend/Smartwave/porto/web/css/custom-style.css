@@ -164,11 +164,12 @@
 #amasty-main-container{
     width: 100% !important;
 }
-
 .product.name.product-item-name{
     padding: 0 20px;
 }
-
 .actions-primary{
     padding-left: 5px;
+}
+.amstockstatus{
+    display: none !important;
 }
