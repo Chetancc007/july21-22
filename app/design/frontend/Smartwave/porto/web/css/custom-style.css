@@ -91,7 +91,8 @@
 }
 .toolbar-amount {
     display: block !important;
-    padding-top: 10px;
+    padding-top: 13px;
+    padding-right: 5px;
 }
 .special-price.custom-text:before{
     display: none;
