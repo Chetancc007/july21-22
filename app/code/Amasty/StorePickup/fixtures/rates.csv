@@ -1,0 +1,4 @@
+method_id,country,state,city,zip_from,zip_to,weight_from,weight_to,qty_from,qty_to,time_delivery,cost_base
+1,"0","0",New York,,,0,99999999,0,99999999,New York Store,0
+1,0,0,,AB01,AB19,0,99999999,0,99999999,London Store,0
+1,US,12,,,,0,99999999,0,99999999,San-Francisco Store,0
