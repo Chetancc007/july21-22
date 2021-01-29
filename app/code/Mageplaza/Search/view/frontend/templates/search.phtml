@@ -30,7 +30,7 @@ if ($helper->isEnabled()):
     $searchHelper = $this->helper(\Magento\Search\Helper\Data::class);
     ?>
     <?php if ($helper->getConfigGeneral('category/enable')): ?>
-    <div class="search-category" style="position:absolute; top: 0; right: 35px; width: 130px">
+    <div class="search-category" style="position:absolute; top: 0; right: 35px; width: 130px; z-index: 1;">
         <select id="mpsearch-category">
             <?php foreach ($helper->getCategoryTree() as $id => $name): ?>
                 <option value="<?php echo $id ?>"><?php echo $name ?></option>
