@@ -166,7 +166,6 @@
     width: 100% !important;
 }
 .product.name.product-item-name{
-    max-width: 320px;
     padding: 0 20px;
 }
 .actions-primary{
@@ -179,4 +178,7 @@
     max-width: none !important;
     padding-left: 20px !important;
     padding-right: 20px !important
+}
+.products-morefrom .item.product.product-item{
+    width: 25% !important;
 }
