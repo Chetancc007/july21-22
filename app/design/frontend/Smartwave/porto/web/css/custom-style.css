@@ -1,5 +1,5 @@
 .am-porto-cmtb .page-wrapper > .page-header {
-	z-index: 8000 !important;
+	z-index: 15 !important;
 }
 
 @media (min-width: 1280px) {
