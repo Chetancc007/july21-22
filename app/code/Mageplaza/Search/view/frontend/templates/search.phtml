@@ -30,8 +30,8 @@ if ($helper->isEnabled()):
     $searchHelper = $this->helper(\Magento\Search\Helper\Data::class);
     ?>
     <?php if ($helper->getConfigGeneral('category/enable')): ?>
-    <div class="search-category" style="position:absolute; top: 0; right: 35px; width: 130px; z-index: 1;">
-        <select id="mpsearch-category">
+    <div class="search-category" style="position:absolute; top: 0; right: 35px; width: 130px; z-index: 1">
+        <select id="mpsearch-category" name="cat">
             <?php foreach ($helper->getCategoryTree() as $id => $name): ?>
                 <option value="<?php echo $id ?>"><?php echo $name ?></option>
             <?php endforeach; ?>
@@ -47,80 +47,82 @@ if ($helper->isEnabled()):
     ], function ($, priceUtils) {
         "use strict";
 
-        var baseUrl = '<?php echo trim($block->getBaseUrl(), '/') . '/' ?>',
-            baseImageUrl = '<?php echo $helper->getMediaHelper()->getSearchMediaUrl() ?>',
-            priceFormat = <?php echo $helper->getPriceFormat() ?>,
-            displayInfo = <?php echo $helper->getDisplay() ?>;
+        var baseUrl = '<?php echo trim($block->getBaseUrl(), '/') . '/' ?>';
+            // baseImageUrl = '<?php echo $helper->getMediaHelper()->getSearchMediaUrl() ?>',
+            // priceFormat = <?php echo $helper->getPriceFormat() ?>,
+            // displayInfo = <?php echo $helper->getDisplay() ?>;
 
-        var categorySelect = $('#mpsearch-category'),
-            searchInput = $('#search');
+        var categorySelect = $('#mpsearch-category');
+            // searchInput = $('#search');
         if (categorySelect.length) {
             categorySelect.on('change', function () {
-                searchInput.focus();
+                // console.log("asdasda");
+                // console.log(categorySelect);
+                $('#search').focus();
 
-                if ($(this).val() === 0) {
-                    $(this).removeAttr('name');
-                } else {
-                    $(this).attr('name', 'cat');
-                }
+                // if ($(this).val() === 0) {
+                //     $(this).removeAttr('name');
+                // } else {
+                //     $(this).attr('name', 'cat');
+                // }
             });
         }
 
-        searchInput.devbridgeAutocomplete({
-            lookup: mageplazaSearchProducts,
-            lookupLimit: <?php  echo (int)$helper->getConfigGeneral('max_query_results') ?: 10; ?>,
-            maxHeight: 2000,
-            minChars: <?php echo $searchHelper->getMinQueryLength(); ?>,
-            lookupFilter: function (suggestion, query, queryLowerCase) {
-                if (categorySelect.length) {
-                    var categoryId = categorySelect.val();
-                    if (categoryId > 0 && ($.inArray(categoryId, suggestion.c) === -1)) {
-                        return false;
-                    }
-                }
+    //     searchInput.devbridgeAutocomplete({
+    //         lookup: mageplazaSearchProducts,
+    //         lookupLimit: <?php  echo (int)$helper->getConfigGeneral('max_query_results') ?: 10; ?>,
+    //         maxHeight: 2000,
+    //         minChars: <?php echo $searchHelper->getMinQueryLength(); ?>,
+    //         lookupFilter: function (suggestion, query, queryLowerCase) {
+    //             if (categorySelect.length) {
+    //                 var categoryId = categorySelect.val();
+    //                 if (categoryId > 0 && ($.inArray(categoryId, suggestion.c) === -1)) {
+    //                     return false;
+    //                 }
+    //             }
 
-                return suggestion.value.toLowerCase().indexOf(queryLowerCase) !== -1;
-            },
-            onSelect: function (suggestion) {
-                window.location.href = correctProductUrl(suggestion.u);
-            },
-            formatResult: function (suggestion, currentValue) {
-                var html = '<a href="' + correctProductUrl(suggestion.u) + '">';
+    //             return suggestion.value.toLowerCase().indexOf(queryLowerCase) !== -1;
+    //         },
+    //         onSelect: function (suggestion) {
+    //             window.location.href = correctProductUrl(suggestion.u);
+    //         },
+    //         formatResult: function (suggestion, currentValue) {
+    //             var html = '<a href="' + correctProductUrl(suggestion.u) + '">';
 
-                if ($.inArray('image', displayInfo) !== -1) {
-                    html += '<div class="suggestion-left"><img class="img-responsive" src="' + correctProductUrl(suggestion.i, true) + '" alt="" /></div>';
-                }
+    //             if ($.inArray('image', displayInfo) !== -1) {
+    //                 html += '<div class="suggestion-left"><img class="img-responsive" src="' + correctProductUrl(suggestion.i, true) + '" alt="" /></div>';
+    //             }
 
-                html += '<div class="suggestion-right">';
-                html += '<div class="product-line product-name">' + suggestion.value + '</div>';
+    //             html += '<div class="suggestion-right">';
+    //             html += '<div class="product-line product-name">' + suggestion.value + '</div>';
 
-                if ($.inArray('price', displayInfo) !== -1) {
-                    html += '<div class="product-line product-price"><?php echo __('Price: ') ?>' + priceUtils.formatPrice(suggestion.p, priceFormat) + '</div>';
-                }
+    //             if ($.inArray('price', displayInfo) !== -1) {
+    //                 html += '<div class="product-line product-price"><?php echo __('Price: ') ?>' + priceUtils.formatPrice(suggestion.p, priceFormat) + '</div>';
+    //             }
 
-                if ($.inArray('description', displayInfo) !== -1 && suggestion.d) {
-                    html += '<div class="product-des"><p class="short-des">' + suggestion.d + '...</p></div>';
-                }
+    //             if ($.inArray('description', displayInfo) !== -1 && suggestion.d) {
+    //                 html += '<div class="product-des"><p class="short-des">' + suggestion.d + '...</p></div>';
+    //             }
 
-                html += '</div></a>';
+    //             html += '</div></a>';
 
-                return html;
-            }
-    //		onSearchComplete: function (query, suggestion) {
-    //			$('.autocomplete-suggestions').append("<div id='view_all'><a href='javascript:void(0)' id='search-view-all'>View all >></a></div>");
-    //			$('#search-view-all').on('click', function(){
-    //			   $('#search_mini_form').submit();
-    //            });
-    //		}
-        });
+    //             return html;
+    //         }
+    // //		onSearchComplete: function (query, suggestion) {
+    // //			$('.autocomplete-suggestions').append("<div id='view_all'><a href='javascript:void(0)' id='search-view-all'>View all >></a></div>");
+    // //			$('#search-view-all').on('click', function(){
+    // //			   $('#search_mini_form').submit();
+    // //            });
+    // //		}
+    //     });
 
-        function correctProductUrl(urlKey, isImage) {
-            if (urlKey.search('http') !== -1) {
-                return urlKey;
-            }
+        // function correctProductUrl(urlKey, isImage) {
+        //     if (urlKey.search('http') !== -1) {
+        //         return urlKey;
+        //     }
 
-            return ((typeof isImage !== 'undefined') ? baseImageUrl : baseUrl) + urlKey;
-        }
+        //     return ((typeof isImage !== 'undefined') ? baseImageUrl : baseUrl) + urlKey;
+        // }
     });
     </script>
 <?php endif; ?>
