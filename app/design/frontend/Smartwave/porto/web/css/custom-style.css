@@ -190,6 +190,6 @@
     border-left-width: 0px !important;
     border-right-width: 0px !important;
 }
-.products-grid.wishlist .product-item .box-tocart .stock{
-    margin-top: 0 !important;
+.products-grid.wishlist .product-image-wrapper{
+    padding-bottom: 90% !important;
 }
