@@ -25,10 +25,10 @@
             <p class="greeting">{{trans "%name," name=$order.getBillingAddress().getName()}}</p>
             <p>
                 {{trans "Thank you for your order from %store_name." store_name=$store.getFrontendName()}}
-                {{trans "Once your package ships we will send you a tracking number."}}
+                {{trans "Once all of your products are available for pick-up at"}} {{var order.getShippingDescription()}}
             </p>
             <p>
-                {{trans 'If you have questions about your order, you can email us at <a href="mailto:%store_email">%store_email</a>.' store_email=$store_email |raw}}
+                {{trans 'If you have questions about your order, you can email us at <a href="mailto:%store_email">%store_email</a>or call us at 541-241-6255.' store_email=$store_email |raw}}
             </p>
         </td>
     </tr>
