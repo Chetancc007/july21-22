@@ -1,16 +1,18 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Stockstatus
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Stockstatus\Model\Source;
 
-use Magento\Framework\Option\ArrayInterface;
+use Magento\Framework\Data\OptionSourceInterface;
 
-class Outofstock implements ArrayInterface
+class Outofstock implements OptionSourceInterface
 {
     const MAGENTO_LOGIC = 0;
 

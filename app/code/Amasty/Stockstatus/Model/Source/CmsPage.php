@@ -1,17 +1,19 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Stockstatus
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Stockstatus\Model\Source;
 
 use Magento\Cms\Model\ResourceModel\Page\CollectionFactory;
-use Magento\Framework\Option\ArrayInterface;
+use Magento\Framework\Data\OptionSourceInterface;
 
-class CmsPage implements ArrayInterface
+class CmsPage implements OptionSourceInterface
 {
     /**
      * @var CollectionFactory

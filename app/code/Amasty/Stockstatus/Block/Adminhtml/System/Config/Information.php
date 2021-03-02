@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Stockstatus
  */
 
@@ -84,9 +84,21 @@ class Information extends \Magento\Config\Block\System\Config\Form\Fieldset
             $result[] = [
                 'type' => 'message-notice',
                 'text' => __('Enable stockstatus-graphql module to '
-                    . 'activate GraphQl and Custom Stock Status. '
+                    . 'activate GraphQl and Custom Stock Status compatibility. '
                     . 'Please, run the following command in the SSH: '
                     . 'composer require amasty/stockstatus-graphql')
+            ];
+        }
+
+        if ($this->moduleManager->isEnabled('Magento_InventoryCatalog')
+            && !$this->moduleManager->isEnabled('Amasty_CustomStockStatusMsi')
+        ) {
+            $result[] = [
+                'type' => 'message-notice',
+                'text' => __('Enable custom-stock-status-msi module to '
+                    . 'activate Magento MSI and Custom Stock Status compatibility. '
+                    . 'Please, run the following command in the SSH: '
+                    . 'composer require amasty/custom-stock-status-msi')
             ];
         }
 

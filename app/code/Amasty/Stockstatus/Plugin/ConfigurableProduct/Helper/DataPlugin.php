@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Stockstatus
  */
 
@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 namespace Amasty\Stockstatus\Plugin\ConfigurableProduct\Helper;
 
-use Amasty\Stockstatus\Helper\Data as Helper;
+use Amasty\Stockstatus\Model\ConfigProvider;
 use Amasty\Stockstatus\Model\Source\Outofstock;
 use Magento\Catalog\Model\Product;
 use Magento\ConfigurableProduct\Helper\Data;
@@ -18,13 +18,13 @@ use Magento\ConfigurableProduct\Helper\Data;
 class DataPlugin
 {
     /**
-     * @var Helper
+     * @var ConfigProvider
      */
-    private $helper;
+    private $configProvider;
 
-    public function __construct(Helper $helper)
+    public function __construct(ConfigProvider $configProvider)
     {
-        $this->helper = $helper;
+        $this->configProvider = $configProvider;
     }
 
     /**
@@ -34,9 +34,9 @@ class DataPlugin
      * @param array $allowedProducts
      * @return array
      */
-    public function afterGetOptions(Data $subject, $options, $currentProduct, $allowedProducts)
+    public function afterGetOptions(Data $subject, $options, $currentProduct, $allowedProducts): array
     {
-        if ($this->helper->getOutofstockVisibility() !== Outofstock::MAGENTO_LOGIC) {
+        if ($this->configProvider->getOutofstockVisibility() !== Outofstock::MAGENTO_LOGIC) {
             $allowAttributes = $subject->getAllowAttributes($currentProduct);
 
             foreach ($allowedProducts as $allowedProduct) {

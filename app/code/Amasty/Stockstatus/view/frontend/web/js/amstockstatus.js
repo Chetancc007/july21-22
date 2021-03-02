@@ -1,218 +1,312 @@
-/*jshint browser:true jquery:true*/
+/**
+ *  Amasty Stock Status render widget
+ */
 
-define(['jquery'], function ($) {
-    'use strict';
-
-   var amstockstatusRenderer = {
-        configurableStatus: null,
-        spanElement: null,
-        infoLink: null,
-        defaultInfoLink: false,
+define([
+    'jquery',
+    'mage/translate'
+], function ($, $t) {
+    $.widget('mage.amStockStatus', {
         options: {},
+        selectors: {
+            infoLink: '[data-amstock-js="info-link"]',
+            stockAlert: '[data-amstock-js="alert"]',
+            stock: '.stock',
+            alertPrice: '.alert.price',
+            validatePriceForm: '#form-validate-price',
+            validateStockForm: '#form-validate-stock',
+            productAddForm: '.product-add-form',
+            dropdowns: 'select.super-attribute-select, select.swatch-select',
+            swatchAttrOptions: '.swatch-attribute-options:has(.swatch-option)',
+            swatchOption: 'div.swatch-option',
+            toCartBox: '.box-tocart'
+        },
+        classes: {
+            stockAlert: 'amstockstatus-stockalert',
+            preorderObserved: 'ampreorder-observed'
+        },
+        configurableStatus: null,
+        nodes: {
+            spanElement: null,
+            bodyElement: null,
+            stockAlertElement: null,
+            infoLink: null,
+            priceAlert: null
+        },
+        defaultInfoLink: false,
         defaultContents: [],
-        priceAlert: null,
         defaultPriceAlert: '',
 
-        init: function (options) {
-            this.options = options;
-            this.spanElement = $('.stock').first();
-            this.infoLink = $('.amstockstatus-info-link');
-            if (this.spanElement.length && this.infoLink.length == 0) {
-                this.infoLink = $(this.options.info_block).first();
-                this.spanElement.after(this.infoLink.hide());
-            } else {
-                this.defaultInfoLink = true;
-            }
-            this.priceAlert = $('.alert.price').length ?
-                $('.alert.price') :
-                $('#form-validate-price').parent();
-            if (this.priceAlert.length) {
-                this.defaultPriceAlert = this.priceAlert.html();
-            }
-            this.dropdowns   = $('select.super-attribute-select, select.swatch-select');
-
+        /**
+         * @private
+         * @returns {void}
+         */
+        _create: function () {
+            this._initNodes();
             this._initialization();
         },
 
         /**
-         * remove stock alert block
+         * @private
+         * @returns {void}
          */
-        _hideStockAlert: function () {
-            $('.amstockstatus-stockalert').remove();
+        _initNodes: function () {
+            this.nodes.bodyElement = $('body');
+            this.nodes.spanElement = $(this.selectors.stock).first();
+            this.nodes.infoLink = $(this.selectors.infoLink);
+            this.dropdowns = $(this.selectors.dropdowns);
+            this.nodes.stockAlertElement = $('<div/>', {
+                class: this.classes.stockAlert,
+                'data-amstock-js': 'alert',
+                title: $t('Subscribe to back in stock notification'),
+                rel: 'external'
+            });
+            this.nodes.priceAlert = $(this.selectors.alertPrice).length
+                ? $(this.selectors.alertPrice) : $(this.selectors.validatePriceForm).parent();
+            this.defaultPriceAlert = this.nodes.priceAlert.length ? this.nodes.priceAlert.html() : '';
+
+            if (this.nodes.spanElement.length && this.nodes.infoLink.length === 0) {
+                this.nodes.infoLink = $(this.options.info_block).first();
+                this.nodes.spanElement.after(this.nodes.infoLink.hide());
+            } else {
+                this.defaultInfoLink = true;
+            }
         },
 
-        _reloadDefaultContent: function (key) {
-            if (this.spanElement.length
-                && !this.spanElement.hasClass('ampreorder-observed')
-            ) {
-                this.spanElement.html(this.configurableStatus);
+        /**
+         * @private
+         * @returns {void}
+         */
+        _initialization: function () {
+            var self = this;
+
+            $(document).on('configurable.initialized', function() {
+                self.onConfigure();
+            });
+
+            this.nodes.bodyElement.on(
+                {
+                    'click': function () {
+                        setTimeout(function() {
+                            self.onConfigure();
+                        }, 300);
+                    }
+                },
+                self.selectors.swatchOption + ', ' + self.selectors.dropdowns
+            );
+
+            this.nodes.bodyElement.on(
+                {
+                    'change': function () {
+                        setTimeout(function() {
+                            self.onConfigure();
+                        }, 300);
+                    }
+                },
+                self.selectors.dropdowns
+            );
+        },
+
+        /**
+         * Remove stock alert element
+         * @private
+         * @returns {void}
+         */
+        _removeStockAlert: function () {
+            $(this.selectors.stockAlert).remove();
+        },
+
+        /**
+         * Reload default content; Show tocart box; Show price alert
+         * @private
+         * @returns {void}
+         */
+        _reloadDefaultContent: function () {
+            if (this.nodes.spanElement.length && !this.nodes.spanElement.hasClass(this.classes.preorderObserved)) {
+                this.nodes.spanElement.html(this.configurableStatus);
             }
-            $('.box-tocart').show();
-            if (this.priceAlert.length) {
+
+            $(this.selectors.toCartBox).show();
+
+            if (this.nodes.priceAlert.length) {
                 this.showPriceAlert(this.defaultPriceAlert);
             }
         },
 
+        /**
+         * Generate and show stock alert element
+         * @param {Object} code
+         * @public
+         * @returns {void}
+         */
         showStockAlert: function (code) {
-            $('<div/>', {
-                class: 'amstockstatus-stockalert',
-                title: 'Subscribe to back in stock notification',
-                rel: 'external',
-                html: code
-            }).appendTo('.product-add-form');
+            this.nodes.stockAlertElement.clone().html(code).appendTo(this.selectors.productAddForm);
 
-            $('#form-validate-stock').mage('validation');
+            $(this.selectors.validateStockForm).mage('validation');
         },
 
-        /*
-         * configure statuses at product page
+        /**
+         * @public
+         * @returns {String}
          */
-        onConfigure: function (key) {
-            var keyCheck = '',
-                selectedKey = '';
+        getCurrentSelectedKey: function () {
+            var result = '',
+                optionId;
 
-            this.dropdowns   = $('select.super-attribute-select, select.swatch-select, .swatch-attribute-options:has(.swatch-option)');
-            this._hideStockAlert();
-            if (null == this.configurableStatus && this.spanElement.length) {
-                this.configurableStatus = this.spanElement.html();
-            }
+            this.settingsForKey = $(this.selectors.dropdowns + ', ' + this.selectors.swatchOption + '.selected').not('.slick-cloned');
 
-            //get current selected key
-            this.settingsForKey = $('select.super-attribute-select, div.swatch-option.selected, select.swatch-select');
             if (this.settingsForKey.length) {
                 for (var i = 0; i < this.settingsForKey.length; i++) {
                     if (parseInt(this.settingsForKey[i].value) > 0) {
-                        selectedKey += this.settingsForKey[i].value + ',';
+                        result += this.settingsForKey[i].value + ',';
                     }
 
-                    if (parseInt($(this.settingsForKey[i]).attr('option-id')) > 0) {
-                        selectedKey += $(this.settingsForKey[i]).attr('option-id') + ',';
+                    optionId = $(this.settingsForKey[i]).attr('option-id') || $(this.settingsForKey[i]).data('option-id');
+
+                    if (parseInt(optionId) > 0) {
+                        result += optionId + ',';
                     }
                 }
             }
-            var trimSelectedKey = selectedKey.substr(0, selectedKey.length - 1);
-            var countKeys = selectedKey.split(",").length - 1;
 
-            /*reload main status*/
+            return result;
+        },
+
+        /**
+         * Configure statuses at product page
+         * @public
+         * @returns {void}
+         */
+        onConfigure: function () {
+            var keyCheck = '',
+                selectedKey,
+                trimSelectedKey,
+                countKeys;
+
+            this.dropdowns = $(this.selectors.dropdowns + ', ' + this.selectors.swatchAttrOptions);
+            this._removeStockAlert();
+
+            if (null == this.configurableStatus && this.nodes.spanElement.length) {
+                this.configurableStatus = this.nodes.spanElement.html();
+            }
+
+            selectedKey = this.getCurrentSelectedKey();
+            trimSelectedKey = selectedKey.substr(0, selectedKey.length - 1);
+            countKeys = selectedKey.split(',').length - 1;
+
+            // reload main status
             if ('undefined' !== typeof(this.options[trimSelectedKey])) {
                 this._reloadContent(trimSelectedKey);
             } else {
-                this._reloadDefaultContent(trimSelectedKey);
+                this._reloadDefaultContent();
             }
 
-            /*add statuses to dropdown*/
-            var settings = this.dropdowns;
-            for (var i = 0; i < settings.length; i++) {
-                if (!settings[i].options) {
-			        continue;
-	        	}
-                for (var x = 0; x < settings[i].options.length; x++) {
-                    if (!settings[i].options[x].value) continue;
+            // add statuses to dropdown
+            if (this.options['display_in_dropdowns']) {
+                var settings = this.dropdowns,
+                    nextValue;
 
-                    if (countKeys === i + 1) {
-                        var keyCheckParts = trimSelectedKey.split(',');
-                        keyCheckParts[keyCheckParts.length - 1] = settings[i].options[x].value;
-                        keyCheck = keyCheckParts.join(',');
+                for (var i = 0; i < settings.length; i++) {
+                    nextValue = i + 1;
 
-                    } else {
-                        if (countKeys < i + 1) {
-                            keyCheck = selectedKey + settings[i].options[x].value;
-                        }
+                    if (!settings[i].options) {
+                        continue;
                     }
 
-                    if ('undefined' !== typeof(this.options[keyCheck]) && this.options[keyCheck]) {
-                        var status = this.options[keyCheck]['custom_status_text'];
-                        if (status) {
-                            status = status.replace(/<(?:.|\n)*?>/gm, ''); // replace html tags
-                            if (settings[i].options[x].textContent.indexOf(status) === -1) {
-                                if ('undefined' == typeof(this.defaultContents[i + '-' + x])) {
-					                this.defaultContents[i + '-' + x] = settings[i].options[x].textContent;
-				                }
-                                settings[i].options[x].textContent = settings[i].options[x].textContent + ' (' + status + ')';
+                    for (var x = 0; x < settings[i].options.length; x++) {
+                        if (!settings[i].options[x].value) continue;
+
+                        if (countKeys === nextValue) {
+                            var keyCheckParts = trimSelectedKey.split(',');
+
+                            keyCheckParts[keyCheckParts.length - 1] = settings[i].options[x].value;
+                            keyCheck = keyCheckParts.join(',');
+                        } else if (countKeys < nextValue) {
+                            keyCheck = selectedKey + settings[i].options[x].value;
+                        }
+
+                        if ('undefined' !== typeof (this.options[keyCheck]) && this.options[keyCheck]) {
+                            var status = this.options[keyCheck]['custom_status_text'],
+                                defaultContentKey = settings[i].id + '-' + settings[i].options[x].value;
+
+                            if (status) {
+                                status = status.replace(/<(?:.|\n)*?>/gm, ''); // replace html tags
+
+                                if (settings[i].options[x].textContent.indexOf(status) === -1) {
+                                    if ('undefined' == typeof (this.defaultContents[defaultContentKey])) {
+                                        this.defaultContents[defaultContentKey] = settings[i].options[x].textContent;
+                                    }
+
+                                    settings[i].options[x].textContent = this.defaultContents[defaultContentKey] + ' (' + status + ')';
+                                }
+                            } else if (this.defaultContents[i + '-' + x]) {
+                                settings[i].options[x].textContent = this.defaultContents[defaultContentKey];
                             }
-                        } else if (this.defaultContents[i + '-' + x]) {
-                            settings[i].options[x].textContent = this.defaultContents[i + '-' + x];
                         }
                     }
                 }
             }
-
         },
-        /*
-         * reload default stock status after select option
+
+        /**
+         * Reload default stock status after select option
+         * @param {String} key
+         * @private
+         * @returns {void}
          */
         _reloadContent: function (key) {
             if ('undefined' !== typeof(this.options.changeConfigurableStatus)
                 && this.options.changeConfigurableStatus
-                && this.spanElement.length
-                && !this.spanElement.hasClass('ampreorder-observed')
+                && this.nodes.spanElement.length
+                && !this.nodes.spanElement.hasClass(this.classes.preorderObserved)
             ) {
                 if (this.options[key] && this.options[key]['custom_status']) {
-                    this.infoLink.show();
-                    if (this.options[key]['custom_status_icon_only'] == 1) {
-                        this.spanElement.html(this.options[key]['custom_status_icon']);
-                    } else {
-                        this.spanElement.html(this.options[key]['custom_status']);
-                    }
+                    this.nodes.infoLink.show();
+                    this.nodes.spanElement.html(this.options[key]['custom_status']);
                 } else {
                     if (this.defaultInfoLink) {
-                        this.infoLink.show();
+                        this.nodes.infoLink.show();
                     } else {
-                        this.infoLink.hide();
+                        this.nodes.infoLink.hide();
                     }
-                    this.spanElement.html(this.configurableStatus);
+
+                    this.nodes.spanElement.html(this.configurableStatus);
                 }
             }
 
-            if ('undefined' !== typeof(this.options[key])
-                && this.options[key]
-                && 0 == this.options[key]['is_in_stock']
-            ) {
-                $('.box-tocart').each(function (index,elem) {
+            if ('undefined' !== typeof(this.options[key]) && this.options[key] && this.options[key]['is_in_stock'] === 0) {
+                $(this.selectors.toCartBox).each(function (index,elem) {
                     $(elem).hide();
                 });
+
                 if (this.options[key]['stockalert']) {
                     this.showStockAlert(this.options[key]['stockalert']);
                 }
             } else {
-                $('.box-tocart').each(function (index,elem) {
+                $(this.selectors.toCartBox).each(function (index,elem) {
                     $(elem).show();
                 });
             }
 
-            if ('undefined' !== typeof(this.options[key]) &&
-                this.options[key] &&
-                this.options[key]['pricealert'] &&
-                this.priceAlert.length
+            if ('undefined' !== typeof(this.options[key])
+                && this.options[key]
+                && this.options[key]['pricealert']
+                && this.nodes.priceAlert.length
             ) {
                 this.showPriceAlert(this.options[key]['pricealert']);
             }
         },
 
-       showPriceAlert: function (code) {
-           this.priceAlert.html(code);
-       },
-
-        _initialization: function () {
-	        var me = this;
-
-            $(document).on('configurable.initialized', function() {
-                me.onConfigure();
-            });
-
-            $('body').on( {
-                    'click': function(){setTimeout(function() { me.onConfigure(); }, 300);}
-                },
-                'div.swatch-option, select.super-attribute-select, select.swatch-select'
-            );
-
-            $('body').on( {
-                    'change': function(){setTimeout(function() { me.onConfigure(); }, 300);}
-                },
-                'select.super-attribute-select, select.swatch-select'
-            );
+        /**
+         * Show price alert block
+         * @param {Object} code
+         * @public
+         * @returns {void}
+         */
+        showPriceAlert: function (code) {
+            this.nodes.priceAlert.html(code);
         }
-    };
+    });
 
-    return amstockstatusRenderer;
+    return $.mage.amStockStatus;
 });

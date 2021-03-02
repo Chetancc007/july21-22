@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Stockstatus
  */
 
@@ -10,13 +10,10 @@ namespace Amasty\Stockstatus\Model\Backend;
 
 use Magento\Framework\App\Config\Value as ConfigValue;
 use Amasty\Stockstatus\Model\Attribute\Creator;
-use Magento\Eav\Model\Entity\Attribute\Source\Table as SourceTable;
 
 class UpdaterAttribute extends ConfigValue
 {
     const EXPECTED_DATE_CODE = 'stock_expected_date';
-
-    const QTY_RULE_CODE = 'custom_stock_status_qty_rule';
 
     /**
      * @var array
@@ -28,14 +25,6 @@ class UpdaterAttribute extends ConfigValue
             'args' => [
                 'type' => 'datetime',
                 'input' => 'date'
-            ]
-        ],
-        'use_range_rules' => [
-            'code' => self::QTY_RULE_CODE,
-            'label' => 'Custom Stock Status Range Product Group',
-            'args' => [
-                'source' => SourceTable::class,
-                'note' => 'It is used for Qty Ranges.'
             ]
         ]
     ];

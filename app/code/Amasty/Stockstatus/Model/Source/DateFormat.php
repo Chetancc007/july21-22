@@ -1,101 +1,106 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Stockstatus
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Stockstatus\Model\Source;
 
-use Magento\Framework\Option\ArrayInterface;
+use Magento\Framework\Data\OptionSourceInterface;
 
-class DateFormat implements ArrayInterface
+class DateFormat implements OptionSourceInterface
 {
     /**
+     * Patterns getting from http://userguide.icu-project.org/formatparse/datetime
+     * for IntlDateFormatter::format
+     *
      * @return array
      */
     public function toOptionArray()
     {
         return [
             [
-                'value' => 'F d, Y',
+                'value' => 'MMMM dd, Y',
                 'label' => 'F d, Y (' . date('F d, Y') . ')'
             ],
             [
-                'value' => 'M d, Y',
+                'value' => 'MMM dd, Y',
                 'label' => 'M d, Y (' . date('M d, Y') . ')'
             ],
             [
-                'value' => 'Y-m-d',
+                'value' => 'Y-MM-dd',
                 'label' => 'Y-m-d (' . date('Y-m-d') . ')'
             ],
             [
-                'value' => 'm/d/Y',
+                'value' => 'MM/dd/Y',
                 'label' => 'm/d/Y (' . date('m/d/Y') . ')'
             ],
             [
-                'value' => 'd/m/Y',
+                'value' => 'dd/MM/Y',
                 'label' => 'd/m/Y (' . date('d/m/Y') . ')'
             ],
             [
-                'value' => 'j/n/y',
+                'value' => 'd/M/yy',
                 'label' => 'j/n/y (' . date('j/n/y') . ')'
             ],
             [
-                'value' => 'j/n/Y',
+                'value' => 'd/M/y',
                 'label' => 'j/n/Y (' . date('j/n/Y') . ')'
             ],
             [
-                'value' => 'd.m.Y',
+                'value' => 'dd.MM.y',
                 'label' => 'd.m.Y (' . date('d.m.Y') . ')'
             ],
             [
-                'value' => 'd.m.y',
+                'value' => 'dd.MM.yy',
                 'label' => 'd.m.y (' . date('d.m.y') . ')'
             ],
             [
-                'value' => 'j.n.y',
+                'value' => 'd.M.yy',
                 'label' => 'j.n.y (' . date('j.n.y') . ')'
             ],
             [
-                'value' => 'j.n.Y',
+                'value' => 'd.M.y',
                 'label' => 'j.n.Y (' . date('j.n.Y') . ')'
             ],
             [
-                'value' => 'd-m-y',
+                'value' => 'd-M-yy',
                 'label' => 'd-m-y (' . date('d-m-y') . ')'
             ],
             [
-                'value' => 'Y.m.d',
+                'value' => 'y.MM.dd',
                 'label' => 'Y.m.d (' . date('Y.m.d') . ')'
             ],
             [
-                'value' => 'd-m-Y',
+                'value' => 'dd-MM-y',
                 'label' => 'd-m-Y (' . date('d-m-Y') . ')'
             ],
             [
-                'value' => 'Y/m/d',
+                'value' => 'y/MM/dd',
                 'label' => 'Y/m/d (' . date('Y/m/d') . ')'
             ],
             [
-                'value' => 'y/m/d',
+                'value' => 'yy/MM/dd',
                 'label' => 'y/m/d (' . date('y/m/d') . ')'
             ],
             [
-                'value' => 'd/m/y',
+                'value' => 'dd/MM/yy',
                 'label' => 'd/m/y (' . date('d/m/y') . ')'
             ],
             [
-                'value' => 'm/d/y',
+                'value' => 'MM/dd/yy',
                 'label' => 'm/d/y (' . date('m/d/y') . ')'
             ],
             [
-                'value' => 'd/m Y',
+                'value' => 'dd/MM y',
                 'label' => 'd/m Y (' . date('d/m Y') . ')'
             ],
             [
-                'value' => 'Y m d',
+                'value' => 'y MM dd',
                 'label' => 'Y m d (' . date('Y m d') . ')'
             ]
         ];

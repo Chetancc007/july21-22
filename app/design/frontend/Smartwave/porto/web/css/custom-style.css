@@ -171,9 +171,9 @@
 .actions-primary{
     padding-left: 5px;
 }
-.amstockstatus{
+/*.amstockstatus{
     display: none !important;
-}
+}*/
 .block.category.event, .footer.content, .header.content, .navigation, .page-header .header.panel, .page-main, .page-wrapper>.breadcrumbs, .page-wrapper>.page-bottom, .page-wrapper>.widget, .top-container{
     max-width: none !important;
     padding-left: 20px !important;
@@ -232,4 +232,7 @@ margin: 16px 0 0 !important;
 }
 .product-info-main .page-title-wrapper h1{
 line-height: 1.5 !important;
+}
+.products-grid.products.grid.flex-grid .product-item-details .product-item-actions .actions-secondary.tocompare, .products-grid.divider-line .product-item-details .product-item-actions .actions-secondary.tocompare{
+    margin-left: 2px !important;
 }

@@ -1,59 +1,34 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Stockstatus
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Stockstatus\Plugin\HidePrice\Helper;
 
+use Amasty\Stockstatus\Model\Stockstatus\IsHidePrice;
 use Magento\Catalog\Api\Data\ProductInterface;
-use Amasty\Stockstatus\Helper\Data as StockStatusHelper;
 
 class Data
 {
     /**
-     * @var StockStatusHelper
+     * @var IsHidePrice
      */
-    private $helper;
+    private $isHidePrice;
 
-    /**
-     * @var null|ProductInterface
-     */
-    private $product = null;
-
-    public function __construct(StockStatusHelper $helper)
+    public function __construct(IsHidePrice $isHidePrice)
     {
-        $this->helper = $helper;
+        $this->isHidePrice = $isHidePrice;
     }
 
-    /**
-     * @param $subject
-     * @param bool $result
-     * @param ProductInterface $product
-     *
-     * @return array
-     */
-    public function beforeCheckStockStatus($subject, $result, $product)
+    public function afterCheckStockStatus($subject, bool $result, bool $resultBefore, ProductInterface $product): bool
     {
-        $this->product = $product;
-
-        return [$result, $product];
-    }
-
-    /**
-     * @param $subject
-     * @param bool $result
-     *
-     * @return bool
-     */
-    public function afterCheckStockStatus($subject, $result)
-    {
-        if ($this->product) {
-            if ($this->helper->isHidePrice($this->product)) {
-                $result = true;
-            }
+        if ($this->isHidePrice->execute($product)) {
+            $result = true;
         }
 
         return $result;

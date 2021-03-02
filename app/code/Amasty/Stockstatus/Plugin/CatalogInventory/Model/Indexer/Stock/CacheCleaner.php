@@ -1,34 +1,24 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Stockstatus
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Stockstatus\Plugin\CatalogInventory\Model\Indexer\Stock;
 
+use Amasty\Stockstatus\Model\Resources\CheckIfProductsManageStock;
+use Magento\CatalogInventory\Model\Configuration as InventoryConfig;
 use Magento\CatalogInventory\Model\Indexer\Stock\CacheCleaner as NativeCacheCleaner;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\Indexer\CacheContext;
 use Magento\Framework\Event\ManagerInterface;
-use Magento\Framework\App\ResourceConnection;
-use Magento\Framework\DB\Adapter\AdapterInterface;
-use Magento\CatalogInventory\Model\Stock;
-use Magento\CatalogInventory\Api\StockConfigurationInterface;
 
 class CacheCleaner
 {
-    /**
-     * @var array
-     */
-    private $productIds;
-
-    /**
-     * @var array
-     */
-    private $productStatusesBefore;
-
     /**
      * @var CacheContext
      */
@@ -40,98 +30,45 @@ class CacheCleaner
     private $eventManager;
 
     /**
-     * @var ResourceConnection
+     * @var InventoryConfig
      */
-    private $resourceConnection;
+    private $inventoryConfig;
 
     /**
-     * @var AdapterInterface
+     * @var CheckIfProductsManageStock
      */
-    private $connection;
-
-    /**
-     * @var StockConfigurationInterface
-     */
-    private $stockConfiguration;
+    private $checkIfProductsManageStock;
 
     public function __construct(
         CacheContext $cacheContext,
         ManagerInterface $eventManager,
-        ResourceConnection $resourceConnection,
-        StockConfigurationInterface $stockConfiguration
+        InventoryConfig $inventoryConfig,
+        CheckIfProductsManageStock $checkIfProductsManageStock
     ) {
         $this->cacheContext = $cacheContext;
         $this->eventManager = $eventManager;
-        $this->resourceConnection = $resourceConnection;
-        $this->stockConfiguration = $stockConfiguration;
+        $this->inventoryConfig = $inventoryConfig;
+        $this->checkIfProductsManageStock = $checkIfProductsManageStock;
     }
 
     /**
+     * If products with manage_stock=1, need clear cache, because qty reduce always.
+     *
      * @param NativeCacheCleaner $subject
+     * @param null $result
      * @param array $productIds
-     * @param callable $reindex
+     * @return void
      */
-    public function beforeClean($subject, $productIds, $reindex)
+    public function afterClean(NativeCacheCleaner $subject, $result, array $productIds): void
     {
-        $this->productIds = $productIds;
-        $this->productStatusesBefore = $this->getProductStockStatuses($this->productIds);
-    }
-
-    /**
-     * @param NativeCacheCleaner $subject
-     */
-    public function afterClean($subject)
-    {
-        $productStatusesAfter = $this->getProductStockStatuses($this->productIds);
-        $commonProductsIds = array_intersect(array_keys($this->productStatusesBefore), array_keys($productStatusesAfter));
-        $productIds = [];
-
-        foreach ($commonProductsIds as $productId) {
-            $statusBefore = $this->productStatusesBefore[$productId];
-            $statusAfter = $productStatusesAfter[$productId];
-
-            if ($statusAfter['qty'] != $statusBefore['qty']) {
-                $productIds[] = $productId;
-            }
-        }
+        $productIds = $this->checkIfProductsManageStock->execute(
+            $productIds,
+            (bool) $this->inventoryConfig->getManageStock()
+        );
 
         if (!empty($productIds)) {
             $this->cacheContext->registerEntities(Product::CACHE_TAG, $productIds);
             $this->eventManager->dispatch('clean_cache_by_tags', ['object' => $this->cacheContext]);
         }
-    }
-
-    /**
-     * @param array $productIds
-     * @return array
-     */
-    private function getProductStockStatuses($productIds)
-    {
-        $select = $this->getConnection()->select()
-            ->from(
-                $this->resourceConnection->getTableName('cataloginventory_stock_status'),
-                ['product_id', 'stock_status', 'qty']
-            )->where('product_id IN (?)', $productIds)
-            ->where('stock_id = ?', Stock::DEFAULT_STOCK_ID)
-            ->where('website_id = ?', $this->stockConfiguration->getDefaultScopeId());
-
-        $statuses = [];
-        foreach ($this->getConnection()->fetchAll($select) as $item) {
-            $statuses[$item['product_id']] = $item;
-        }
-
-        return $statuses;
-    }
-
-    /**
-     * @return AdapterInterface
-     */
-    private function getConnection()
-    {
-        if (null === $this->connection) {
-            $this->connection = $this->resourceConnection->getConnection();
-        }
-
-        return $this->connection;
     }
 }

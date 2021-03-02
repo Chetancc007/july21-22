@@ -1,15 +1,17 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Stockstatus
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Stockstatus\Plugin\Catalog\Model;
 
+use Amasty\Stockstatus\Model\Stockstatus\Processor;
 use Magento\Catalog\Model\Product as ProductModel;
-use Amasty\Stockstatus\Helper\Data;
 use Magento\Framework\App\RequestInterface;
 
 class Product
@@ -17,37 +19,42 @@ class Product
     const PRODUCT_VIEW = 'catalog/product/view';
 
     /**
-     * @var Data
-     */
-    private $helper;
-
-    /**
      * @var RequestInterface
      */
     private $request;
 
+    /**
+     * @var Processor
+     */
+    private $processor;
+
     public function __construct(
-        Data $helper,
+        Processor $processor,
         RequestInterface $request
     ) {
-        $this->helper = $helper;
         $this->request = $request;
+        $this->processor = $processor;
     }
 
     /**
      * Fix overwrite bundle select options by js magento
      * @param ProductModel $subject
-     * @param string $result
+     * @param string|null $result
      * @return string
      */
-    public function afterGetName($subject, $result)
+    public function afterGetName(ProductModel $subject, ?string $result): ?string
     {
+        $this->processor->execute([$subject]);
         /** Check if product is an bundle selection */
         if ($subject->getSelectionCanChangeQty() !== null
             && strpos($this->request->getPathInfo(), self::PRODUCT_VIEW) !== false
-            && ($stockStatus = $this->helper->getCustomStockStatusText($subject))
+            && $subject->getExtensionAttributes()->getStockstatusInformation()->getStatusId()
         ) {
-            $stockStatus = strip_tags($stockStatus);
+            $stockStatus = strip_tags(
+                $subject->getExtensionAttributes()
+                    ->getStockstatusInformation()
+                    ->getStatusMessage()
+            );
             $result .= ' (' . $stockStatus . ')';
         }
 

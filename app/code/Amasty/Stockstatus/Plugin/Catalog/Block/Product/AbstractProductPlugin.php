@@ -1,57 +1,72 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Stockstatus
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Stockstatus\Plugin\Catalog\Block\Product;
+
+use Amasty\Stockstatus\Model\Stockstatus\Processor;
+use Amasty\Stockstatus\Model\Stockstatus\Renderer\Info as InfoRenderer;
+use Amasty\Stockstatus\Model\Stockstatus\Renderer\Status as StatusRenderer;
+use Magento\Catalog\Block\Product\AbstractProduct;
 
 class AbstractProductPlugin
 {
     /**
-     * @var \Amasty\Stockstatus\Helper\Data
-     */
-    private $helper;
-
-    /**
      * @var array
      */
     protected $matchedNames = [
-            'product.info.configurable',
-            'product.info.simple',
-            'product.info.bundle',
-            'product.info.virtual',
-            'product.info.downloadable',
-            'product.info.grouped.stock'
-        ];
-
-    public function __construct(
-        \Amasty\Stockstatus\Helper\Data $helper
-    ) {
-        $this->helper = $helper;
-    }
+        'product.info.configurable',
+        'product.info.simple',
+        'product.info.bundle',
+        'product.info.virtual',
+        'product.info.downloadable',
+        'product.info.grouped.stock'
+    ];
 
     /**
-     * @param \Magento\Catalog\Block\Product\AbstractProduct $subject
-     * @param $result
-     *
-     * @return string
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @var StatusRenderer
      */
-    public function afterToHtml(
-        \Magento\Catalog\Block\Product\AbstractProduct $subject,
-        $result
+    private $statusRenderer;
+
+    /**
+     * @var Processor
+     */
+    private $processor;
+
+    /**
+     * @var InfoRenderer
+     */
+    private $infoRenderer;
+
+    public function __construct(
+        Processor $processor,
+        StatusRenderer $statusRenderer,
+        InfoRenderer $infoRenderer
     ) {
+        $this->statusRenderer = $statusRenderer;
+        $this->processor = $processor;
+        $this->infoRenderer = $infoRenderer;
+    }
+
+    public function afterToHtml(
+        AbstractProduct $subject,
+        string $result
+    ): string {
         $name = $subject->getNameInLayout();
 
         if (in_array($name, $this->matchedNames)
             || strpos($name, 'product.info.type_schedule_block') !== false
         ) {
-            $status = $this->helper->showStockStatus($subject->getProduct(), 1, 0);
+            $this->processor->execute([$subject->getProduct()]);
+            $status = $this->statusRenderer->render($subject->getProduct(), false, true);
             if ($status != '') {
-                $result = $status . $this->helper->getInfoBlock();
+                $result = $status . $this->infoRenderer->render();
             }
         }
 

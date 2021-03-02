@@ -1,52 +1,41 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Stockstatus
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Stockstatus\Plugin\ConfigurableProduct\Model\ResourceModel\Attribute;
 
+use Amasty\Stockstatus\Model\ConfigProvider;
+use Closure;
 use Magento\ConfigurableProduct\Model\ResourceModel\Attribute\OptionSelectBuilderInterface;
 use Magento\Framework\DB\Select;
 use Magento\ConfigurableProduct\Plugin\Model\ResourceModel\Attribute\InStockOptionSelectBuilder as NativeBuilder;
-use Amasty\Stockstatus\Helper\Data;
 use Amasty\Stockstatus\Model\Source\Outofstock;
 
 class InStockOptionSelectBuilder
 {
     /**
-     * @var Data
+     * @var ConfigProvider
      */
-    private $helper;
+    private $configProvider;
 
-    /**
-     * InStockOptionSelectBuilder constructor.
-     * @param Data $helper
-     */
-    public function __construct(
-        Data $helper
-    ) {
-        $this->helper = $helper;
+    public function __construct(ConfigProvider $configProvider)
+    {
+        $this->configProvider = $configProvider;
     }
 
-    /**
-     * Disable Magento stock filter
-     *
-     * @param NativeBuilder $nativeSubject
-     * @param \Closure $proceed
-     * @param OptionSelectBuilderInterface $subject
-     * @param Select $select
-     * @return Select
-     */
     public function aroundAfterGetSelect(
         NativeBuilder $nativeSubject,
-        \Closure $proceed,
+        Closure $proceed,
         OptionSelectBuilderInterface $subject,
         Select $select
-    ) {
-        if ($this->helper->getOutofstockVisibility() === Outofstock::MAGENTO_LOGIC) {
+    ): Select {
+        if ($this->configProvider->getOutofstockVisibility() === Outofstock::MAGENTO_LOGIC) {
             $select = $proceed($subject, $select);
         }
 

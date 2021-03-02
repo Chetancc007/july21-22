@@ -1,21 +1,30 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Stockstatus
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Stockstatus\Plugin\Product\View\Type;
 
-use Magento\ConfigurableProduct\Model\ConfigurableAttributeData;
-use Magento\Customer\Helper\Session\CurrentCustomer;
-use Magento\Framework\Json\DecoderInterface;
-use Magento\Framework\Pricing\PriceCurrencyInterface;
-use Magento\CatalogInventory\Api\Data\StockItemInterface;
-use Magento\Catalog\Model\Product\Attribute\Source\Status;
+use Amasty\Stockstatus\Model\ConfigProvider;
+use Amasty\Stockstatus\Model\ResourceModel\Inventory as InventoryResource;
 use Amasty\Stockstatus\Model\Source\Outofstock;
+use Amasty\Stockstatus\Model\Stockstatus\Processor;
+use Amasty\Stockstatus\Model\Stockstatus\Renderer\Info as InfoRenderer;
+use Amasty\Stockstatus\Model\Stockstatus\Renderer\Status as StatusRenderer;
+use Magento\Catalog\Api\Data\ProductInterface;
+use Magento\Catalog\Model\Product;
+use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\ConfigurableProduct\Block\Product\View\Type\Configurable as NativeConfigurable;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable\Attribute;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
+use Magento\Framework\View\Element\Template;
 
 class Configurable
 {
@@ -28,21 +37,11 @@ class Configurable
      * @var \Magento\Catalog\Helper\Product
      */
     private $catalogProduct;
-    
-    /**
-     * @var \Magento\CatalogInventory\Model\StockRegistry
-     */
-    private $stockRegistry;
-    
+
     /**
      * @var \Amasty\Stockstatus\Helper\Data
      */
     private $helper;
-
-    /**
-     * @var \Magento\Framework\Json\EncoderInterface
-     */
-    private $jsonEncoder;
 
     /**
      * @var \Magento\Store\Model\StoreManagerInterface
@@ -60,56 +59,91 @@ class Configurable
     private $originalAllowedProducts = [];
 
     /**
-     * @var DecoderInterface
+     * @var ConfigProvider
      */
-    private $jsonDecoder;
+    private $configProvider;
+
+    /**
+     * @var JsonSerializer
+     */
+    private $jsonSerializer;
+
+    /**
+     * @var Processor
+     */
+    private $processor;
+
+    /**
+     * @var StatusRenderer
+     */
+    private $statusRenderer;
+
+    /**
+     * @var InfoRenderer
+     */
+    private $infoRenderer;
+
+    /**
+     * @var InventoryResource
+     */
+    private $inventoryResource;
 
     public function __construct(
+        Processor $processor,
+        StatusRenderer $statusRenderer,
+        InfoRenderer $infoRenderer,
         \Magento\Catalog\Helper\Product $catalogProduct,
         \Amasty\Stockstatus\Helper\Data $helper,
-        \Magento\Framework\Json\EncoderInterface $jsonEncoder,
-        \Magento\Framework\Json\DecoderInterface $jsonDecoder,
-        \Magento\CatalogInventory\Model\StockRegistry $stockRegistry,
+        JsonSerializer $jsonSerializer,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\ConfigurableProduct\Helper\Data $configurableHelper,
-        \Magento\Framework\App\Request\Http $request
+        \Magento\Framework\App\Request\Http $request,
+        ConfigProvider $configProvider,
+        InventoryResource $inventoryResource
     ) {
         $this->catalogProduct = $catalogProduct;
-        $this->stockRegistry = $stockRegistry;
         $this->helper = $helper;
-        $this->jsonEncoder = $jsonEncoder;
         $this->storeManager = $storeManager;
         $this->configurableHelper = $configurableHelper;
-        $this->jsonDecoder = $jsonDecoder;
+        $this->configProvider = $configProvider;
         $this->isProductPage = $request->getFullActionName() == 'catalog_product_view';
+        $this->jsonSerializer = $jsonSerializer;
+        $this->processor = $processor;
+        $this->statusRenderer = $statusRenderer;
+        $this->infoRenderer = $infoRenderer;
+        $this->inventoryResource = $inventoryResource;
     }
 
     /**
-     * @param \Magento\ConfigurableProduct\Block\Product\View\Type\Configurable $subject
+     * @param NativeConfigurable $subject
+     *
      * @return array
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws LocalizedException
      */
-    public function beforeGetAllowProducts(
-        $subject
-    ) {
+    public function beforeGetAllowProducts($subject)
+    {
         if ($this->isProductPage()
             && !$subject->hasAllowProducts()
-            && $this->helper->getOutofstockVisibility() != Outofstock::MAGENTO_LOGIC
+            && $this->shouldLoadStock()
         ) {
             $products = [];
-            $websiteId =  $this->storeManager->getWebsite()->getId();
-            $allProducts = $subject->getProduct()->getTypeInstance()->getUsedProducts($subject->getProduct(), null);
+            $websiteCode = $this->storeManager->getWebsite()->getCode();
+            $allProducts = $this->getConfigurableChilds($subject->getProduct());
             foreach ($allProducts as $product) {
                 /* remove code for showing out of stock options*/
                 if ($product->getStatus() == Status::STATUS_ENABLED) {
                     $products[] = $product;
                 }
-                $stockStatus = $this->stockRegistry->getStockStatusBySku(
-                    $product->getData('sku'),
-                    $websiteId
-                );
-                if ($stockStatus->getStockStatus()) {
-                    $this->originalAllowedProducts[] = $product;
+                try {
+                    $stockStatus = $this->inventoryResource->getStockStatus(
+                        $product->getData('sku'),
+                        $websiteCode
+                    );
+                    if ($stockStatus) {
+                        $this->originalAllowedProducts[] = $product;
+                    }
+                } catch (NoSuchEntityException $e) {
+                    continue;
                 }
             }
             $subject->setAllowProducts($products);
@@ -119,106 +153,121 @@ class Configurable
     }
 
     /**
-     * @param \Magento\ConfigurableProduct\Block\Product\View\Type\Configurable $subject
+     * @param NativeConfigurable $subject
      * @param string $html
      *
      * @return string
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function afterToHtml(
         $subject,
         $html
     ) {
+        $isChangeStatus = $this->configProvider->isChangeStatus();
+
         if (!$this->isProductPage()
             || strpos($html, 'amstockstatusRenderer.init') !== false
             || !($subject->getNameInLayout() == 'product.info.options.configurable'
-                || ($subject->getNameInLayout() == 'product.info.options.swatches' && $this->isChangeStatus())
-            )
+                || ($subject->getNameInLayout() == 'product.info.options.swatches' && $isChangeStatus))
         ) {
             return $html;
         }
 
-        $instance = $subject->getProduct()->getTypeInstance(true);
-        $allProducts = $instance->getUsedProducts($subject->getProduct());
-        $attributes = $instance->getConfigurableAttributes($subject->getProduct());
-        $shouldLoadStock = $this->shouldLoadStock();
-        $statusIconOnly = (int)$this->helper->getModuleConfig('general/icon_only');
-        $childData = [];
+        $allProducts = $this->getConfigurableChilds($subject->getProduct());
+        $attributes = $subject->getProduct()->getTypeInstance()
+            ->getConfigurableAttributes($subject->getProduct());
 
+        $childData = [
+            'changeConfigurableStatus' => (int) $isChangeStatus,
+            'type' => $subject->getNameInLayout(),
+            'info_block' => $this->infoRenderer->render(),
+            'display_in_dropdowns' => (int) $this->configProvider->isDisplayInDropdowns()
+        ];
+
+        $this->processor->execute($allProducts);
+
+        /** @var ProductInterface|Product $product */
         foreach ($allProducts as $product) {
             $key = $this->getKey($attributes, $product);
 
             if ($key) {
-                $status = $this->helper->getCustomStockStatusText($product);
+                $stockstatusInformation =  $product->getExtensionAttributes()->getStockstatusInformation();
+
                 $childData[$key] = [
-                    'custom_status_text'     => $status,
-                    'custom_status'          => $this->helper->showStockStatus($product),
-                    'custom_status_icon'     => $this->helper->getStatusIconImage($status, $product),
-                    'custom_status_icon_only'=> $statusIconOnly,
-                    'product_id'             => $product->getId()
+                    'custom_status' => $this->statusRenderer->render($product),
+                    'custom_status_text' => $stockstatusInformation->getStatusId()
+                        ? $stockstatusInformation->getStatusMessage()
+                        : '',
+                    'product_id' => $product->getId()
                 ];
 
-                if ($shouldLoadStock) {
-                    $stockStatus = $this->stockRegistry->getStockStatusBySku(
-                        $product->getSku(),
-                        $this->storeManager->getWebsite()->getId()
-                    );
-                    $saleable = $stockStatus->getStockStatus() && $this->verifyStock($stockStatus);
-                    $childData[$key]['is_in_stock'] = (int)$saleable;
-
-                    if (!$saleable) {
-                        $product->setData('is_salable', 0);
-                        $childData[$key]['stockalert'] =
-                            $this->helper->getStockAlert($product);
-                    }
-
-                    if (!$childData[$key]['is_in_stock'] && !$childData[$key]['custom_status']) {
-                        $childData[$key]['custom_status'] = __('Out of Stock');
-                        $childData[$key]['custom_status_text'] = __('Out of Stock');
-                    }
+                if ($this->shouldLoadStock()) {
+                    $childData = $this->addChildStockData($childData, $product, $key);
                 }
 
                 $childData[$key]['pricealert'] = $this->helper->getPriceAlert($product);
 
                 /* add status for previous option when all statuses are the same*/
-                $pos = strrpos($key, ",");
+                $pos = strrpos($key, ',');
 
                 if ($pos) {
                     $newKey = substr($key, 0, $pos);
 
-                    if (array_key_exists($newKey, $childData)) {
-                        if ($childData[$newKey]['custom_status'] !=  $childData[$key]['custom_status']) {
+                    if (isset($childData[$newKey])) {
+                        if ($childData[$newKey]['custom_status'] != $childData[$key]['custom_status']) {
                             $childData[$newKey] = null;
                         }
                     } else {
-                        $childData[$newKey] =  $childData[$key];
+                        $childData[$newKey] = $childData[$key];
                     }
                 }
             }
         }
 
-        $childData['changeConfigurableStatus'] = $this->isChangeStatus();
-        $childData['type'] = $subject->getNameInLayout();
-        $childData['info_block'] = $this->helper->getInfoBlock();
-        $html  .=
-            '<script>
-                require(["jquery", "Amasty_Stockstatus/js/amstockstatus"],
-                function ($, amstockstatusRenderer) {
-                    amstockstatusRenderer.init(' . $this->jsonEncoder->encode($childData) . ');
-                });
-            </script>';
+        $html .= $subject->getLayout()->createBlock(Template::class)
+            ->setData('options_data', $this->jsonSerializer->serialize($childData))
+            ->setTemplate('Amasty_Stockstatus::init_renderer.phtml')
+            ->toHtml();
 
         return $html;
     }
 
     /**
-     * @param \Magento\ConfigurableProduct\Model\Product\Type\Configurable\Attribute[] $attributes
-     * @param \Magento\Catalog\Model\Product $product
+     * @param mixed $optionsData
+     * @param Product $product
+     * @param array|string $key
      *
+     * @return mixed
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    protected function addChildStockData($optionsData, Product $product, $key)
+    {
+        $stockStatus = $this->inventoryResource->getStockStatus(
+            $product->getData('sku'),
+            $this->storeManager->getWebsite()->getCode()
+        );
+        $optionsData[$key]['is_in_stock'] = (int) $stockStatus;
+
+        if (!$stockStatus) {
+            $product->setData('is_salable', 0);
+            $optionsData[$key]['stockalert'] = $this->helper->getStockAlert($product);
+        }
+
+        if (!$optionsData[$key]['is_in_stock'] && !$optionsData[$key]['custom_status']) {
+            $optionsData[$key]['custom_status'] = __('Out of Stock');
+        }
+
+        return $optionsData;
+    }
+
+    /**
+     * @param Attribute[] $attributes
+     * @param Product $product
      * @return array|string
      */
-    protected function getKey($attributes, \Magento\Catalog\Model\Product $product)
+    protected function getKey($attributes, Product $product)
     {
         $key = [];
         foreach ($attributes as $attribute) {
@@ -229,74 +278,53 @@ class Configurable
             );
         }
 
-        $key =  implode(',', $key);
+        $key = implode(',', $key);
 
         return $key;
     }
 
-    /**
-     * @param \Magento\CatalogInventory\Api\Data\StockStatusInterface $stockStatus
-     * @return bool
-     */
-    public function verifyStock($stockStatus)
+    public function afterGetJsonConfig(NativeConfigurable $subject, string $result): string
     {
-        $result = true;
+        $result = $this->jsonSerializer->unserialize($result);
 
-        $stockItem = $stockStatus->getStockItem();
-        if ($stockStatus->getQty() === null && $stockItem->getManageStock()) {
-            $result = false;
-        }
-
-        if ($stockItem->getBackorders() == StockItemInterface::BACKORDERS_NO
-            && $stockStatus->getQty() <= $stockStatus->getMinQty()
+        if ($this->isProductPage()
+            && $this->configProvider->getOutofstockVisibility() === Outofstock::SHOW_AND_CROSSED
         ) {
-            $result = false;
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param NativeConfigurable$subject
-     * @param string $result
-     *
-     * @return string
-     */
-    public function afterGetJsonConfig($subject, $result)
-    {
-        $result = $this->jsonDecoder->decode($result);
-
-        if ($this->helper->getOutofstockVisibility() === Outofstock::SHOW_AND_CROSSED) {
             $result['original_products'] = $this->configurableHelper->getOptions(
                 $subject->getProduct(),
                 $this->originalAllowedProducts
             );
         }
 
-        return $this->jsonEncoder->encode($result);
+        return $this->jsonSerializer->serialize($result);
     }
 
-    /**
-     * @return bool
-     */
-    protected function isProductPage()
+    protected function isProductPage(): bool
     {
         return $this->isProductPage;
     }
 
-    /**
-     * @return int
-     */
-    protected function isChangeStatus()
+    protected function shouldLoadStock(): bool
     {
-        return (int)$this->helper->getModuleConfig("configurable_products/change_custom_configurable_status");
+        return $this->configProvider->getOutofstockVisibility() !== Outofstock::MAGENTO_LOGIC;
     }
 
     /**
-     * @return bool
+     * @param Product $product
+     * @return Product[]
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    protected function shouldLoadStock()
+    private function getConfigurableChilds(Product $product): array
     {
-        return $this->helper->getOutofstockVisibility() !== Outofstock::MAGENTO_LOGIC;
+        $products = $product->getTypeInstance()->getUsedProducts($product);
+        if ($this->shouldLoadStock()) {
+            $productSkus = array_map(function ($product) {
+                return $product->getData('sku');
+            }, $products);
+            $this->inventoryResource->loadStockStatus($productSkus, $this->storeManager->getWebsite()->getCode());
+        }
+
+        return $products;
     }
 }

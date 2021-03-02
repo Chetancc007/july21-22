@@ -1,0 +1,16 @@
+type Query {
+    getAmCustomStockStatus (
+        id: Int @doc(description: "Product ID")
+    ): StockStatus @resolver(class: "Amasty\\StockstatusGraphQl\\Model\\Resolver\\StockStatus")
+
+    getAmInfoLink: InfoLink @resolver(class: "Amasty\\StockstatusGraphQl\\Model\\Resolver\\InfoLink")
+}
+
+type StockStatus {
+    message: String @doc(description: "Stock Status message."),
+    status_icon: String @doc(description: "Stock Status icon.")
+}
+
+type InfoLink {
+    link: String @doc(description: "Info Link HTML.")
+}

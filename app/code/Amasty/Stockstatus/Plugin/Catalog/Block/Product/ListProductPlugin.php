@@ -1,51 +1,68 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Stockstatus
  */
 
 
+declare(strict_types=1);
+
 namespace Amasty\Stockstatus\Plugin\Catalog\Block\Product;
+
+use Amasty\Stockstatus\Model\ConfigProvider;
+use Amasty\Stockstatus\Model\Stockstatus\Processor;
+use Amasty\Stockstatus\Model\Stockstatus\Renderer\Info as InfoRenderer;
+use Amasty\Stockstatus\Model\Stockstatus\Renderer\Status as StatusRenderer;
+use Magento\Catalog\Block\Product\ListProduct;
+use Magento\Catalog\Model\Product;
 
 class ListProductPlugin
 {
     /**
-     * @var bool
+     * @var Processor
      */
-    private $isEnabled = null;
+    private $processor;
 
     /**
-     * @var \Amasty\Stockstatus\Helper\Data
+     * @var StatusRenderer
      */
-    private $helper;
+    private $statusRenderer;
+
+    /**
+     * @var ConfigProvider
+     */
+    private $configProvider;
+
+    /**
+     * @var InfoRenderer
+     */
+    private $infoRenderer;
 
     public function __construct(
-        \Amasty\Stockstatus\Helper\Data $helper
+        ConfigProvider $configProvider,
+        Processor $processor,
+        StatusRenderer $statusRenderer,
+        InfoRenderer $infoRenderer
     ) {
-        $this->helper = $helper;
+        $this->processor = $processor;
+        $this->statusRenderer = $statusRenderer;
+        $this->configProvider = $configProvider;
+        $this->infoRenderer = $infoRenderer;
     }
 
-    /**
-     * @param $subject
-     * @param \Closure $proceed
-     * @param \Magento\Catalog\Model\Product $product
-     *
-     * @return mixed|string
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    public function aroundGetProductDetailsHtml(
-        $subject,
-        \Closure $proceed,
-        \Magento\Catalog\Model\Product $product
-    ) {
-        $html = $proceed($product);
+    public function afterGetProductPrice(
+        ListProduct $subject,
+        string $html,
+        Product $product
+    ): string {
         if ($this->isEnabledOnCategory()) {
-            $status = $this->helper->showStockStatus($product, true, true);
+            $this->processor->execute([$product]);
+            $status = $this->statusRenderer->render($product, true, true);
             if ($status != '') {
                 $status = sprintf(
                     '<div class="amstockstatus-category">%s</div>',
-                    $status . $this->helper->getInfoBlock()
+                    $status . $this->infoRenderer->render()
                 );
             }
 
@@ -55,16 +72,8 @@ class ListProductPlugin
         return $html;
     }
 
-    /**
-     * @param $subject
-     * @param string $result
-     *
-     * @return string
-     */
-    public function afterToHtml(
-        $subject,
-        $result
-    ) {
+    public function afterToHtml(ListProduct $subject, string $result): string
+    {
         if ($this->isEnabledOnCategory()) {
             $result .= '
                 <script type="text/javascript">
@@ -73,7 +82,7 @@ class ListProductPlugin
                     ], function($) {
                         $(".amstockstatus").each(function(i, item) {
                             var parent = $(item).parents(".item").first();
-                            parent.find(".actions .stock").remove();
+                            parent.find(".actions .stock").show();
                         })
                     });
                 </script>
@@ -83,15 +92,8 @@ class ListProductPlugin
         return $result;
     }
 
-    /**
-     * @return bool
-     */
-    protected function isEnabledOnCategory()
+    protected function isEnabledOnCategory(): bool
     {
-        if ($this->isEnabled === null) {
-            $this->isEnabled = (bool)$this->helper->getModuleConfig('display/display_on_category');
-        }
-
-        return $this->isEnabled;
+        return $this->configProvider->isDisplayedOnCategory();
     }
 }
