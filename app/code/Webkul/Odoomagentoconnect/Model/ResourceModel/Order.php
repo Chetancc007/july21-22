@@ -152,7 +152,22 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $incrementId = $thisOrder->getIncrementId();
         $client = $helper->getClientConnect();
         $context = $helper->getOdooContext();
-        $warehouseId = $this->_session->getErpWarehouse();
+        //custom code added here
+        // $warehouseId = $this->_session->getErpWarehouse();
+        if ($thisOrder->getShippingMethod()) {
+            if ($thisOrder->getShippingMethod() == "amstorepick_amstorepick1") {
+                $warehouseId = 3;
+            }elseif ($thisOrder->getShippingMethod() == "amstorepick_amstorepick2") {
+                $warehouseId = 1;
+            }
+        }else{
+            $warehouseId = $this->_session->getErpWarehouse();
+        }
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/test.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info(print_r($thisOrder->getShippingMethod(),true));
+        $logger->info(print_r($warehouseId,true));
         $orderArray =  [
                     'partner_id'=>new xmlrpcval($partnerId, "int"),
                     'partner_invoice_id'=>new xmlrpcval($partnerInvoiceId, "int"),
