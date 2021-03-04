@@ -81,7 +81,14 @@ class DefaultOrder
             $status = $this->statusRenderer->render($product, false, true);
 
             if ($status) {
-                $status = '<p>' . $status . '</p>';
+                // Custom code added here by Nits
+                // $status = '<p>' . $status . '</p>';
+                // $result = str_replace($find, $status . $find, $result);
+                if(trim(strip_tags($status)) == "Backorder"){
+                    $status = '<p>' . strip_tags($status).'- '."Delivery Lead Time 7-14 days" . '</p>';
+                }else{
+                    $status = '<p>' . $status . '</p>';
+                }
                 $result = str_replace($find, $status . $find, $result);
             }
 

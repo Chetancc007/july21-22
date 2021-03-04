@@ -152,7 +152,7 @@ class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $incrementId = $thisOrder->getIncrementId();
         $client = $helper->getClientConnect();
         $context = $helper->getOdooContext();
-        //custom code added here
+        // Custom code added here by Nits
         // $warehouseId = $this->_session->getErpWarehouse();
         if ($thisOrder->getShippingMethod()) {
             if ($thisOrder->getShippingMethod() == "amstorepick_amstorepick1") {
