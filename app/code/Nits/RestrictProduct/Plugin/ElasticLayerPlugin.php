@@ -1,7 +1,7 @@
 <?php
 namespace Nits\RestrictProduct\Plugin;
 
-use Magento\Elasticsearch6\Model\Client\Elasticsearch;
+use Amasty\ElasticSearch\Model\Client\Elasticsearch;
 
 class ElasticLayerPlugin
 {
@@ -27,9 +27,12 @@ class ElasticLayerPlugin
         $this->productCollectionFactory = $productCollectionFactory;
     }
 
-    public function beforeQuery($subject,$query) {
+    public function beforeSearch($subject,$query) {
 
-
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/testsearchplugin.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info('enter as via piugin');
         $filteredIds = $this->productCollectionFactory->create()
             ->addAttributeToSelect('*')
             ->addAttributeToFilter('status', ['eq' => 1])
