@@ -78,7 +78,7 @@ class GetQty
             );
         }
 
-        return $qty;
+        return $qty ? $qty : 0;
     }
 
     /**
