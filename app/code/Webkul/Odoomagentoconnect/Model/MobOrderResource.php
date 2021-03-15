@@ -89,9 +89,9 @@ class MobOrderResource implements MobOrderResourceInterface
 
             // send invoice emails
             try {
-                if (isset($itemData['send_email'])) {
+                // if (isset($itemData['send_email'])) {
                     $this->invoiceSender->send($invoice);
-                }
+                // }
             } catch (\Exception $e) {
                 $helper = $this->_objectManager->create('\Webkul\Odoomagentoconnect\Helper\Connection');
                 $helper->addError("$incrementId >> Invoice email is not sent.");
