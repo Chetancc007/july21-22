@@ -43,6 +43,8 @@
                     </div>
                     <?php
                         $content = $_post->getContent();
+                        $content = preg_replace("/<img[^>]+\>/i", "", $content);
+                        $content = preg_replace("#<iframe[^>]+>.*?</iframe>#is", "", $content);
                         $pageBraker = '<!-- pagebreak -->';
                         
                         $isMb = function_exists('mb_strpos');
