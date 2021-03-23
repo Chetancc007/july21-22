@@ -67,23 +67,23 @@ class CustomerSaveAfterObserver implements ObserverInterface
                     if ($mappingId) {
                         $response = $this->_customerMapping
                                 ->updateSpecificCustomer($mappingId, $customerId, $odooCustomerId);
-                        if ($showMessages){
-                            if ($response) {
-                                $this->messageManager->addSuccess(__("Odoo Customer Successfully Updated."));
-                            } else {
-                                $this->messageManager->addError(__("Unable to update customer at Odoo."));
-                            }
-                        }
+                        // if ($showMessages){
+                        //     if ($response) {
+                        //         $this->messageManager->addSuccess(__("Odoo Customer Successfully Updated."));
+                        //     } else {
+                        //         $this->messageManager->addError(__("Unable to update customer at Odoo."));
+                        //     }
+                        // }
                     } else {
                         $response = $this->_customerMapping
                                 ->exportSpecificCustomer($customerId);
-                        if ($showMessages){
-                            if ($response['odoo_id']) {
-                                $this->messageManager->addSuccess(__("Odoo Customer Successfully created."));
-                            } else {
-                                $this->messageManager->addError(__("Unable to create customer at Odoo."));
-                            }
-                        }
+                        // if ($showMessages){
+                        //     if ($response['odoo_id']) {
+                        //         $this->messageManager->addSuccess(__("Odoo Customer Successfully created."));
+                        //     } else {
+                        //         $this->messageManager->addError(__("Unable to create customer at Odoo."));
+                        //     }
+                        // }
                     }
                 }
             }
