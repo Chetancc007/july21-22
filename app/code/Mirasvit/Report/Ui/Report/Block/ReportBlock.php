@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report
- * @version   1.3.96
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.3.108
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -28,12 +28,6 @@ class ReportBlock extends Template
      */
     protected $_template = 'Mirasvit_Report::ui.phtml';
 
-    /**
-     * ReportBlock constructor.
-     *
-     * @param Template\Context $context
-     * @param array            $data
-     */
     public function __construct(
         Template\Context $context,
         array $data = []

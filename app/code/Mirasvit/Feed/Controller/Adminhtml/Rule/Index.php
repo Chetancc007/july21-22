@@ -9,21 +9,19 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
+
 
 
 namespace Mirasvit\Feed\Controller\Adminhtml\Rule;
 
 use Magento\Framework\Controller\ResultFactory;
-use Mirasvit\Feed\Controller\Adminhtml\Rule;
+use Mirasvit\Feed\Controller\Adminhtml\AbstractRule;
 
-class Index extends Rule
+class Index extends AbstractRule
 {
-    /**
-     * {@inheritdoc}
-     */
     public function execute()
     {
         $resultPage = $this->resultFactory->create(ResultFactory::TYPE_PAGE);

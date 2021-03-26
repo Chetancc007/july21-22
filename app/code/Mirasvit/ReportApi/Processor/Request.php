@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report-api
- * @version   1.0.39
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.0.43
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -32,22 +32,10 @@ class Request extends AbstractSimpleObject implements RequestInterface
     const CURRENT_PAGE = 'current_page';
     const QUERY        = 'query';
 
-    /**
-     * @var ServiceOutputProcessor
-     */
     private $serviceOutputProcessor;
 
-    /**
-     * @var RequestProcessor
-     */
     private $requestProcessor;
 
-    /**
-     * Request constructor.
-     * @param RequestProcessor $requestProcessor
-     * @param ServiceOutputProcessor $serviceOutputProcessor
-     * @param array $data
-     */
     public function __construct(
         RequestProcessor $requestProcessor,
         ServiceOutputProcessor $serviceOutputProcessor,
@@ -65,6 +53,7 @@ class Request extends AbstractSimpleObject implements RequestInterface
 
     /**
      * @param string $table
+     *
      * @return RequestInterface|Request
      */
     public function setTable($table)
@@ -74,6 +63,7 @@ class Request extends AbstractSimpleObject implements RequestInterface
 
     /**
      * @param array $columns
+     *
      * @return RequestInterface|Request
      */
     public function setColumns(array $columns)
@@ -83,19 +73,6 @@ class Request extends AbstractSimpleObject implements RequestInterface
         }
 
         return $this->setData(self::COLUMNS, $columns);
-    }
-
-    /**
-     * @param mixed $column
-     * @return string
-     */
-    private function checkColumn($column)
-    {
-        if (count(explode('|', $column)) == 1 && $this->getTable() && $column != 'pk') {
-            $column = $this->getTable() . '|' . $column;
-        }
-
-        return $column;
     }
 
     /**
@@ -116,6 +93,7 @@ class Request extends AbstractSimpleObject implements RequestInterface
 
     /**
      * @param string $column
+     *
      * @return RequestInterface|Request
      */
     public function addColumn($column)
@@ -124,20 +102,8 @@ class Request extends AbstractSimpleObject implements RequestInterface
     }
 
     /**
-     * @param string $key
-     * @param array $data
-     * @return Request
-     */
-    private function addData($key, $data)
-    {
-        return $this->setData($key, array_unique(array_merge_recursive(
-            $this->_get($key),
-            $data
-        )));
-    }
-
-    /**
      * @param array $filters
+     *
      * @return RequestInterface|Request
      */
     public function setFilters(array $filters)
@@ -158,10 +124,11 @@ class Request extends AbstractSimpleObject implements RequestInterface
     }
 
     /**
-     * @param string $column
+     * @param string       $column
      * @param array|string $value
-     * @param string $condition
-     * @param string $group
+     * @param string       $condition
+     * @param string       $group
+     *
      * @return RequestInterface|Request
      */
     public function addFilter($column, $value, $condition = 'eq', $group = '')
@@ -176,6 +143,7 @@ class Request extends AbstractSimpleObject implements RequestInterface
 
     /**
      * @param array $columns
+     *
      * @return RequestInterface|Request
      */
     public function setDimensions($columns)
@@ -201,6 +169,7 @@ class Request extends AbstractSimpleObject implements RequestInterface
 
     /**
      * @param array $sortOrders
+     *
      * @return RequestInterface|Request
      */
     public function setSortOrders(array $sortOrders)
@@ -219,6 +188,7 @@ class Request extends AbstractSimpleObject implements RequestInterface
     /**
      * @param string $column
      * @param string $direction
+     *
      * @return RequestInterface|Request
      */
     public function addSortOrder($column, $direction)
@@ -231,6 +201,7 @@ class Request extends AbstractSimpleObject implements RequestInterface
 
     /**
      * @param int $size
+     *
      * @return RequestInterface|Request
      */
     public function setPageSize($size)
@@ -248,6 +219,7 @@ class Request extends AbstractSimpleObject implements RequestInterface
 
     /**
      * @param int $page
+     *
      * @return RequestInterface|Request
      */
     public function setCurrentPage($page)
@@ -265,6 +237,7 @@ class Request extends AbstractSimpleObject implements RequestInterface
 
     /**
      * @param string $query
+     *
      * @return RequestInterface|Request
      */
     public function setQuery($query)
@@ -302,5 +275,33 @@ class Request extends AbstractSimpleObject implements RequestInterface
     public function process()
     {
         return $this->requestProcessor->process($this);
+    }
+
+    /**
+     * @param mixed $column
+     *
+     * @return string
+     */
+    private function checkColumn($column)
+    {
+        if (count(explode('|', $column)) == 1 && $this->getTable() && $column != 'pk') {
+            $column = $this->getTable() . '|' . $column;
+        }
+
+        return $column;
+    }
+
+    /**
+     * @param string $key
+     * @param array  $data
+     *
+     * @return Request
+     */
+    private function addData($key, $data)
+    {
+        return $this->setData($key, array_unique(array_merge_recursive(
+            $this->_get($key),
+            $data
+        )));
     }
 }

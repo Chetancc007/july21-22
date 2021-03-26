@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-core
- * @version   1.2.112
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.2.120
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -25,9 +25,25 @@ class CompatibilityService
     /**
      * @return bool
      */
+    public static function isMarketplace()
+    {
+        $flag = true;
+
+        /** mp comment start */
+
+        $flag = false;
+
+        /** mp comment end */
+
+        return $flag;
+    }
+
+    /**
+     * @return bool
+     */
     public static function is20()
     {
-        list($a, $b,) = explode('.', self::getVersion());
+        list($a, $b) = explode('.', self::getVersion());
 
         return $a == 2 && $b == 0;
     }
@@ -65,7 +81,7 @@ class CompatibilityService
      */
     public static function is21()
     {
-        list($a, $b,) = explode('.', self::getVersion());
+        list($a, $b) = explode('.', self::getVersion());
 
         return $a == 2 && $b == 1;
     }
@@ -75,7 +91,7 @@ class CompatibilityService
      */
     public static function is22()
     {
-        list($a, $b,) = explode('.', self::getVersion());
+        list($a, $b) = explode('.', self::getVersion());
 
         return $a == 2 && $b == 2;
     }
@@ -85,7 +101,7 @@ class CompatibilityService
      */
     public static function is23()
     {
-        list($a, $b,) = explode('.', self::getVersion());
+        list($a, $b) = explode('.', self::getVersion());
 
         return $a == 2 && $b == 3;
     }
@@ -95,7 +111,7 @@ class CompatibilityService
      */
     public static function is24()
     {
-        list($a, $b,) = explode('.', self::getVersion());
+        list($a, $b) = explode('.', self::getVersion());
 
         return $a == 2 && $b == 4;
     }

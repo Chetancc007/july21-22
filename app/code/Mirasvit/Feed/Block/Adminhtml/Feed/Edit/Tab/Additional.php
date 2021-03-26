@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -94,8 +94,26 @@ class Additional extends Form
             'required' => false,
             'values'   => [0 => __('No'), 1 => __('Yes')],
             'value'    => $model->getReportEnabled(),
-            'note'     => __('If enabled, extension append two special arguments
-                (ff=, fp=) to product url for track clicks and orders'),
+            'note'     => __('If enabled, the extension appends two special arguments (ff=, fp=) to product url for track clicks and orders'),
+        ]);
+
+        $report->addField('fb_metadata_enabled', 'select', [
+            'name'     => 'fb_metadata_enabled',
+            'label'    => __('Enable Facebook Metadata'),
+            'required' => false,
+            'values'   => [0 => __('No'), 1 => __('Yes')],
+            'value'    => $model->getFbMetadataEnabled(),
+            'note'     => __('If enabled, the extension appends some metadata to Google and Facebook Shopping feeds'),
+        ]);
+
+        $report->addField('filter_fastmode_enabled', 'select', [
+            'name'     => 'filter_fastmode_enabled',
+            'label'    => __('Enable Fast Mode Filtering'),
+            'required' => false,
+            'values'   => [0 => __('No'), 1 => __('Yes')],
+            'value'    => $model->getFilterFastmodeEnabled(),
+            'note'     => __('If enabled, the speed of the feed filtration process can be significantly increased. 
+                May not work with some conditions combinations.'),
         ]);
 
         return parent::_prepareForm();

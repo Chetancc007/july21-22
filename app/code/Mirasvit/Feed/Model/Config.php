@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -189,10 +189,9 @@ class Config
      * Check and return maximum allowed script execution time
      * @return int
      */
-    public function getMaxAllowedTime()
+    public function getMaxAllowedTime(): int
     {
-
-        $time = intval(ini_get('max_execution_time'));
+        $time = (int)ini_get('max_execution_time');
 
         if ($time < 1 || $time > 30) {
             $time = 20;
@@ -205,17 +204,12 @@ class Config
      * Check and return maximum allowed memory
      * @return int
      */
-    public function getMaxAllowedMemory()
+    public function getMaxAllowedMemory(): int
     {
         return 220 * 1024 * 1024;
     }
 
-    /**
-     * @param string $path
-     *
-     * @return string
-     */
-    public function printPath($path)
+    public function printPath(string $path): string
     {
         $rootPath = $this->getRootPath();
 
@@ -250,5 +244,17 @@ class Config
         }
 
         return $this->getBasePath() . '/' . $path;
+    }
+
+    /**
+     * Facebook app ID
+     *
+     * @return string
+     */
+    public function getFacebookAppID()
+    {
+        $facebookAppId = 359775291691249;
+
+        return $facebookAppId;
     }
 }

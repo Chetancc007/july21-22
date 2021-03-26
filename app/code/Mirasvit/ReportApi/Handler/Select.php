@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report-api
- * @version   1.0.39
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.0.43
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -47,38 +47,16 @@ class Select extends \Magento\Framework\DB\Select implements SelectInterface
      */
     private $usedRelationsPool = [];
 
-    /**
-     * @var ResourceConnection
-     */
     private $resource;
 
-    /**
-     * @var \Magento\Framework\DB\Adapter\AdapterInterface
-     */
     private $connection;
 
-    /**
-     * @var TableInterface
-     */
     private $baseTable;
 
-    /**
-     * @var Schema
-     */
     private $schema;
 
-    /**
-     * @var SelectService
-     */
     private $selectService;
 
-    /**
-     * Select constructor.
-     * @param ResourceConnection $resource
-     * @param Schema $schema
-     * @param SelectService $selectService
-     * @param SelectRenderer $selectRenderer
-     */
     public function __construct(
         ResourceConnection $resource,
         Schema $schema,
@@ -117,7 +95,8 @@ class Select extends \Magento\Framework\DB\Select implements SelectInterface
 
     /**
      * @param FieldInterface $field
-     * @param null $alias
+     * @param null           $alias
+     *
      * @return $this
      */
     public function addFieldToSelect(FieldInterface $field, $alias = null)
@@ -160,6 +139,7 @@ class Select extends \Magento\Framework\DB\Select implements SelectInterface
 
     /**
      * @param FieldInterface $field
+     *
      * @return $this
      */
     public function addFieldToGroup(FieldInterface $field)
@@ -192,6 +172,7 @@ class Select extends \Magento\Framework\DB\Select implements SelectInterface
     }
 
     /**
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @param ColumnInterface      $column
      * @param integer|string|array $condition
      *
@@ -207,6 +188,34 @@ class Select extends \Magento\Framework\DB\Select implements SelectInterface
 
         foreach ($column->getFields() as $field) {
             $field->join($this);
+        }
+
+        $identifier = $column->getIdentifier();
+
+        // for filters by attributes of type 'multiselect'
+        if (strpos($identifier, 'catalog_product_entity') !== false) {
+            $attrCode = explode('|', $identifier);
+            $attrCode = $attrCode[count($attrCode) - 1];
+
+            $s = $this->getConnection()->select()->from(
+                $this->resource->getTableName('eav_attribute')
+            )->where(
+                'attribute_code = "' . $attrCode . '"'
+            )->where(
+                'backend_type = "varchar" AND frontend_input = "multiselect"'
+            );
+
+            $res = $this->getConnection()->query($s)->fetchAll();
+
+            if (count($res)) {
+                $newCond = [];
+
+               foreach ($condition['in'] as $value) {
+                   $newCond[] = ['finset' => $value];
+               }
+
+               $condition = $newCond;
+            }
         }
 
         $conditionSql = $this->connection->prepareSqlCondition($column->toDbExpr(), $condition);
@@ -251,6 +260,7 @@ class Select extends \Magento\Framework\DB\Select implements SelectInterface
 
     /**
      * @param ColumnInterface $column
+     *
      * @return bool
      * @throws \Exception
      */
@@ -291,7 +301,7 @@ class Select extends \Magento\Framework\DB\Select implements SelectInterface
 
         $relations = $this->selectService->joinWay($this->baseTable, $table);
 
-        $isJoined  = $relations ? true : false;
+        $isJoined = $relations ? true : false;
 
         /** @var RelationInterface $relation */
         foreach ($relations as $relation) {
@@ -305,14 +315,13 @@ class Select extends \Magento\Framework\DB\Select implements SelectInterface
         }
 
 
-
         return $isJoined;
     }
 
     /**
      * Join $tbl to current select based on relation condition.
      *
-     * @param TableInterface $table
+     * @param TableInterface    $table
      * @param RelationInterface $relation
      *
      * @return Select
@@ -390,6 +399,7 @@ class Select extends \Magento\Framework\DB\Select implements SelectInterface
 
     /**
      * @param TableInterface $table
+     *
      * @return bool
      */
     public function isJoined(TableInterface $table)

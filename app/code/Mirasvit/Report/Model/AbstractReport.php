@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report
- * @version   1.3.96
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.3.108
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -25,11 +25,6 @@ use Mirasvit\ReportApi\Processor\ResponseItem;
 abstract class AbstractReport extends AbstractSimpleObject implements ReportInterface
 {
     /**
-     * @var int
-     */
-    private $version = 2;
-
-    /**
      * @var Context
      */
     protected $context;
@@ -38,6 +33,11 @@ abstract class AbstractReport extends AbstractSimpleObject implements ReportInte
      * @var \Mirasvit\ReportApi\Api\SchemaInterface
      */
     protected $provider;
+
+    /**
+     * @var int
+     */
+    private $version = 2;
 
     /**
      * @param Context $context
@@ -172,6 +172,22 @@ abstract class AbstractReport extends AbstractSimpleObject implements ReportInte
     public function setPrimaryDimensions(array $columns)
     {
         return $this->setData(self::PRIMARY_DIMENSIONS, array_values($columns));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getFilters()
+    {
+        return $this->_get(self::FILTERS);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setFilters(array $filters)
+    {
+        return $this->setData(self::FILTERS, array_values($filters));
     }
 
     /**
@@ -333,6 +349,7 @@ abstract class AbstractReport extends AbstractSimpleObject implements ReportInte
     /**
      * @param ResponseItem     $item
      * @param RequestInterface $request
+     *
      * @return array
      */
     public function getActions(ResponseItem $item, RequestInterface $request)
@@ -343,6 +360,7 @@ abstract class AbstractReport extends AbstractSimpleObject implements ReportInte
     /**
      * @param string $report
      * @param array  $filters
+     *
      * @return string
      */
     public function getReportUrl($report, $filters = [])
@@ -359,9 +377,10 @@ abstract class AbstractReport extends AbstractSimpleObject implements ReportInte
     }
 
     /**
-     * @deprecated
      * @param array $columns
+     *
      * @return $this
+     * @deprecated
      */
     public function addFastFilters($columns)
     {
@@ -374,9 +393,10 @@ abstract class AbstractReport extends AbstractSimpleObject implements ReportInte
     }
 
     /**
-     * @deprecated
      * @param mixed $columns
+     *
      * @return $this
+     * @deprecated
      */
     public function addColumns($columns)
     {
@@ -386,9 +406,10 @@ abstract class AbstractReport extends AbstractSimpleObject implements ReportInte
     }
 
     /**
-     * @deprecated
      * @param array $columns
+     *
      * @return $this
+     * @deprecated
      */
     public function addDimensions($columns)
     {
@@ -402,9 +423,10 @@ abstract class AbstractReport extends AbstractSimpleObject implements ReportInte
 
 
     /**
-     * @deprecated
      * @param array $columns
+     *
      * @return $this
+     * @deprecated
      */
     public function setDefaultColumns($columns)
     {
@@ -414,9 +436,10 @@ abstract class AbstractReport extends AbstractSimpleObject implements ReportInte
     }
 
     /**
-     * @deprecated
      * @param string $column
+     *
      * @return $this
+     * @deprecated
      */
     public function setDefaultDimension($column)
     {
@@ -426,9 +449,10 @@ abstract class AbstractReport extends AbstractSimpleObject implements ReportInte
     }
 
     /**
-     * @deprecated
      * @param array $filters
+     *
      * @return $this
+     * @deprecated
      */
     public function setDefaultFilters($filters)
     {
@@ -436,9 +460,10 @@ abstract class AbstractReport extends AbstractSimpleObject implements ReportInte
     }
 
     /**
-     * @deprecated
      * @param array $columns
+     *
      * @return $this
+     * @deprecated
      */
     public function setRequiredColumns($columns)
     {
@@ -446,9 +471,10 @@ abstract class AbstractReport extends AbstractSimpleObject implements ReportInte
     }
 
     /**
-     * @deprecated
      * @param array $columns
+     *
      * @return $this
+     * @deprecated
      */
     public function addDefaultColumns($columns)
     {
@@ -458,9 +484,10 @@ abstract class AbstractReport extends AbstractSimpleObject implements ReportInte
     }
 
     /**
-     * @deprecated
      * @param array $columns
+     *
      * @return $this
+     * @deprecated
      */
     public function addAvailableFilters($columns)
     {
@@ -468,8 +495,8 @@ abstract class AbstractReport extends AbstractSimpleObject implements ReportInte
     }
 
     /**
-     * @deprecated
      * @return array
+     * @deprecated
      */
     public function getAllColumns()
     {

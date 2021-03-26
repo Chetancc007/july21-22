@@ -1,1 +1,1 @@
-mirasvit-module-report-api-1.0.39-01da01-18736-MTg3MzY=
+mirasvit-module-report-api-1.0.43-d5bb16-18736-MTg3MzY=

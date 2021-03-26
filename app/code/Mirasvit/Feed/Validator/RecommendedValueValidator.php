@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -81,7 +81,7 @@ class RecommendedValueValidator implements ValidatorInterface
     public function getHint($attribute = '')
     {
         return __("This attribute value is recommended. "
-            . "While you can leave it empty, it is still recommended to fill in the value for this attribute. "
+            . "While you can leave it empty, it is still recommended that you fill in the value for this attribute. "
             . "To fix this error, open invalid products and fill in a value for this attribute "
             . "or change an attribute/pattern used for this field in the product feed itself."
         );

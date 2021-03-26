@@ -9,47 +9,50 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
 
 namespace Mirasvit\Feed\Controller\Adminhtml\Rule;
 
-use Magento\Framework\Controller\ResultFactory;
+use Magento\Rule\Model\Condition\AbstractCondition;
+use Mirasvit\Feed\Controller\Adminhtml\AbstractRule;
 
-/**
- * @SuppressWarnings(PHPMD)
- * @codingStandardsIgnoreFile
- */
-class NewConditionHtml extends \Mirasvit\Feed\Controller\Adminhtml\Rule
+class NewConditionHtml extends AbstractRule
 {
     /**
-     * {@inheritdoc}
+     * @return void
      */
     public function execute()
     {
         $id = $this->getRequest()->getParam('id');
-        $typeArr = explode('|', str_replace('-', '/', $this->getRequest()->getParam('type')));
-        $type = $typeArr[0];
 
-        $model = $this->context->getObjectManager()->create($type)
-            ->setId($id)
-            ->setType($type)
-            ->setRule($this->ruleFactory->create())
-            ->setPrefix('conditions');
+        $typeArr   = explode('|', str_replace('-', '/', $this->getRequest()->getParam('type')));
+        $class     = $typeArr[0];
+        $attribute = false;
 
-        if (!empty($typeArr[1])) {
-            $model->setAttribute($typeArr[1]);
+        if (count($typeArr) == 2) {
+            $attribute = $typeArr[1];
         }
 
-        if ($model instanceof \Magento\Rule\Model\Condition\AbstractCondition) {
+        $model = $this->context->getObjectManager()->create($class)
+            ->setId($id)
+            ->setType($class)
+            ->setRule($this->ruleRepository->createRuleInstance())
+            ->setPrefix('conditions')
+            ->setFormName(\Mirasvit\Feed\Model\Rule\Rule::FORM_NAME);
+
+        $model->setAttribute($attribute);
+
+        if ($model instanceof AbstractCondition) {
             $model->setJsFormObject($this->getRequest()->getParam('form'));
             $html = $model->asHtmlRecursive();
         } else {
             $html = '';
         }
+
         $this->getResponse()->setBody($html);
     }
 }

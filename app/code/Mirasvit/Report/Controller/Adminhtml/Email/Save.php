@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report
- * @version   1.3.96
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.3.108
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -50,7 +50,7 @@ class Save extends Email
             try {
                 $this->emailRepository->save($model);
 
-                $this->messageManager->addSuccessMessage(__('You saved the email report.'));
+                $this->messageManager->addSuccessMessage(__('You have saved the email report.'));
 
                 if ($this->getRequest()->getParam('back') == 'send') {
                     $this->emailService->send($model);

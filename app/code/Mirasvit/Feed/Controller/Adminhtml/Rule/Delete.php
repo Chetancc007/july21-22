@@ -9,16 +9,18 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
+
 
 
 namespace Mirasvit\Feed\Controller\Adminhtml\Rule;
 
-use Mirasvit\Feed\Controller\Adminhtml\Rule;
+use Mirasvit\Feed\Api\Data\RuleInterface;
+use Mirasvit\Feed\Controller\Adminhtml\AbstractRule;
 
-class Delete extends Rule
+class Delete extends AbstractRule
 {
     /**
      * {@inheritdoc}
@@ -29,12 +31,16 @@ class Delete extends Rule
 
         try {
             $model = $this->initModel();
-            $model->delete();
 
-            $this->messageManager->addSuccess(__('Item was successfully deleted'));
+            $this->ruleRepository->delete($model);
+
+            $this->messageManager->addSuccessMessage(__('Item was successfully deleted'));
         } catch (\Exception $e) {
-            $this->messageManager->addError($e->getMessage());
-            return $resultRedirect->setPath('*/*/edit', ['id' => $this->getRequest()->getParam('id')]);
+            $this->messageManager->addErrorMessage($e->getMessage());
+
+            return $resultRedirect->setPath('*/*/edit', [
+                RuleInterface::ID => $this->getRequest()->getParam(RuleInterface::ID),
+            ]);
         }
 
         return $resultRedirect->setPath('*/*/');

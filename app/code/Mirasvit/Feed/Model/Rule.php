@@ -9,275 +9,69 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
+declare(strict_types=1);
 
 namespace Mirasvit\Feed\Model;
 
-use Magento\Catalog\Model\ResourceModel\Product\Collection;
-use Magento\Rule\Model\AbstractModel;
-use Mirasvit\Core\Service\YamlService;
+use Magento\Framework\Model\AbstractModel;
+use Mirasvit\Feed\Api\Data\ExportableEntityInterface;
+use Mirasvit\Feed\Api\Data\RuleInterface;
 
-/**
- * @method ResourceModel\Rule getResource()
- * @SuppressWarnings(PHPMD)
- * @codingStandardsIgnoreFile
- * @method string getName()
- * @method bool getIsActive()
- */
-class Rule extends AbstractModel
+class Rule extends AbstractModel implements RuleInterface, ExportableEntityInterface
 {
-    /**
-     * @var array
-     */
-    protected $productIds;
+    public function getId()
+    {
+        return $this->getData(self::ID) ? (int)$this->getData(self::ID) : null;
+    }
 
-    /**
-     * @var \Mirasvit\Feed\Model\Rule\Condition\CombineFactory
-     */
-    protected $ruleConditionCombineFactory;
+    public function getName(): string
+    {
+        return (string)$this->getData(self::NAME);
+    }
 
-    /**
-     * @var \Mirasvit\Feed\Model\Rule\Action\CollectionFactory
-     */
-    protected $ruleActionCollectionFactory;
+    public function setName(string $value): RuleInterface
+    {
+        return $this->setData(self::NAME, $value);
+    }
 
-    /**
-     * @var \Mirasvit\Feed\Model\RuleFactory
-     */
-    protected $ruleFactory;
+    public function isActive(): bool
+    {
+        return (bool)$this->getData(self::IS_ACTIVE);
+    }
 
-    /**
-     * @var \Mirasvit\Feed\Model\Config
-     */
-    protected $config;
+    public function setIsActive(bool $value): RuleInterface
+    {
+        return $this->setData(self::IS_ACTIVE, $value);
+    }
 
-    /**
-     * @var \Magento\Framework\Data\Collection\AbstractDb
-     */
-    protected $resourceCollection;
+    public function getConditionsSerialized(): string
+    {
+        return (string)$this->getData(self::CONDITIONS_SERIALIZED);
+    }
 
-    /**
-     * @since 1.0.56
-     */
-    protected $serializer;
+    public function setConditionsSerialized(string $value): RuleInterface
+    {
+        return $this->setData(self::CONDITIONS_SERIALIZED, $value);
+    }
 
-    /**
-     * Rule constructor.
-     *
-     * @param Rule\Condition\CombineFactory                                $conditionCombineFactory
-     * @param Rule\Action\CollectionFactory                                $ruleActionCollectionFactory
-     * @param RuleFactory                                                  $ruleFactory
-     * @param Config                                                       $config
-     * @param \Magento\Framework\Model\Context                             $context
-     * @param \Magento\Framework\Registry                                  $registry
-     * @param \Magento\Framework\Data\FormFactory                          $formFactory
-     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface         $localeDate
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource|null $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb|null           $resourceCollection
-     */
-    public function __construct(
-        \Mirasvit\Feed\Model\Rule\Condition\CombineFactory $conditionCombineFactory,
-        \Mirasvit\Feed\Model\Rule\Action\CollectionFactory $ruleActionCollectionFactory,
-        \Mirasvit\Feed\Model\RuleFactory $ruleFactory,
-        \Mirasvit\Feed\Model\Config $config,
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\Data\FormFactory $formFactory,
-        \Magento\Framework\Stdlib\DateTime\TimezoneInterface $localeDate,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null
-    ) {
-        $this->ruleConditionCombineFactory = $conditionCombineFactory;
-        $this->ruleActionCollectionFactory = $ruleActionCollectionFactory;
-        $this->ruleFactory                 = $ruleFactory;
-        $this->config                      = $config;
-
-        parent::__construct($context, $registry, $formFactory, $localeDate, $resource, $resourceCollection);
-
-        $this->serializer = \Magento\Framework\App\ObjectManager::getInstance()->get(
-            \Mirasvit\Feed\Service\Serialize::class
-        );
+    public function getRowsToExport(): array
+    {
+        return [
+            self::NAME,
+            self::CONDITIONS_SERIALIZED,
+        ];
     }
 
     protected function _construct()
     {
         parent::_construct();
-        $this->_init('Mirasvit\Feed\Model\ResourceModel\Rule');
-        $this->setIdFieldName('rule_id');
-    }
 
-    /**
-     * Assigned feed ids
-     * @return array
-     */
-    public function getFeedIds()
-    {
-        return is_array($this->getData('feed_ids')) ? $this->getData('feed_ids') : [];
-    }
-
-    /**
-     * {@inheritdoc}
-     * @return Rule\Condition\Combine
-     */
-    public function getConditionsInstance()
-    {
-        return $this->ruleConditionCombineFactory->create();
-    }
-
-    /**
-     * {@inheritdoc}
-     * @return Rule\Action\Collection
-     */
-    public function getActionsInstance()
-    {
-        return $this->ruleActionCollectionFactory->create();
-    }
-
-    /**
-     * @return array
-     */
-    public function getProductIds()
-    {
-        return $this->getResource()->getRuleProductIds($this->getId());
-    }
-
-    /**
-     * @return $this
-     */
-    public function clearProductIds()
-    {
-        $this->getResource()->clearProductIds($this->getId());
-
-        return $this;
-    }
-
-    /**
-     * @param array $productIds
-     *
-     * @return $this
-     */
-    public function saveProductIds($productIds)
-    {
-        $this->getResource()->saveProductIds($this->getId(), $productIds);
-
-        return $this;
-    }
-
-
-    /**
-     * @param string $format
-     *
-     * @return string
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function toString($format = '')
-    {
-        $this->load($this->getId());
-        $string = $this->getConditions()->asStringRecursive();
-
-        $string = nl2br(preg_replace('/ /', '&nbsp;', $string));
-
-        return $string;
-    }
-
-    /**
-     * @return string
-     */
-    public function export()
-    {
-        $path = $this->config->getRulePath() . '/' . $this->getName() . '.yaml';
-
-        $yaml = YamlService::dump($this->toArray([
-            'name',
-            'conditions_serialized',
-            'actions_serialized',
-        ]), 10);
-
-        file_put_contents($path, $yaml);
-
-        return $path;
-    }
-
-    /**
-     * @param mixed $relPath
-     *
-     * @return \Magento\Framework\DataObject
-     * @return \Magento\Framework\DataObject
-     * @todo need create typical interface
-     */
-    public function import($relPath)
-    {
-        $absPath = $this->config->absolutePath($relPath);
-
-        $content = file_get_contents($absPath);
-
-        $data = YamlService::parse($content);
-
-        $model = $this->getCollection()
-            ->addFieldToFilter('name', $data['name'])
-            ->getFirstItem();
-
-        $model->addData($data)
-            ->setIsImport(true)
-            ->setIsActive(1)
-            ->save();
-
-        return $model;
-    }
-
-    /**
-     * @return $this|AbstractModel
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    public function beforeSave()
-    {
-        if ($this->getIsImport()) {
-            return $this;
-        }
-
-        return parent::beforeSave();
-    }
-
-    /**
-     * @return $this
-     */
-    public function duplicate()
-    {
-        $this->ruleFactory->create()
-            ->addData($this->getData())
-            ->setRuleId(null)
-            ->setName($this->getName() . ' (copy)')
-            ->setIsActive(1)
-            ->setCreatedAt(null)
-            ->setUpdatedAt(null)
-            ->setFeedIds(null)
-            ->save();
-
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getRowsToExport()
-    {
-        $array = [
-            'name',
-            'conditions_serialized',
-            'actions_serialized',
-        ];
-
-        return $array;
-    }
-
-    public function applyConditions(Collection $collection)
-    {
-        $this->getConditions()->applyConditions($collection);
-
-        return $collection;
+        $this->_init(ResourceModel\Rule::class);
+        $this->setIdFieldName(RuleInterface::ID);
     }
 }

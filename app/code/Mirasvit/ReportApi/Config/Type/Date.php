@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report-api
- * @version   1.0.39
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.0.43
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -115,9 +115,12 @@ class Date implements TypeInterface
                 break;
 
             case AggregatorInterface::TYPE_WEEK:
-                $value = date('d M, Y', strtotime($actualValue) - 7 * 24 * 60 * 60)
+                $year = substr($actualValue, 0, 4);
+                $week = str_replace($year, '', $actualValue);
+
+                $value = date('d M, Y', strtotime($year . "W" . $week . 1))
                     . ' - '
-                    . date('d M, Y', strtotime($actualValue)) . ' (' . (date('W', strtotime($actualValue)) - 1) . ')';
+                    . date('d M, Y', strtotime($year . "W" . $week . 7)) . ' (' . (int)$week . ')';
                 break;
 
             case AggregatorInterface::TYPE_MONTH:

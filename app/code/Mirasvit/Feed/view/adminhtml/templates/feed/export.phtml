@@ -1,5 +1,7 @@
 <script type="text/x-magento-init">
-    <?php echo \Zend_Json_Encoder::encode($block->getJsConfig()) ?>
+    <?php 
+
+    echo \Mirasvit\Core\Service\SerializeService::encode($block->getJsConfig()) ?>
 </script>
 
 <div data-bind="scope: 'feed_export'">

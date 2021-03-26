@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -120,8 +120,7 @@ class Cron extends Form
             'values' => [0 => __('No'), 1 => __('Yes')],
             'value' => $model->getCron(),
             'note'   => __(
-                'If enabled, extension will generate feed by schedule.
-                 To generate feed by schedule, magento cron must be configured.'
+                'If enabled, the extension will generate a feed by schedule. To generate feed by schedule, magento cron must be configured.'
             )
         ]);
 

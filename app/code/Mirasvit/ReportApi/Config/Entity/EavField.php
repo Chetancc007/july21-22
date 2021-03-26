@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report-api
- * @version   1.0.39
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.0.43
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -94,7 +94,10 @@ class EavField extends Field
             return $select->joinTable($this->table);
         } else {
             $conditions = [];
-            if ($this->productMetadata->getEdition() == 'Enterprise' || $this->productMetadata->getEdition() == 'B2B') {
+            if (
+                ($this->productMetadata->getEdition() == 'Enterprise' || $this->productMetadata->getEdition() == 'B2B')
+                && (strpos($this->eavTableAlias, 'catalog') !== false || strpos($this->eavTableAlias, 'salesrule') !== false)
+            ) {
                 $conditions[] = $this->eavTableAlias . '.row_id = ' . $this->table->getName() . '.row_id';
             } else {
                 $conditions[] = $this->eavTableAlias . '.entity_id = ' . $this->table->getName() . '.entity_id';

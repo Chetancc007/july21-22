@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report
- * @version   1.3.96
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.3.108
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -24,11 +24,11 @@ interface ReportInterface
 {
     const TABLE = 'table';
 
-    const COLUMNS          = 'columns';
-    const DIMENSIONS       = 'dimensions';
-    const INTERNAL_COLUMNS = 'internal_columns';
-    const INTERNAL_FILTERS = 'internal_filters';
-
+    const COLUMNS            = 'columns';
+    const DIMENSIONS         = 'dimensions';
+    const INTERNAL_COLUMNS   = 'internal_columns';
+    const INTERNAL_FILTERS   = 'internal_filters';
+    const FILTERS            = 'filters';
     const PRIMARY_FILTERS    = 'primary_filters';
     const PRIMARY_DIMENSIONS = 'primary_dimensions';
 
@@ -126,6 +126,17 @@ interface ReportInterface
      */
     public function setPrimaryDimensions(array $columns);
 
+    /**
+     * @return array
+     */
+    public function getFilters();
+
+    /**
+     * @param string[] $filters
+     *
+     * @return $this
+     */
+    public function setFilters(array $filters);
 
     /**
      * @return string[]

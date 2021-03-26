@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report-api
- * @version   1.0.39
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.0.43
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -65,10 +65,12 @@ class Collection implements CollectionInterface
      * @var RequestInterface
      */
     private $request;
+
     /**
      * @var ObjectManagerInterface
      */
     private $objectManager;
+
     /**
      * @var SelectFactory
      */
@@ -76,11 +78,12 @@ class Collection implements CollectionInterface
 
     /**
      * Collection constructor.
-     * @param SelectFactory $selectFactory
-     * @param SelectService $selectService
-     * @param ResourceConnection $resource
+     *
+     * @param SelectFactory          $selectFactory
+     * @param SelectService          $selectService
+     * @param ResourceConnection     $resource
      * @param ObjectManagerInterface $objectManager
-     * @param Schema $schema
+     * @param Schema                 $schema
      */
     public function __construct(
         SelectFactory $selectFactory,
@@ -99,6 +102,7 @@ class Collection implements CollectionInterface
 
     /**
      * @param RequestInterface $request
+     *
      * @return $this|CollectionInterface
      * @throws \Zend_Db_Exception
      */
@@ -363,9 +367,9 @@ class Collection implements CollectionInterface
             $column = $this->schema->getColumn($columnName);
 
             if ($this->selectService->getRelationType(
-                $column->getTable(),
-                $this->schema->getTable($this->request->getTable())
-            ) == RelationInterface::TYPE_MANY) {
+                    $column->getTable(),
+                    $this->schema->getTable($this->request->getTable())
+                ) == RelationInterface::TYPE_MANY) {
                 $result[$columnName] = null;
                 continue;
             }

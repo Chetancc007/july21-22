@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report
- * @version   1.3.96
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.3.108
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -262,17 +262,20 @@ class DateService implements DateServiceInterface
                 break;
 
             case self::LAST_7_DAYS:
-                $from->subDay(7);
+                $from->subDay(6)->setTime('00:00:00');
+                $to->setTime('23:59:59');
 
                 break;
 
             case self::LAST_30_DAYS:
-                $from->subDay(30);
+                $from->subDay(29)->setTime('00:00:00');
+                $to->setTime('23:59:59');
 
                 break;
 
             case self::LAST_90_DAYS:
-                $from->subDay(90);
+                $from->subDay(89)->setTime('00:00:00');
+                $to->setTime('23:59:59');
 
                 break;
 
@@ -366,6 +369,8 @@ class DateService implements DateServiceInterface
         if ($interval->getTo()->getTimestamp() > $now->getTimestamp()) {
             $interval->getTo()->subTimestamp($interval->getTo()->getTimestamp() - $now->getTimestamp());
         }
+
+        $interval->getTo()->setTime('23:59:59');
 
         if ($offset === self::OFFSET_YEAR) {
             $interval->getFrom()->subYear(1);

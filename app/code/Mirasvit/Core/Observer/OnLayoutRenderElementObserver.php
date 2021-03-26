@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-core
- * @version   1.2.112
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.2.120
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -50,15 +50,10 @@ class OnLayoutRenderElementObserver implements ObserverInterface
         if ($name) {
             /** @var \Magento\Framework\View\Element\AbstractBlock $block */
             $block = $layout->getBlock($name);
-
             if (is_object($block) && substr(get_class($block), 0, 9) == 'Mirasvit\\') {
                 if ($block instanceof \Mirasvit\Core\Block\Adminhtml\Menu) {
                     return;
                 }
-
-//                if ($block instanceof \Mirasvit\Core\Block\Adminhtml\License) {
-//                    return;
-//                }
 
                 $status = $this->licenseFactory->create()->getStatus(get_class($block));
 

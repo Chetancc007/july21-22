@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report
- * @version   1.3.96
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.3.108
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -81,6 +81,7 @@ class SchemaDataProvider extends Template
 
                 try {
                     $result['columns'][$column->getIdentifier()]['options'] = method_exists($column->getType(), 'getOptions')
+                    && strpos($column->getName(), "applied_rule") === false // fix for timeout when store has a lot of coupons
                         ? $column->getType()->getOptions()
                         : [];
                 } catch (\Exception $e) {

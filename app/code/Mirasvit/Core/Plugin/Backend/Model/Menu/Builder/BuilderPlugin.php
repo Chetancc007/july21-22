@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-core
- * @version   1.2.112
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.2.120
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -23,61 +23,39 @@ use Magento\Backend\Model\Menu\ItemFactory;
 use Magento\Framework\UrlInterface;
 use Mirasvit\Core\Block\Adminhtml\Menu as MenuBlock;
 use Mirasvit\Core\Model\Config;
-use Mirasvit\Core\Model\ModuleFactory;
 use Mirasvit\Core\Service\CompatibilityService;
+use Mirasvit\Core\Service\PackageService;
 
 class BuilderPlugin
 {
-    /**
-     * @var Config
-     */
     private $config;
 
-    /**
-     * @var ItemFactory
-     */
     private $itemFactory;
 
-    /**
-     * @var ModuleFactory
-     */
-    private $moduleFactory;
+    private $packageService;
 
-    /**
-     * @var MenuBlock
-     */
     private $menuBlock;
 
-    /**
-     * @var UrlInterface
-     */
     private $urlManager;
 
-    /**
-     * BuilderPlugin constructor.
-     * @param Config $config
-     * @param ItemFactory $itemFactory
-     * @param ModuleFactory $moduleFactory
-     * @param MenuBlock $menuBlock
-     * @param UrlInterface $urlManager
-     */
     public function __construct(
         Config $config,
         ItemFactory $itemFactory,
-        ModuleFactory $moduleFactory,
+        PackageService $packageService,
         MenuBlock $menuBlock,
         UrlInterface $urlManager
     ) {
-        $this->config        = $config;
-        $this->itemFactory   = $itemFactory;
-        $this->moduleFactory = $moduleFactory;
-        $this->menuBlock     = $menuBlock;
-        $this->urlManager    = $urlManager;
+        $this->config         = $config;
+        $this->itemFactory    = $itemFactory;
+        $this->packageService = $packageService;
+        $this->menuBlock      = $menuBlock;
+        $this->urlManager     = $urlManager;
     }
 
     /**
      * @param mixed $subject
-     * @param Menu $menu
+     * @param Menu  $menu
+     *
      * @return Menu
      */
     public function afterGetResult($subject, Menu $menu)
@@ -85,87 +63,79 @@ class BuilderPlugin
         if (!$this->config->isMenuEnabled()
             || CompatibilityService::is20()
             || CompatibilityService::is21()
-            || $this->isMarketplace()
+            || CompatibilityService::isMarketplace()
         ) {
             return $this->removeMenu($menu);
         }
 
-        $installedModules = $this->moduleFactory->create()
-            ->getInstalledModules();
-
         $moduleItems = [];
 
-        foreach ($installedModules as $moduleName) {
-            if ($moduleName === 'Mirasvit_Core') {
-                continue;
-            }
-
-            $module = $this->moduleFactory->create()->load($moduleName);
-
-            $group = $module->getGroup();
-
-            if (!$group) {
-                $group = 'Other';
-            }
-
-            switch ($moduleName) {
-                case 'Mirasvit_Report':
-                case 'Mirasvit_Dashboard':
-                case 'Mirasvit_ReportBuilder':
-                    $group = 'Advanced Reports';
-                    break;
-
-                case 'Mirasvit_SearchLanding':
-                case 'Mirasvit_SearchReport':
-                    $group = 'Search';
-                    break;
-            }
-
-            if (!isset($moduleItems[$group])) {
-                $moduleItems[$group] = [];
-            }
-
-            $nativeMenuItems = $this->filterItems($menu, $moduleName);
-
-            foreach ($nativeMenuItems as $idx => $item) {
-                $data = $item->toArray();
-                unset($data['sub_menu']);
-
-                if (!$data['action']) {
+        foreach ($this->packageService->getPackageList() as $package) {
+            foreach ($package->getModuleList() as $moduleName) {
+                if ($moduleName === 'Mirasvit_Core') {
                     continue;
                 }
 
-                $url    = $this->urlManager->getUrl($data['action']);
-                $urlKey = $this->normalizeUrlKey($url);
+                $group = $package->getLabel();
 
-                $moduleItems[$group][$urlKey] = $data;
-            }
-
-            $items = $this->menuBlock->getItemsByModuleName($moduleName);
-            foreach ($items as $idx => $item) {
-                if (!is_object($item)) {
-                    continue;
+                if (!$group) {
+                    $group = 'Other';
                 }
 
-                // retrieve action from url
-                $action = preg_replace('/\/key\/.*/', '', $item->getUrl());
-                $action = str_replace($this->urlManager->getBaseUrl(), '', $action);
-                $action = preg_replace('/^\w*\//', '', $action);
+                switch ($moduleName) {
+                    case 'Mirasvit_Report':
+                    case 'Mirasvit_Dashboard':
+                    case 'Mirasvit_ReportBuilder':
+                        $group = 'Advanced Reports';
+                        break;
+                }
 
-                $urlKey = $this->normalizeUrlKey($item->getData('url'));
+                if (!isset($moduleItems[$group])) {
+                    $moduleItems[$group] = [];
+                }
 
-                $moduleItems[$group][$urlKey] = [
-                    'id'       => $item->getData('url'),
-                    'module'   => $moduleName,
-                    'resource' => $item->getData('resource'),
-                    'title'    => (string)$item->getData('title'),
-                ];
+                $nativeMenuItems = $this->filterItems($menu, $moduleName);
 
-                // need this for external links
-                if(preg_match('/^https?:/', $action)) {
-                    $moduleItems[$group][$urlKey]['path'] = $item->getData('url');
-                } else {
-                    $moduleItems[$group][$urlKey]['action'] = $action;
+                foreach ($nativeMenuItems as $idx => $item) {
+                    $data = $item->toArray();
+                    unset($data['sub_menu']);
+
+                    if (!$data['action']) {
+                        continue;
+                    }
+
+                    $url    = $this->urlManager->getUrl($data['action']);
+                    $urlKey = $this->normalizeUrlKey($url);
+
+                    $moduleItems[$group][$urlKey] = $data;
+                }
+
+                $items = $this->menuBlock->getItemsByModuleName($moduleName);
+                foreach ($items as $idx => $item) {
+                    if (!is_object($item)) {
+                        continue;
+                    }
+
+                    // retrieve action from url
+                    $action = preg_replace('/\/key\/.*/', '', $item->getUrl());
+                    $action = str_replace($this->urlManager->getBaseUrl(), '', $action);
+                    $action = preg_replace('/^\w*\//', '', $action);
+
+                    $urlKey = $this->normalizeUrlKey($item->getData('url'));
+
+                    $moduleItems[$group][$urlKey] = [
+                        'id'       => $item->getData('url'),
+                        'module'   => $moduleName,
+                        'resource' => $item->getData('resource'),
+                        'title'    => (string)$item->getData('title'),
+                    ];
+
+                    // need this for external links
+                    if (preg_match('/^https?:/', $action)) {
+                        $moduleItems[$group][$urlKey]['path'] = $item->getData('url');
+                    } else {
+                        $moduleItems[$group][$urlKey]['action'] = $action;
+                    }
                 }
             }
         }
@@ -236,6 +206,7 @@ class BuilderPlugin
 
     /**
      * @param string $url
+     *
      * @return string
      */
     private function normalizeUrlKey($url)
@@ -248,6 +219,7 @@ class BuilderPlugin
 
     /**
      * @param Menu $menu
+     *
      * @return Menu
      */
     private function removeMenu(Menu $menu)
@@ -255,21 +227,5 @@ class BuilderPlugin
         $menu->remove('Mirasvit_Core::menu');
 
         return $menu;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isMarketplace()
-    {
-        $flag = true;
-
-        /** mp comment start */
-
-        $flag = false;
-
-        /** mp comment end */
-
-        return $flag;
     }
 }

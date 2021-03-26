@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -141,7 +141,7 @@ class Template extends AbstractTemplate
             return $model;
         } elseif (php_sapi_name() != "cli") {
             $this->messageManager->addWarningMessage(__(
-                'There is no permission to import files. Please set read access to the templates folder.'
+                'There is no permission to import files. Please set Read access to the templates folder.'
             ));
         }
     }

@@ -36,4 +36,13 @@
             </argument>
         </arguments>
     </type>
+
+    <!--UI-->
+        <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+            <arguments>
+                <argument name="collections" xsi:type="array">
+                    <item name="mst_core_cron_job_listing_data_source" xsi:type="string">Mirasvit\Core\Model\ResourceModel\Job\Grid</item>
+                </argument>
+            </arguments>
+        </type>
 </config>

@@ -93,7 +93,7 @@
                     <item name="dataType" xsi:type="string">boolean</item>
                     <item name="formElement" xsi:type="string">checkbox</item>
                     <item name="prefer" xsi:type="string">toggle</item>
-                    <item name="label" xsi:type="string" translate="true">Attach each block as separate CSV report</item>
+                    <item name="label" xsi:type="string" translate="true">Attach each block as a separate CSV report</item>
                     <item name="dataScope" xsi:type="string">is_attach_enabled</item>
                     <item name="valueMap" xsi:type="array">
                         <item name="true" xsi:type="number">1</item>

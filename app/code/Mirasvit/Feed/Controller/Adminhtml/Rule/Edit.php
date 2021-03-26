@@ -9,38 +9,34 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
+
 
 
 namespace Mirasvit\Feed\Controller\Adminhtml\Rule;
 
 use Magento\Framework\Controller\ResultFactory;
-use Mirasvit\Feed\Controller\Adminhtml\Rule;
+use Mirasvit\Feed\Controller\Adminhtml\AbstractRule;
 
-class Edit extends Rule
+class Edit extends AbstractRule
 {
-    /**
-     * {@inheritdoc}
-     */
     public function execute()
     {
         $resultPage = $this->resultFactory->create(ResultFactory::TYPE_PAGE);
 
-        $id = $this->getRequest()->getParam('id');
         $model = $this->initModel();
 
-        if ($this->getRequest()->getParam('type')) {
-            $model->setType($this->getRequest()->getParam('type'));
+        if (!$model) {
+            $this->messageManager->addErrorMessage(__('This item not exists.'));
+
+            return $this->resultRedirectFactory->create()
+                ->setPath('*/*/');
         }
 
-        if ($id && !$model->getId()) {
-            $this->messageManager->addError(__('This item not exists.'));
-            return $this->resultRedirectFactory->create()->setPath('*/*/');
-        }
-
-        $this->initPage($resultPage)->getConfig()->getTitle()->prepend($id ? $model->getName() : __('New Filter'));
+        $this->initPage($resultPage)->getConfig()->getTitle()
+            ->prepend($model->getId() ? $model->getName() : __('New Filter'));
 
         return $resultPage;
     }

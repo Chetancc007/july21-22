@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -61,16 +61,6 @@ class Exporting extends AbstractStep
      */
     protected $liquidTemplate;
 
-
-    /**
-     * Exporting constructor.
-     * @param ResourceConnection $resource
-     * @param Io $io
-     * @param Config $config
-     * @param GeneralResolver $resolver
-     * @param ObjectManagerInterface $objectManager
-     * @param Context $context
-     */
     public function __construct(
         ResourceConnection $resource,
         Io $io,
@@ -133,6 +123,10 @@ class Exporting extends AbstractStep
         $liquidContext->setProductExportStep($this->context->getProductExportStep());
 
         $result = $liquidTemplate->execute($liquidContext);
+
+        if($this->context->getFeed()->getFbMetadataEnabled()) {
+            $result = $this->addFacebookMetadata($result);
+        }
 
         $filePath = $this->config->getTmpPath() . DIRECTORY_SEPARATOR . $this->context->getFeed()->getId() . '.dat';
 
@@ -206,5 +200,54 @@ class Exporting extends AbstractStep
         }
 
         return $subtractNum;
+    }
+
+    /**
+     * Adding metadata to the facebook feeds
+     *
+     * @param string $result
+     * @return string
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
+    public function addFacebookMetadata($result)
+    {
+        $feed     = $this->context->getFeed();
+        $feedId   = $feed->getId();
+        $feedType = $feed->getType();
+        $refAppId = $this->config->getFacebookAppID();
+        $storeUrl = parse_url($feed->getStore()->getBaseUrl(), PHP_URL_HOST);
+        $metaTags =    "<metadata>"
+            . "\n\t\t" . "<ref_application_id>$refAppId</ref_application_id>"
+            . "\n\t\t" . "<ref_asset_id>$storeUrl-$feedId</ref_asset_id>"
+            . "\n\t" . "</metadata>" . "\n";
+
+        if (strpos($result ,'<entry>') !== false) {
+            // set metadata in Atom XML feeds
+            $result = str_replace( '<entry>', $metaTags . "\n\t" . '<entry>', $result);
+        } elseif (strpos($result ,'xmlns:g="http://base.google.com/ns/1.0"') !== false) {
+            // set metadata in RSS XML feeds
+            $result = str_replace( '<channel>', '<channel>' . "\n\t". $metaTags, $result);
+        } elseif ($feedType == 'csv' || $feedType == 'txt') {
+            // set metadata in csv and txt feeds
+            if (preg_match('/(fb|facebook)/', strtolower($feed->getName()))     == 1 ||
+                preg_match('/(fb|facebook)/', strtolower($feed->getFilename())) == 1
+            ) {
+                if ($this->context->getFeed()->getData('csv_extra_header') == '' &&
+                    strpos($result, 'id') !== false &&
+                    strpos($result, 'link') !== false &&
+                    strpos($result, 'title') !== false &&
+                    strpos($result, 'description') !== false &&
+                    strpos($result, 'availability') !== false &&
+                    strpos($result, 'image_link') !== false &&
+                    strpos($result, 'price') !== false
+                ) {
+                    $metaTags = "# ref_application_id $refAppId\n" .
+                        "# ref_asset_id $storeUrl" . '-' . $feedId . "\n";
+                    $result = $metaTags . $result;
+                }
+            }
+        }
+
+        return $result;
     }
 }

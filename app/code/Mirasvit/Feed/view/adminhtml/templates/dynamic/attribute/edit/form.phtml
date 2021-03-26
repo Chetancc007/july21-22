@@ -13,14 +13,14 @@ $outputHelper = $this->helper('Mirasvit\Feed\Helper\Output');
     require([
         'jquery'
     ], function ($) {
-        $.attributes = <?= \Zend_Json_Encoder::encode($outputHelper->getAttributeOptions()) ?>;
-        $.patternTypes = <?= \Zend_Json_Encoder::encode($outputHelper->getPatternTypeOptions()) ?>;
+        $.attributes = <?= \Mirasvit\Core\Service\SerializeService::encode($outputHelper->getAttributeOptions()) ?>;
+        $.patternTypes = <?= \Mirasvit\Core\Service\SerializeService::encode($outputHelper->getPatternTypeOptions()) ?>;
         $.attributeUrl = '<?= $this->getUrl('*/*/attribute') ?>';
     });
 </script>
 
 <script type="text/x-magento-init">
-    <?php echo \Zend_Json_Encoder::encode($block->getJsConfig()) ?>
+    <?php echo \Mirasvit\Core\Service\SerializeService::encode($block->getJsConfig()) ?>
 
 
 </script>

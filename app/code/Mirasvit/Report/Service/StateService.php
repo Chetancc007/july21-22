@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report
- * @version   1.3.96
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.3.108
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -41,9 +41,10 @@ class StateService
 
     /**
      * StateService constructor.
-     * @param UserContextInterface $userContext
+     *
+     * @param UserContextInterface    $userContext
      * @param SessionManagerInterface $sessionManager
-     * @param StateRepository $stateRepository
+     * @param StateRepository         $stateRepository
      */
     public function __construct(
         UserContextInterface $userContext,
@@ -57,7 +58,7 @@ class StateService
 
     /**
      * @param string $namespace
-     * @param array $config
+     * @param array  $config
      */
     public function saveState($namespace, array $config)
     {
@@ -77,6 +78,35 @@ class StateService
         $state->setConfig(\Zend_Json::encode($config));
 
         $this->stateRepository->save($state);
+    }
+
+    /**
+     * @param string $namespace
+     * @param mixed  $defaultConfig
+     *
+     * @return mixed
+     */
+    public function mergeState($namespace, $defaultConfig)
+    {
+        $state = $this->loadState($namespace);
+
+        if (!$state) {
+            return $defaultConfig;
+        }
+
+        foreach ($state->getConfig() as $key => $value) {
+            if (is_array($value) && $key == 'filters') {
+                foreach ($value as $item) {
+                    if (isset($item['column']) && $item['column'] !== 'sales_order|status') {
+                        $defaultConfig[$key][] = $item;
+                    }
+                }
+            } else {
+                $defaultConfig[$key] = $value;
+            }
+        }
+
+        return $defaultConfig;
     }
 
     /**
@@ -101,25 +131,5 @@ class StateService
         }
 
         return false;
-    }
-
-    /**
-     * @param string $namespace
-     * @param mixed $defaultConfig
-     * @return mixed
-     */
-    public function mergeState($namespace, $defaultConfig)
-    {
-        $state = $this->loadState($namespace);
-
-        if (!$state) {
-            return $defaultConfig;
-        }
-
-        foreach ($state->getConfig() as $key => $value) {
-            $defaultConfig[$key] = $value;
-        }
-
-        return $defaultConfig;
     }
 }

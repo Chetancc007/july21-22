@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report
- * @version   1.3.96
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.3.108
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -284,7 +284,7 @@ class EmailService implements EmailServiceInterface
     {
         $reportIdentifier = $reportData['identifier'];
         $report           = $this->reportRepository->get($reportIdentifier);
-        $tableName        = $report->getTable() == 'sales_shipment' ? 'sales_shipment' : 'sales_order';
+        $tableName        = $this->getTableName($report);
         $interval         = $this->dateService->getInterval($reportData['timeRange']);
         $request          = $this->requestBuilder->create()
             ->setTable($report->getTable())
@@ -296,15 +296,9 @@ class EmailService implements EmailServiceInterface
         foreach ($report->getDimensions() as $column) {
             $request->addColumn($column);
 
-            if (!$hasDateDimension && strpos($column, "_at__") !== false) {
+            if (!$hasDateDimension && strpos($column, "_at") !== false) {
                 $hasDateDimension = true;
             }
-        }
-
-        //report can return not all data if original report doesn't have date dimension
-        if ($hasDateDimension) {
-            $request->addFilter($tableName . '|created_at', $interval->getFrom()->toString('Y-MM-dd HH:mm:ss'), 'gteq', 'A')
-                ->addFilter($tableName . '|created_at', $interval->getTo()->toString('Y-MM-dd HH:mm:ss'), 'lteq', 'A');
         }
 
         foreach ($report->getColumns() as $column) {
@@ -316,9 +310,49 @@ class EmailService implements EmailServiceInterface
                 $filter['value'] = '%' . $filter['value'] . '%';
             }
 
+            if(!$hasDateDimension && strpos($filter['column'], "_at") !== false) {
+                $hasDateDimension = true;
+            }
+
             $request->addFilter($filter['column'], $filter['value'], $filter['conditionType']);
         }
 
+        foreach($report->getPrimaryFilters() as $filter) {
+            if(!$hasDateDimension && strpos($filter, "_at") !== false) {
+                $hasDateDimension = true;
+                $dimensionFilter  = $filter;
+            }
+        }
+
+        $filterColumn = isset($dimensionFilter) ? $dimensionFilter : $tableName . '|created_at';
+
+        //report can return not all data if original report doesn't have date dimension
+        if ($hasDateDimension) {
+            $request->addFilter($filterColumn, $interval->getFrom()->toString('Y-MM-dd HH:mm:ss'), 'gteq', 'A')
+                ->addFilter($filterColumn, $interval->getTo()->toString('Y-MM-dd HH:mm:ss'), 'lteq', 'A');
+        }
+
         return $request->process();
+    }
+
+    /**
+     * @param \Mirasvit\ReportBuilder\Model\ReportInstance  $report
+     * @return string
+     */
+    private function getTableName($report)
+    {
+        switch($report->getTable()) {
+            case 'sales_shipment':
+                return 'sales_shipment';
+                break;
+
+            case 'catalog_product_entity':
+                return 'catalog_product_entity';
+                break;
+
+            default:
+                return 'sales_order';
+                break;
+        }
     }
 }

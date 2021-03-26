@@ -2,16 +2,42 @@
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
 
     <!--DATA-->
-    <preference for="Mirasvit\Feed\Api\Data\ValidationInterface" type="Mirasvit\Feed\Model\Validation" />
+    <preference for="Mirasvit\Feed\Api\Data\ValidationInterface" type="Mirasvit\Feed\Model\Validation"/>
+    <preference for="Mirasvit\Feed\Api\Data\RuleInterface" type="Mirasvit\Feed\Model\Rule"/>
 
     <!--REPOSITORY-->
-    <preference for="Mirasvit\Feed\Api\Repository\ValidationRepositoryInterface" type="Mirasvit\Feed\Repository\ValidationRepository" />
+    <preference for="Mirasvit\Feed\Api\Repository\ValidationRepositoryInterface" type="Mirasvit\Feed\Repository\ValidationRepository"/>
 
     <!--SERVICE-->
     <preference for="Mirasvit\Feed\Api\Service\ImportServiceInterface" type="Mirasvit\Feed\Service\ImportService"/>
     <preference for="Mirasvit\Feed\Api\Service\ExportServiceInterface" type="Mirasvit\Feed\Service\ExportService"/>
     <preference for="Mirasvit\Feed\Api\Service\ValidationServiceInterface" type="Mirasvit\Feed\Service\ValidationService"/>
     <preference for="Mirasvit\Feed\Api\Factory\EntityFactoryInterface" type="Mirasvit\Feed\Factory\EntityFactory"/>
+
+    <!-- Entity Manager -->
+    <type name="Magento\Framework\EntityManager\MetadataPool">
+        <arguments>
+            <argument name="metadata" xsi:type="array">
+                <item name="Mirasvit\Feed\Api\Data\ValidationInterface" xsi:type="array">
+                    <item name="entityTableName" xsi:type="const">Mirasvit\Feed\Api\Data\ValidationInterface::TABLE_NAME</item>
+                    <item name="identifierField" xsi:type="const">Mirasvit\Feed\Api\Data\ValidationInterface::ID</item>
+                </item>
+                <item name="Mirasvit\Feed\Api\Data\RuleInterface" xsi:type="array">
+                    <item name="entityTableName" xsi:type="const">Mirasvit\Feed\Api\Data\RuleInterface::TABLE_NAME</item>
+                    <item name="identifierField" xsi:type="const">Mirasvit\Feed\Api\Data\RuleInterface::ID</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Framework\EntityManager\HydratorPool">
+        <arguments>
+            <argument name="hydrators" xsi:type="array">
+                <item name="Mirasvit\Feed\Api\Data\ValidationInterface" xsi:type="string">Magento\Framework\EntityManager\AbstractModelHydrator</item>
+                <item name="Mirasvit\Feed\Api\Data\RuleInterface" xsi:type="string">Magento\Framework\EntityManager\AbstractModelHydrator</item>
+            </argument>
+        </arguments>
+    </type>
 
     <type name="Mirasvit\Feed\Export\Filter\Pool">
         <arguments>
@@ -64,7 +90,7 @@
             </argument>
         </arguments>
     </type>
-    
+
     <type name="Mirasvit\Feed\Export\Resolver\ProductResolver">
         <arguments>
             <argument name="resolvers" xsi:type="array">
@@ -92,26 +118,6 @@
         </arguments>
     </type>
 
-    <!-- Configure Entity Manager -->
-    <type name="Magento\Framework\EntityManager\MetadataPool">
-        <arguments>
-            <argument name="metadata" xsi:type="array">
-                <item name="Mirasvit\Feed\Api\Data\ValidationInterface" xsi:type="array">
-                    <item name="entityTableName" xsi:type="const">Mirasvit\Feed\Api\Data\ValidationInterface::TABLE_NAME</item>
-                    <item name="identifierField" xsi:type="const">Mirasvit\Feed\Api\Data\ValidationInterface::ID</item>
-                </item>
-            </argument>
-        </arguments>
-    </type>
-
-    <type name="Magento\Framework\EntityManager\HydratorPool">
-        <arguments>
-            <argument name="hydrators" xsi:type="array">
-                <item name="Mirasvit\Feed\Api\Data\ValidationInterface" xsi:type="string">Magento\Framework\EntityManager\AbstractModelHydrator</item>
-            </argument>
-        </arguments>
-    </type>
-
     <!-- Set available validators -->
     <type name="Mirasvit\Feed\Api\Repository\ValidationRepositoryInterface">
         <arguments>
@@ -121,8 +127,17 @@
             </argument>
         </arguments>
     </type>
-  
+
     <type name="Magento\Store\Api\StoreResolverInterface">
         <plugin name="feedStoreResolver" type="Mirasvit\Feed\Plugin\StoreResolverPlugin"/>
+    </type>
+
+    <!--UI-->
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="mst_feed_rule_listing_data_source" xsi:type="string">Mirasvit\Feed\Model\ResourceModel\Rule\Grid</item>
+            </argument>
+        </arguments>
     </type>
 </config>

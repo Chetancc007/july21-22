@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -21,19 +21,11 @@ use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 
 class Collection extends AbstractCollection
 {
-    /**
-     * {@inheritdoc}
-     */
     protected function _construct()
     {
-        $this->_init('Mirasvit\Feed\Model\Rule', 'Mirasvit\Feed\Model\ResourceModel\Rule');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function toOptionArray()
-    {
-        return $this->_toOptionArray('rule_id', 'name');
+        $this->_init(
+            \Mirasvit\Feed\Model\Rule::class,
+            \Mirasvit\Feed\Model\ResourceModel\Rule::class
+        );
     }
 }

@@ -9,6 +9,7 @@ ID,ID
 Code,Code
 Action,Action
 Edit,Edit
+Duplicate,Duplicate
 Delete,Delete
 "Category Mapping","Category Mapping"
 "Add Category Mapping","Add Category Mapping"
@@ -28,17 +29,12 @@ Email,Email
 "Enable Reports","Enable Reports"
 No,No
 Yes,Yes
-"If enabled, extension append two special arguments
-                (ff=, fp=) to product url for track clicks and orders","If enabled, extension append two special arguments
-                (ff=, fp=) to product url for track clicks and orders"
+"If enabled, the extension appends two special arguments (ff=, fp=) to product url for track clicks and orders","If enabled, the extension appends two special arguments (ff=, fp=) to product url for track clicks and orders"
 "Scheduled Task","Scheduled Task"
 Enabled,Enabled
-"If enabled, extension will generate feed by schedule.
-                 To generate feed by schedule, magento cron must be configured.","If enabled, extension will generate feed by schedule.
-                 To generate feed by schedule, magento cron must be configured."
+"If enabled, the extension will generate a feed by schedule. To generate feed by schedule, magento cron must be configured.","If enabled, the extension will generate a feed by schedule. To generate feed by schedule, magento cron must be configured."
 "Days of the week","Days of the week"
 "Time of the day","Time of the day"
-"Cronjob status","Cronjob status"
 "FTP Settings","FTP Settings"
 Protocol,Protocol
 "Host Name","Host Name"
@@ -69,19 +65,23 @@ Message,Message
 Continue,Continue
 Settings,Settings
 Template,Template
+"Feed Generation Report","Feed Generation Report"
+"Line #","Line #"
+Attribute,Attribute
+Value,Value
 "Product Filters","Product Filters"
 "Feed Information","Feed Information"
 "Content Settings","Content Settings"
 Filters,Filters
 Additional,Additional
 History,History
+Report,Report
 CSV,CSV
 TXT,TXT
 XML,XML
 File,File
 "Last Generated At","Last Generated At"
 Status,Status
-Duplicate,Duplicate
 Remove,Remove
 "Are you sure?","Are you sure?"
 "Select Data to Export","Select Data to Export"
@@ -90,7 +90,12 @@ Templates,Templates
 "Dynamic Categories","Dynamic Categories"
 "Dynamic Variable","Dynamic Variable"
 "Select Data to Import","Select Data to Import"
+"Templates import path: %1","Templates import path: %1"
+"Filters import path: %1","Filters import path: %1"
+"Dynamic Attributes import path: %1","Dynamic Attributes import path: %1"
+"Dynamic Categories import path: %1","Dynamic Categories import path: %1"
 "Dynamic Variables","Dynamic Variables"
+"Dynamic Variables import path: %1","Dynamic Variables import path: %1"
 "Import/Export Information","Import/Export Information"
 "Import Data","Import Data"
 "Export Data","Export Data"
@@ -101,7 +106,7 @@ Reports,Reports
 "Add Filter","Add Filter"
 "Close Window","Close Window"
 "Save Filter","Save Filter"
-"Filters (leave blank for select all products)","Filters (leave blank for select all products)"
+"Filters (leave blank to select all products)","Filters (leave blank to select all products)"
 "Filter Information","Filter Information"
 Rules,Rules
 Conditions,Conditions
@@ -116,10 +121,11 @@ Export,Export
 "Extra Header","Extra Header"
 "Template Information","Template Information"
 "Export Template","Export Template"
-"Feed was successfully delivered to ""%1""","Feed was successfully delivered to ""%1"""
-"Unable to delivery feed. %1","Unable to delivery feed. %1"
+"Feed ""%1"" was successfully delivered to ""%2""","Feed ""%1"" was successfully delivered to ""%2"""
+"Unable to delivery feed ""%1"".  %2","Unable to delivery feed ""%1"".  %2"
 "Advanced Product Feeds","Advanced Product Feeds"
 "Item was successfully deleted","Item was successfully deleted"
+"Dynamic Attribute ""%1"" was successfully duplicated.","Dynamic Attribute ""%1"" was successfully duplicated."
 "This item not exists.","This item not exists."
 "New Attribute","New Attribute"
 "Item was successfully saved","Item was successfully saved"
@@ -128,6 +134,8 @@ Export,Export
 "New Variable","New Variable"
 "The feed has been deleted.","The feed has been deleted."
 "This feed no longer exists.","This feed no longer exists."
+"Feed was successfully delivered to ""%1""","Feed was successfully delivered to ""%1"""
+"Unable to delivery feed. %1","Unable to delivery feed. %1"
 "Feed was successfully duplicated.","Feed was successfully duplicated."
 "New Feed","New Feed"
 "You saved the feed.","You saved the feed."
@@ -149,21 +157,27 @@ Export,Export
 "You saved the template.","You saved the template."
 "No data to save.","No data to save."
 "Dynamic Attribute","Dynamic Attribute"
+Inventory,Inventory
+"MSI Stock","MSI Stock"
 Initialization,Initialization
 Filtration,Filtration
 Exporting,Exporting
 Finalization,Finalization
+Validation,Validation
 "%1 out of %2","%1 out of %2"
 "ETA %1","ETA %1"
-"Can't remove folder %1","Can't remove folder %1"
+"Can't remove folder %s","Can't remove folder %s"
 "1. Primary Attributes","1. Primary Attributes"
 "5. Stock Attributes","5. Stock Attributes"
+"6.1 Multi Source Inventory Stocks","6.1 Multi Source Inventory Stocks"
+"6.2 Multi Source Inventory Sources","6.2 Multi Source Inventory Sources"
 "2. Prices & Taxes","2. Prices & Taxes"
 "4. Images","4. Images"
 "3. Category","3. Category"
-"6. Dynamic Attributes","6. Dynamic Attributes"
-"7. Dynamic Variables","7. Dynamic Variables"
-"8. Others Attributes","8. Others Attributes"
+"7. Dynamic Attributes","7. Dynamic Attributes"
+"8. Dynamic Variables","8. Dynamic Variables"
+"9. Category Mappings","9. Category Mappings"
+"Others Attributes","Others Attributes"
 "not set","not set"
 "ZIP (*.zip)","ZIP (*.zip)"
 Sunday,Sunday
@@ -188,13 +202,17 @@ none,none
 ','
 "FTP / FTPS","FTP / FTPS"
 SFTP,SFTP
+"Root Category","Root Category"
 "Start export process","Start export process"
 "Feed was successfully exported","Feed was successfully exported"
 Error,Error
 "Conditions Combination","Conditions Combination"
+"Product ID","Product ID"
 "Attribute Set","Attribute Set"
 Category,Category
 Quantity,Quantity
+"Quantity (Multi Source Inventory)","Quantity (Multi Source Inventory)"
+"Amount of Children In Stock","Amount of Children In Stock"
 "Product Type","Product Type"
 "Base Image","Base Image"
 Thumbnail,Thumbnail
@@ -205,10 +223,21 @@ Thumbnail,Thumbnail
 "PHP Condition","PHP Condition"
 "Stock Availability","Stock Availability"
 "Manage Stock","Manage Stock"
+"Manage Stock (Multi Source Inventory)","Manage Stock (Multi Source Inventory)"
 "Status(Parent Product)","Status(Parent Product)"
 "Is Salable","Is Salable"
+"Final Price","Final Price"
+"Updated At","Updated At"
 "Open Chooser","Open Chooser"
+"There is no permission to export files. Please set Write access to the folder ""%1"" to export","There is no permission to export files. Please set Write access to the folder ""%1"" to export"
+"There is no permission to import files. Please set Read access to the templates folder.","There is no permission to import files. Please set Read access to the templates folder."
 Feed,Feed
+"There is no permission to export files. Please set Write access to ""%1""","There is no permission to export files. Please set Write access to ""%1"""
+"There is no permission to import files. Please set Read access to the folder ""%1"" to import templates","There is no permission to import files. Please set Read access to the folder ""%1"" to import templates"
+"Missing recommended attribute","Missing recommended attribute"
+"This attribute value is recommended. While you can leave it empty, it is still recommended that you fill in the value for this attribute. To fix this error, open invalid products and fill in a value for this attribute or change an attribute/pattern used for this field in the product feed itself.","This attribute value is recommended. While you can leave it empty, it is still recommended that you fill in the value for this attribute. To fix this error, open invalid products and fill in a value for this attribute or change an attribute/pattern used for this field in the product feed itself."
+"Missing required attribute","Missing required attribute"
+"Products without this attribute won't be accepted by the target shopping channel. To fix this error, open invalid products and fill in a value for this attribute or change an attribute/pattern used for this field in the product feed itself.","Products without this attribute won't be accepted by the target shopping channel. To fix this error, open invalid products and fill in a value for this attribute or change an attribute/pattern used for this field in the product feed itself."
 Condition,Condition
 "Output Type","Output Type"
 "Output Value","Output Value"
@@ -218,12 +247,11 @@ Condition,Condition
 "Product IDs separated by comma","Product IDs separated by comma"
 Reload,Reload
 "Feed Access Url","Feed Access Url"
+Count,Count
 "Last Generated","Last Generated"
 "Generation Time","Generation Time"
-Attribute,Attribute
 Pattern,Pattern
 Product,Product
-Value,Value
 Filter,Filter
 Criteria,Criteria
 Expression,Expression
@@ -232,4 +260,3 @@ Expression,Expression
 "Library of patterns","Library of patterns"
 "Feed Preview <sup>10 products</sup>","Feed Preview <sup>10 products</sup>"
 "Open in new window","Open in new window"
-Dictionary successfully processed.

@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-core
- * @version   1.2.112
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.2.120
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -85,13 +85,14 @@ class License
 
     /**
      * License constructor.
-     * @param UrlInterface $urlManager
+     *
+     * @param UrlInterface        $urlManager
      * @param ModuleListInterface $moduleList
-     * @param CurlFactory $curlFactory
-     * @param FlagFactory $flagFactory
-     * @param ProductMetadata $productMetadata
-     * @param DeploymentConfig $deploymentConfig
-     * @param DirReader $dirReader
+     * @param CurlFactory         $curlFactory
+     * @param FlagFactory         $flagFactory
+     * @param ProductMetadata     $productMetadata
+     * @param DeploymentConfig    $deploymentConfig
+     * @param DirReader           $dirReader
      */
     public function __construct(
         UrlInterface $urlManager,
@@ -180,6 +181,74 @@ class License
     }
 
     /**
+     * @return string
+     */
+    public function getRequestUrl()
+    {
+        $params        = [];
+        $params['v']   = 4;
+        $params['d']   = $this->getDomain();
+        $params['ip']  = $this->getIP();
+        $params['mv']  = $this->getVersion();
+        $params['me']  = $this->getEdition();
+        $params['l']   = $this->license;
+        $params['k']   = $this->key;
+        $params['uid'] = $this->getUID();
+
+        $query = http_build_query($params);
+
+        return 'https://lc.mirasvit.com/lc/check/?' . $query;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isNeedUpdate()
+    {
+        $data = $this->getFlagData($this->license);
+
+        if (!$data) {
+            return true;
+        }
+
+        if ($data && isset($data['status'])) {
+            if ($data['status'] === self::STATUS_ACTIVE) {
+                if (abs(time() - $data['time']) > 24 * 60 * 60) {
+                    return true;
+                }
+            } else {
+                return true;
+            }
+        }
+
+        if ($data && !isset($data['status'])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLicense()
+    {
+        return $this->license;
+    }
+
+    /**
+     * Remove flag data
+     * @return void
+     */
+    public function clear()
+    {
+        $flag = $this->flagFactory->create(['data' => ['flag_code' => "m" . $this->license]])
+            ->loadSelf();
+
+        $flag->delete();
+    }
+
+    /**
      * @param string $className
      *
      * @return false|string
@@ -237,62 +306,6 @@ class License
     }
 
     /**
-     * @return string
-     */
-    public function getRequestUrl()
-    {
-        $params        = [];
-        $params['v']   = 4;
-        $params['d']   = $this->getDomain();
-        $params['ip']  = $this->getIP();
-        $params['mv']  = $this->getVersion();
-        $params['me']  = $this->getEdition();
-        $params['l']   = $this->license;
-        $params['k']   = $this->key;
-        $params['uid'] = $this->getUID();
-
-        $query = http_build_query($params);
-
-        return 'https://lc.mirasvit.com/lc/check/?' . $query;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isNeedUpdate()
-    {
-        $data = $this->getFlagData($this->license);
-
-        if (!$data) {
-            return true;
-        }
-
-        if ($data && isset($data['status'])) {
-            if ($data['status'] === self::STATUS_ACTIVE) {
-                if (abs(time() - $data['time']) > 24 * 60 * 60) {
-                    return true;
-                }
-            } else {
-                return true;
-            }
-        }
-
-        if ($data && !isset($data['status'])) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @return string
-     */
-    public function getLicense()
-    {
-        return $this->license;
-    }
-
-    /**
      * Save request result to flag
      *
      * @param string $license
@@ -336,18 +349,6 @@ class License
         }
 
         return [];
-    }
-
-    /**
-     * Remove flag data
-     * @return void
-     */
-    public function clear()
-    {
-        $flag = $this->flagFactory->create(['data' => ['flag_code' => "m" . $this->license]])
-            ->loadSelf();
-
-        $flag->delete();
     }
 
     /**

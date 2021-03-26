@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report-api
- * @version   1.0.39
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.0.43
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -37,7 +37,7 @@ use Mirasvit\ReportApi\Handler\SelectFactory;
 
 class SelectService implements SelectServiceInterface
 {
-    const MAX_TABLE_LENGTH = 64;
+    const MAX_TABLE_LENGTH                 = 64;
     const MAX_TABLE_LENGTH_WITHOUT_COUNTER = 50;
 
     /**
@@ -85,16 +85,6 @@ class SelectService implements SelectServiceInterface
      */
     private $pills;
 
-    /**
-     * SelectService constructor.
-     * @param TableService $tableService
-     * @param SelectFactory $selectFactory
-     * @param Schema $schema
-     * @param ObjectManagerInterface $objectManager
-     * @param ResourceConnection $resource
-     * @param TimezoneInterface $timezone
-     * @param array $pills
-     */
     public function __construct(
         TableService $tableService,
         SelectFactory $selectFactory,
@@ -119,6 +109,16 @@ class SelectService implements SelectServiceInterface
      */
     public function replicateTable(TableInterface $table, TableInterface $baseTable)
     {
+        if ($table->getConnectionName() != $baseTable->getConnectionName()) {
+            // without cross-replication some reports produces error "table or view not exist"
+            $this->doReplicate($table, $this->resource->getConnection($baseTable->getConnectionName()));
+            $this->doReplicate($baseTable, $this->resource->getConnection($table->getConnectionName()));
+        } else {
+            // need to replicate tables if both not from 'default' database
+            $this->doReplicate($table, $this->resource->getConnection());
+            $this->doReplicate($baseTable, $this->resource->getConnection());
+        }
+
         return true;
     }
 
@@ -193,100 +193,28 @@ class SelectService implements SelectServiceInterface
     }
 
     /**
-     * @param TableInterface      $currentTable
-     * @param TableInterface      $requiredTable
-     * @param RelationInterface[] $relations
-     * @param TableInterface[]    $tables
-     * @param int                 $level
-     *
-     * @return RelationInterface[][]
-     */
-    private function joinWays(TableInterface $currentTable, TableInterface $requiredTable, $relations = [], $tables = [], $level = 0)
-    {
-        if ($level > 5) {
-            return [];
-        }
-
-        $areNativeTables = $currentTable->isNative() && $requiredTable->isNative();
-
-        $ways = [];
-
-        $tables[] = $currentTable;
-
-        # fast check (direct relation)
-        foreach ($this->schema->getRelations() as $relation) {
-            if (in_array($relation, $relations)) {
-                continue;
-            }
-
-            $oppositeTable = $relation->getOppositeTable($currentTable);
-
-            if ($oppositeTable && $oppositeTable->getName() == $requiredTable->getName()) {
-                $ways[] = array_merge($relations, [$relation]);
-            }
-        }
-
-        if (count($ways)) {
-            return $ways;
-        }
-
-        foreach ($this->schema->getRelations() as $relation) {
-            if (in_array($relation, $relations)) {
-                continue;
-            }
-
-            $oppositeTable = $relation->getOppositeTable($currentTable);
-
-            if (!$oppositeTable) {
-                continue;
-            }
-
-            // if both tables are native, then relation must be native too
-            if ($areNativeTables && $oppositeTable->isNative() === false) {
-                continue;
-            }
-
-            if (in_array($oppositeTable, $tables)) {
-                continue;
-            }
-
-            if ($result = $this->joinWays(
-                $oppositeTable,
-                $requiredTable,
-                array_merge($relations, [$relation]),
-                array_merge($tables, [$oppositeTable]),
-                $level + 1
-            )) {
-                foreach ($result as $way) {
-                    $ways[] = $way;
-                }
-            }
-        }
-
-        return $ways;
-    }
-
-    /**
      * @param RequestInterface $request
-     * @param mixed $column
-     * @param mixed $select
+     * @param ColumnInterface  $column
+     * @param Select           $select
+     *
      * @throws \Exception
      */
     public function applyPills(RequestInterface $request, $column, $select)
     {
-        $table = $this->schema->getTable($request->getTable());
-
-        foreach ($this->pills as $pill) {
-            if ($pill->isApplicable($request, $column, $table)) {
-                $pill->take($select, $column, $table, $request);
-            }
-        }
+        //        $table = $this->schema->getTable($request->getTable());
+        //
+        //        foreach ($this->pills as $pill) {
+        //            if ($pill->isApplicable($request, $column, $table)) {
+        //                $pill->take($select, $column, $table, $request);
+        //            }
+        //        }
     }
 
     /**
-     * @param ColumnInterface $column
+     * @param ColumnInterface  $column
      * @param RequestInterface $request
-     * @param TableInterface $baseTable
+     * @param TableInterface   $baseTable
+     *
      * @return TableInterface
      * @throws \Zend_Db_Exception
      */
@@ -366,6 +294,8 @@ class SelectService implements SelectServiceInterface
         $insertQuery = $this->resource->getConnection()
             ->insertFromSelect($select, $tmpTableName);
 
+        //        echo $insertQuery.PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL;
+
         $this->applyTimeZone($this->resource->getConnection());
         $this->resource->getConnection()->query($insertQuery);
         $this->restoreTimeZone($this->resource->getConnection());
@@ -392,33 +322,6 @@ class SelectService implements SelectServiceInterface
         $table->setIsTmp(true);
 
         return $table;
-    }
-
-    /**
-     * Get name for temporary table.
-     * If $tmpTableName greater than MySQL limit set for tables - use imprint of the name.
-     *
-     * @param string $baseTableName
-     * @param mixed $columnTableName
-     * @param int $tmpTableCounter
-     *
-     * @return string
-     */
-    private function getTmpTableName($baseTableName, $columnTableName, $tmpTableCounter)
-    {
-        $tableName = 'tmp_' . $baseTableName . '__' . $columnTableName;
-
-        if (strlen($tableName) > self::MAX_TABLE_LENGTH_WITHOUT_COUNTER) {
-            $tableName = substr($tableName, 0, self::MAX_TABLE_LENGTH_WITHOUT_COUNTER);
-        }
-
-        $tableName .= '_' . $tmpTableCounter;
-
-        if (strlen($tableName) > self::MAX_TABLE_LENGTH) {
-            $tableName = substr($tableName, 0, self::MAX_TABLE_LENGTH);
-        }
-
-        return $tableName;
     }
 
     /**
@@ -475,7 +378,7 @@ class SelectService implements SelectServiceInterface
 
         if (!isset($select)) {
             throw new LocalizedException(__(
-                'Select does not exists for required table %1, current table %2',
+                'Selection does not exist for the required table %1, current table %2',
                 $requiredTable,
                 $currentTable
             ));
@@ -486,9 +389,10 @@ class SelectService implements SelectServiceInterface
     }
 
     /**
-     * @param TableInterface $baseTable
-     * @param ColumnInterface $column
+     * @param TableInterface   $baseTable
+     * @param ColumnInterface  $column
      * @param RequestInterface $request
+     *
      * @return bool
      * @throws \Exception
      */
@@ -514,5 +418,175 @@ class SelectService implements SelectServiceInterface
         }
 
         return true;
+    }
+
+    /**
+     * @param TableInterface   $table
+     * @param AdapterInterface $baseConnection
+     */
+    private function doReplicate(TableInterface $table, AdapterInterface $baseConnection)
+    {
+        $tableName = $this->resource->getTableName($table->getName());
+
+        if ($baseConnection->isTableExists($tableName)) {
+            return;
+        }
+
+        $schema = $this->tableService->describeTable($table);
+
+        $temporaryTable = $baseConnection->newTable($tableName);
+
+        foreach ($schema as $column) {
+            $type = $column['DATA_TYPE'];
+            if ($column['DATA_TYPE'] == 'int') {
+                $type = 'integer';
+            } elseif ($column['DATA_TYPE'] == 'varchar') {
+                $type = 'text';
+            } elseif ($column['DATA_TYPE'] == 'tinyint') {
+                $type = 'smallint';
+            }
+
+            $temporaryTable->setColumn([
+                'COLUMN_NAME'      => $column['COLUMN_NAME'],
+                'TYPE'             => $type,
+                'LENGTH'           => $column['LENGTH'],
+                'COLUMN_POSITION'  => $column['COLUMN_POSITION'],
+                'PRIMARY'          => $column['PRIMARY'],
+                'PRIMARY_POSITION' => $column['PRIMARY_POSITION'],
+                'NULLABLE'         => $column['PRIMARY'] ? false : $column['NULLABLE'],
+                'COMMENT'          => $column['COLUMN_NAME'],
+            ]);
+        }
+
+        try {
+            $baseConnection->createTemporaryTable($temporaryTable);
+            $offset = 1;
+            while (true) {
+                $connection = $this->resource->getConnection($table->getConnectionName());
+                $pkField    = $table->getPkField();
+                $select     = $connection->select();
+                $select->from($tableName);
+
+                $rows = $connection->fetchAll($select);
+
+                foreach ($rows as $idx => $row) {
+                    $rows[$idx] = $row;
+                }
+
+                if (count($rows)) {
+                    $baseConnection->insertMultiple($tableName, $rows);
+                } else {
+                    break;
+                }
+
+                $offset++;
+
+                if ($offset > 30) {
+                    break;
+                }
+            }
+        } catch (\Exception $e) {
+        }
+    }
+
+    /**
+     * @param TableInterface      $currentTable
+     * @param TableInterface      $requiredTable
+     * @param RelationInterface[] $relations
+     * @param TableInterface[]    $tables
+     * @param int                 $level
+     *
+     * @return RelationInterface[][]
+     */
+    private function joinWays(TableInterface $currentTable, TableInterface $requiredTable, $relations = [], $tables = [], $level = 0)
+    {
+        if ($level > 5) {
+            return [];
+        }
+
+        $areNativeTables = $currentTable->isNative() && $requiredTable->isNative();
+
+        $ways = [];
+
+        $tables[] = $currentTable;
+
+        # fast check (direct relation)
+        foreach ($this->schema->getRelations() as $relation) {
+            if (in_array($relation, $relations)) {
+                continue;
+            }
+
+            $oppositeTable = $relation->getOppositeTable($currentTable);
+
+            if ($oppositeTable && $oppositeTable->getName() == $requiredTable->getName()) {
+                $ways[] = array_merge($relations, [$relation]);
+            }
+        }
+
+        if (count($ways)) {
+            return $ways;
+        }
+
+        foreach ($this->schema->getRelations() as $relation) {
+            if (in_array($relation, $relations)) {
+                continue;
+            }
+
+            $oppositeTable = $relation->getOppositeTable($currentTable);
+
+            if (!$oppositeTable) {
+                continue;
+            }
+
+            // if both tables are native, then relation must be native too
+            if ($areNativeTables && $oppositeTable->isNative() === false) {
+                continue;
+            }
+
+            if (in_array($oppositeTable, $tables)) {
+                continue;
+            }
+
+            if ($result = $this->joinWays(
+                $oppositeTable,
+                $requiredTable,
+                array_merge($relations, [$relation]),
+                array_merge($tables, [$oppositeTable]),
+                $level + 1
+            )) {
+                foreach ($result as $way) {
+                    $ways[] = $way;
+                }
+            }
+        }
+
+        return $ways;
+    }
+
+    /**
+     * Get name for temporary table.
+     * If $tmpTableName greater than MySQL limit set for tables - use imprint of the name.
+     *
+     * @param string $baseTableName
+     * @param mixed  $columnTableName
+     * @param int    $tmpTableCounter
+     *
+     * @return string
+     */
+    private function getTmpTableName($baseTableName, $columnTableName, $tmpTableCounter)
+    {
+        $tableName = 'tmp_' . $baseTableName . '__' . $columnTableName;
+
+        if (strlen($tableName) > self::MAX_TABLE_LENGTH_WITHOUT_COUNTER) {
+            $tableName = substr($tableName, 0, self::MAX_TABLE_LENGTH_WITHOUT_COUNTER);
+        }
+
+        $tableName .= '_' . $tmpTableCounter;
+
+        if (strlen($tableName) > self::MAX_TABLE_LENGTH) {
+            $tableName = substr($tableName, 0, self::MAX_TABLE_LENGTH);
+        }
+
+        return $tableName;
     }
 }

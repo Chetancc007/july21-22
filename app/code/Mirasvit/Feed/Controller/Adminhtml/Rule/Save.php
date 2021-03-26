@@ -9,21 +9,22 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
+
 
 
 namespace Mirasvit\Feed\Controller\Adminhtml\Rule;
 
-use Mirasvit\Feed\Controller\Adminhtml\Rule;
-use Magento\Backend\App\Action\Context;
 use Magento\Backend\Model\View\Result\ForwardFactory;
-use Magento\Framework\Registry;
-use Mirasvit\Feed\Model\RuleFactory;
+use Mirasvit\Core\Service\SerializeService;
+use Mirasvit\Feed\Api\Data\RuleInterface;
+use Mirasvit\Feed\Controller\Adminhtml\AbstractRule;
 use Mirasvit\Feed\Helper\Data as Helper;
+use Mirasvit\Feed\Model\RuleFactory;
 
-class Save extends Rule
+class Save extends AbstractRule
 {
     /**
      * @var RuleFactory
@@ -36,24 +37,6 @@ class Save extends Rule
     protected $helper;
 
     /**
-     * @param RuleFactory  $ruleFactory
-     * @param Helper       $helper
-     * @param Registry     $registry
-     * @param Context      $context
-     */
-    public function __construct(
-        RuleFactory      $ruleFactory,
-        Helper           $helper,
-        Registry         $registry,
-        Context          $context,
-        ForwardFactory   $resultForwardFactory
-    ) {
-        $this->helper = $helper;
-
-        parent::__construct($ruleFactory, $registry, $context, $resultForwardFactory);
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function execute()
@@ -63,31 +46,39 @@ class Save extends Rule
 
         if ($data) {
             $model = $this->initModel();
-            $modelData = $this->helper->removeJS($data['data']);
 
-            $model->addData($modelData);
+            $model->setName($data[RuleInterface::NAME])
+                ->setIsActive($data[RuleInterface::IS_ACTIVE]);
 
             if (isset($data['rule'])) {
-                $model->loadPost($data['rule']);
+                $ruleInstance = $this->ruleRepository->getRuleInstance($model);
+
+                $conditions = $ruleInstance->loadPost($data['rule'])
+                    ->getConditions()->asArray();
+
+                $model->setConditionsSerialized(SerializeService::encode($conditions));
             }
 
             try {
-                $model->save();
+                $this->ruleRepository->save($model);
 
-                $this->messageManager->addSuccess(__('Filter was successfully saved'));
+                $feedIds = isset($data['feed_ids']) ? (array)$data['feed_ids'] : [];
+                $this->ruleRepository->saveFeedIds($model, $feedIds);
+
+                $this->messageManager->addSuccessMessage(__('Filter was successfully saved'));
 
                 if ($this->getRequest()->getParam('back') == 'edit') {
-                    return $resultRedirect->setPath('*/*/edit', ['id' => $model->getId()]);
+                    return $resultRedirect->setPath('*/*/edit', [RuleInterface::ID => $model->getId()]);
                 }
 
                 return $resultRedirect->setPath('*/*/');
             } catch (\Exception $e) {
-                $this->messageManager->addError($e->getMessage());
+                $this->messageManager->addErrorMessage($e->getMessage());
 
-                return $resultRedirect->setPath('*/*/edit', ['id' => $this->getRequest()->getParam('id')]);
+                return $resultRedirect->setPath('*/*/edit', [RuleInterface::ID => $this->getRequest()->getParam(RuleInterface::ID)]);
             }
         } else {
-            $this->messageManager->addError(__('Unable to find item to save'));
+            $this->messageManager->addErrorMessage(__('Unable to find item to save'));
 
             return $resultRedirect->setPath('*/*/');
         }

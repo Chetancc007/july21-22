@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report-api
- * @version   1.0.39
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.0.43
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -117,7 +117,7 @@ class Store implements TypeInterface
                 /** @var \Magento\Store\Model\Store $store */
                 foreach ($group->getStores() as $store) {
                     $options[] = [
-                        'label' => '---' . $website->getName() . ' > ' . $store->getName(),
+                        'label' => '⋅⋅⋅' . $website->getName() . ' › ' . $store->getName(),
                         'value' => $store->getId(),
                     ];
                 }

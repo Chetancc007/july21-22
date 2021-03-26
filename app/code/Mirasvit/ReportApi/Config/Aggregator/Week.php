@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report-api
- * @version   1.0.39
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.0.43
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -53,10 +53,8 @@ class Week implements AggregatorInterface
     {
         $connection = $this->resource->getConnection();
         $yearWeek   = new \Zend_Db_Expr('YEARWEEK(%1, 1)');
-        $firstDay   = new \Zend_Db_Expr("'Monday'");
-        $contact    = $connection->getConcatSql([$yearWeek, $firstDay], ' ');
 
-        return $connection->getConcatSql(["STR_TO_DATE($contact, '%X%V %W')", "'00:00:00'"], ' ');
+        return $yearWeek;
     }
 
     /**

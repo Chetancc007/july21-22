@@ -36,25 +36,25 @@
 
         <column name="total_qty_ordered" label="Qty Ordered" type="number"/>
 
-        <column name="discount_amount" label="Discount" fields="base_discount_amount,base_to_global_rate" type="money" expr="%1 * %2"/>
+        <column name="discount_amount" label="Discount" fields="base_discount_amount,base_to_global_rate" type="money" expr="%1 * IF(%2 > 0, %2, 1)"/>
 
-        <column name="shipping_amount" label="Shipping" fields="base_shipping_amount,base_to_global_rate" type="money" expr="%1 * %2"/>
+        <column name="shipping_amount" label="Shipping" fields="base_shipping_amount,base_to_global_rate" type="money" expr="%1 * IF(%2 > 0, %2, 1)"/>
 
-        <column name="tax_amount" label="Tax" fields="base_tax_amount,base_to_global_rate" type="money" expr="%1 * %2"/>
+        <column name="tax_amount" label="Tax" fields="base_tax_amount,base_to_global_rate" type="money" expr="%1 * IF(%2 > 0, %2, 1)"/>
 
-        <column name="shipping_tax_amount" label="Shipping Tax" fields="base_shipping_tax_amount,base_to_global_rate" expr="%1 * %2" type="money"/>
+        <column name="shipping_tax_amount" label="Shipping Tax" fields="base_shipping_tax_amount,base_to_global_rate" expr="%1 * IF(%2 > 0, %2, 1)" type="money"/>
 
-        <column name="tax_refunded" label="Tax Refunded" fields="base_tax_refunded,base_to_global_rate" expr="%1 * %2" type="money"/>
+        <column name="tax_refunded" label="Tax Refunded" fields="base_tax_refunded,base_to_global_rate" expr="%1 * IF(%2 > 0, %2, 1)" type="money"/>
 
-        <column name="total_invoiced" label="Invoiced" fields="base_total_invoiced,base_to_global_rate" type="money"/>
+        <column name="total_invoiced" label="Invoiced" fields="base_total_invoiced,base_to_global_rate" expr="%1 * IF(%2 > 0, %2, 1)" type="money"/>
 
-        <column name="total_refunded" label="Refunded" fields="base_total_refunded,base_to_global_rate" type="money" expr="%1 * %2"/>
+        <column name="total_refunded" label="Refunded" fields="base_total_refunded,base_to_global_rate" type="money" expr="%1 * IF(%2 > 0, %2, 1)"/>
 
-        <column name="total_invoiced_cost" label="Invoiced Cost" fields="base_total_invoiced_cost,base_to_global_rate" expr="%1 * %2" type="money"/>
+        <column name="total_invoiced_cost" label="Invoiced Cost" fields="base_total_invoiced_cost,base_to_global_rate" expr="%1 * %IF(%2 > 0, %2, 1)" type="money"/>
 
-        <column name="subtotal" label="Subtotal" fields="base_subtotal,base_to_global_rate" type="money" expr="%1 * %2"/>
+        <column name="subtotal" label="Subtotal" fields="base_subtotal,base_to_global_rate" type="money" expr="%1 * IF(%2 > 0, %2, 1)"/>
 
-        <column name="grand_total" label="Grand Total" fields="base_grand_total,base_to_global_rate" type="money" expr="%1 * %2"/>
+        <column name="grand_total" label="Grand Total" fields="base_grand_total,base_to_global_rate" type="money" expr="%1 * IF(%2 > 0, %2, 1)"/>
 
         <column name="coupon_rule_name" label="Cart Price Rule"/>
     </table>
@@ -81,21 +81,21 @@
 
         <column name="qty_shipped" label="Qty Shipped" type="number"/>
 
-        <column name="cost" label="Cost" fields="base_cost,qty_ordered" type="money" expr="(%1 * %2) * sales_order.base_to_global_rate" tables="sales_order"/>
+        <column name="cost" label="Cost" fields="base_cost,qty_ordered" type="money" expr="(%1 * %2) * IF(sales_order.base_to_global_rate > 0, sales_order.base_to_global_rate, 1)" tables="sales_order"/>
 
-        <column name="price" label="Price" fields="base_price" type="money" expr="%1 * sales_order.base_to_global_rate" tables="sales_order"/>
+        <column name="price" label="Price" fields="base_price" type="money" expr="%1 * IF(sales_order.base_to_global_rate > 0, sales_order.base_to_global_rate, 1)" tables="sales_order"/>
 
-        <column name="tax_amount" label="Tax" fields="base_tax_amount" type="money" expr="%1 * sales_order.base_to_global_rate" tables="sales_order"/>
+        <column name="tax_amount" label="Tax" fields="base_tax_amount" type="money" expr="%1 * IF(sales_order.base_to_global_rate > 0, sales_order.base_to_global_rate, 1)" tables="sales_order"/>
 
-        <column name="tax_invoiced" label="Tax Invoiced" fields="base_tax_invoiced" type="money" expr="%1 * sales_order.base_to_global_rate" tables="sales_order"/>
+        <column name="tax_invoiced" label="Tax Invoiced" fields="base_tax_invoiced" type="money" expr="%1 * IF(sales_order.base_to_global_rate > 0, sales_order.base_to_global_rate, 1)" tables="sales_order"/>
 
-        <column name="discount_amount" label="Discount" fields="base_discount_amount" type="money" expr="%1 * sales_order.base_to_global_rate" tables="sales_order"/>
+        <column name="discount_amount" label="Discount" fields="base_discount_amount" type="money" expr="%1 * IF(sales_order.base_to_global_rate > 0, sales_order.base_to_global_rate, 1)" tables="sales_order"/>
 
-        <column name="amount_refunded" label="Refunded" fields="base_amount_refunded" type="money" expr="%1 * sales_order.base_to_global_rate" tables="sales_order"/>
+        <column name="amount_refunded" label="Refunded" fields="base_amount_refunded" type="money" expr="%1 * IF(sales_order.base_to_global_rate > 0, sales_order.base_to_global_rate, 1)" tables="sales_order"/>
 
-        <column name="row_total" label="Total" fields="base_row_total" type="money" expr="%1 * sales_order.base_to_global_rate" tables="sales_order"/>
+        <column name="row_total" label="Total" fields="base_row_total" type="money" expr="%1 * IF(sales_order.base_to_global_rate > 0, sales_order.base_to_global_rate, 1)" tables="sales_order"/>
 
-        <column name="row_invoiced" label="Invoiced" fields="base_row_invoiced" type="money" expr="%1 * sales_order.base_to_global_rate" tables="sales_order"/>
+        <column name="row_invoiced" label="Invoiced" fields="base_row_invoiced" type="money" expr="%1 * IF(sales_order.base_to_global_rate > 0, sales_order.base_to_global_rate, 1)" tables="sales_order"/>
     </table>
 
     <table name="sales_order_payment" label="Order Payments" group="Sales" connection="sales">
@@ -158,9 +158,9 @@
 
         <column name="items_qty" label="Items Qty" type="number"/>
 
-        <column name="grand_total" label="Grand Total" fields="base_grand_total,base_to_global_rate" type="money" expr="%1 * %2"/>
+        <column name="grand_total" label="Grand Total" fields="base_grand_total,base_to_global_rate" type="money" expr="%1 * IF(%2 > 0, %2, 1)"/>
 
-        <column name="subtotal" label="Subtotal" fields="base_subtotal,base_to_global_rate" type="money" expr="%1 * %2"/>
+        <column name="subtotal" label="Subtotal" fields="base_subtotal,base_to_global_rate" type="money" expr="%1 * IF(%2 > 0, %2, 1)"/>
 
         <column name="customer_email" label="Email"/>
 
@@ -180,15 +180,15 @@
 
         <column name="qty" label="Qty" type="number"/>
 
-        <column name="cost" label="Total Cost" fields="base_cost,qty" type="money" expr="(%1 * %2) * quote.base_to_global_rate" tables="quote"/>
+        <column name="cost" label="Total Cost" fields="base_cost,qty" type="money" expr="(%1 * %2) * IF(quote.base_to_global_rate > 0, quote.base_to_global_rate, 1)" tables="quote"/>
 
-        <column name="price" label="Price" fields="base_price" type="money" expr="%1 * quote.base_to_global_rate" tables="quote"/>
+        <column name="price" label="Price" fields="base_price" type="money" expr="%1 * IF(quote.base_to_global_rate > 0, quote.base_to_global_rate, 1)" tables="quote"/>
 
-        <column name="row_total" label="Total" fields="base_row_total" type="money" expr="%1 * quote.base_to_global_rate" tables="quote"/>
+        <column name="row_total" label="Total" fields="base_row_total" type="money" expr="%1 * IF(quote.base_to_global_rate > 0, quote.base_to_global_rate, 1)" tables="quote"/>
 
-        <column name="tax_amount" label="Tax Amount" fields="base_tax_amount" type="money" expr="%1 * quote.base_to_global_rate" tables="quote"/>
+        <column name="tax_amount" label="Tax Amount" fields="base_tax_amount" type="money" expr="%1 * IF(quote.base_to_global_rate > 0, quote.base_to_global_rate, 1)" tables="quote"/>
 
-        <column name="discount_amount" label="Discount Amount" fields="base_discount_amount" type="money" expr="%1 * quote.base_to_global_rate" tables="quote"/>
+        <column name="discount_amount" label="Discount Amount" fields="base_discount_amount" type="money" expr="%1 * IF(quote.base_to_global_rate > 0, quote.base_to_global_rate, 1)" tables="quote"/>
     </table>
 
     <table name="cataloginventory_stock_item" group="Products" label="Stock Items">
@@ -246,6 +246,6 @@
     <relation name="sales_order_item-catalog_product_entity" type="1n">
         <leftTable>sales_order_item</leftTable>
         <rightTable>catalog_product_entity</rightTable>
-        <condition>%1.product_id=%2.entity_id AND %1.parent_item_id IS NULL</condition>
+        <condition>%1.product_id=%2.entity_id</condition>
     </relation>
 </config>

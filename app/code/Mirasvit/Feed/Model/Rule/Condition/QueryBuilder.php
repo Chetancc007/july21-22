@@ -9,52 +9,118 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
+declare(strict_types=1);
 
 namespace Mirasvit\Feed\Model\Rule\Condition;
 
-use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
+use Magento\Eav\Model\Config as EavConfig;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\DB\Select;
+use Mirasvit\Core\Service\CompatibilityService;
 
 class QueryBuilder
 {
-    static $idx = 0;
+    const STATIC_FIELDS = ['entity_id', 'sku', 'attribute_set_id', 'type_id', 'created_at', 'updated_at'];
+
+    private $salt = 0;
 
     private $resource;
 
     private $connection;
 
+    private $eavConfig;
+
     public function __construct(
-        ResourceConnection $resource
+        ResourceConnection $resource,
+        EavConfig $eavConfig
     ) {
         $this->resource   = $resource;
         $this->connection = $resource->getConnection();
+        $this->eavConfig  = $eavConfig;
     }
 
     /**
-     * @param  Select     $select
-     * @param  Attribute  $attribute
-     *
-     * @return string
+     * @SuppressWarnings(PHPMD)
      */
-    public function joinAttribute($select, $attribute)
+    public function buildCondition(Select $select, string $fieldName, string $operator, string $value): string
     {
-        self::$idx++;
-        $salt = '_' . self::$idx;
-        $code = $attribute->getAttributeCode();
+        $fieldCondition = $this->joinField($select, $fieldName);
 
-        // valid attributes for filtering in fast mode
-        $attributes = ['entity_id', 'name', 'sku', 'price', 'category_ids', 'attribute_set', 'visibility',
-            'status', 'type_id', 'created_at', 'updated_at'];
-
-        if (!in_array($code, $attributes)) {
-            return false;
+        if (!$fieldCondition) {
+            return '';
         }
+
+        if (in_array($operator, ['()', '!()', '{}', '!{}'])) {
+            // remove spaces from the string
+            $value = preg_replace('/\s+/', '', $value);
+
+            $value = array_filter(explode(',', $value));
+        }
+
+        switch ($operator) {
+            case '==':
+                return $this->conditionEQ($fieldCondition, $value);
+
+            case '!=':
+                return $this->conditionNEQ($fieldCondition, $value);
+
+            case '()':
+                return $this->conditionIsOneOf($fieldCondition, $value);
+
+            case '!()':
+                return $this->conditionNotIsOneOf($fieldCondition, $value);
+
+            case '<=>':
+                return $this->conditionIsUndefined($fieldCondition);
+
+            case '>':
+                return $this->conditionGt($fieldCondition, $value);
+
+            case '>=':
+                return $this->conditionGtEq($fieldCondition, $value);
+
+            case '<':
+                return $this->conditionLt($fieldCondition, $value);
+
+            case '<=':
+                return $this->conditionLtEq($fieldCondition, $value);
+
+            case '{}':
+                return $this->conditionContains($fieldCondition, $value);
+
+            case '!{}':
+                return $this->conditionDoesNotContain($fieldCondition, $value);
+
+            default:
+                return '';
+        }
+    }
+
+    private function joinField(Select $select, string $fieldName): string
+    {
+        if (in_array($fieldName, self::STATIC_FIELDS)) {
+            $fieldCondition = "e.{$fieldName}";
+
+            $select->columns([
+                $fieldName => $fieldCondition,
+            ]);
+
+            return $fieldCondition;
+        }
+
+        $attribute = $this->eavConfig->getAttribute('catalog_product', $fieldName);
+
+        if (!$attribute->getId()) {
+            return '';
+        }
+
+        $salt = '_' . $this->salt++;
+        $code = $attribute->getAttributeCode();
 
         if ($code == 'category_ids') {
             $table      = $this->resource->getTableName('catalog_category_product');
@@ -67,222 +133,67 @@ class QueryBuilder
             );
 
             return $field;
-        } elseif ($attribute->isStatic()) {
-            $field = "e.{$code}";
-            $select->columns([$code => $field]);
+        }
 
-            return $field;
+        $table = $attribute->getBackendTable();
+
+        $tableAlias = "tbl_{$code}{$salt}";
+
+        $field = "{$tableAlias}.value";
+
+        if (!$this->isJoined($select, $field)) {
+            if (CompatibilityService::isEnterprise()) {
+                $condition = "e.row_id = {$tableAlias}.row_id AND {$tableAlias}.attribute_id = {$attribute->getId()}";
+            } else {
+                $condition = "e.entity_id = {$tableAlias}.entity_id AND {$tableAlias}.attribute_id = {$attribute->getId()}";
+            }
+
+            $select->joinLeft(
+                [$tableAlias => $table],
+                $condition,
+                [$code => $field]
+            );
+        }
+
+        return $field;
+    }
+
+    private function conditionEQ(string $field, string $value): string
+    {
+        if ($value == ''){
+            return $this->connection->quoteInto("${field} = ? or ${field} IS NULL", $value);
         } else {
-            $table = $attribute->getBackendTable();
-
-            $tableAlias = "tbl_{$code}{$salt}";
-
-            $field = "{$tableAlias}.value";
-
-            if (!$this->isJoined($select, $field)) {
-                $select->joinLeft(
-                    [$tableAlias => $table],
-                    "e.entity_id = {$tableAlias}.entity_id AND {$tableAlias}.attribute_id={$attribute->getId()}",
-                    [$code => $field]
-                );
-            }
-
-            return $field;
+            return $this->connection->quoteInto("${field} = ?", $value);
         }
     }
 
-    /**
-     * @return int
-     */
-    public static function getIdx()
-    {
-        return self::$idx;
-    }
-
-    /**
-     * @param int $idx
-     */
-    public static function setIdx($idx)
-    {
-        self::$idx = $idx;
-    }
-
-    /**
-     * @return ResourceConnection
-     */
-    public function getResource()
-    {
-        return $this->resource;
-    }
-
-    /**
-     * @param ResourceConnection $resource
-     */
-    public function setResource($resource)
-    {
-        $this->resource = $resource;
-    }
-
-    /**
-     * @return \Magento\Framework\DB\Adapter\AdapterInterface
-     */
-    public function getConnection()
-    {
-        return $this->connection;
-    }
-
-    /**
-     * @param \Magento\Framework\DB\Adapter\AdapterInterface $connection
-     */
-    public function setConnection($connection)
-    {
-        $this->connection = $connection;
-    }
-
-    /**
-     * @param string $field
-     * @param string  $operator
-     * @param string  $value
-     *
-     * @return string
-     * @SuppressWarnings(PHPMD)
-     */
-    public function buildCondition($field, $operator, $value)
-    {
-        if (in_array($operator, ['()', '!()', '{}', '!{}'])) {
-            if (!is_array($value)) {
-                $value = explode(',', $value);
-            }
-        }
-
-        switch ($operator) {
-            case '==':
-                $condition = $this->conditionEQ($field, $value);
-                break;
-
-            case '!=':
-                $condition = $this->conditionNEQ($field, $value);
-                break;
-
-            case '()':
-                $condition = $this->conditionIsOneOf($field, $value);
-                break;
-
-            case '!()':
-                $condition = $this->conditionNotIsOneOf($field, $value);
-                break;
-
-            case '<=>':
-                $condition = $this->conditionIsUndefined($field);
-                break;
-
-            case '>':
-                $condition = $this->conditionGt($field, $value);
-                break;
-
-            case '>=':
-                $condition = $this->conditionGtEq($field, $value);
-                break;
-
-            case '<':
-                $condition = $this->conditionLt($field, $value);
-                break;
-
-            case '<=':
-                $condition = $this->conditionLtEq($field, $value);
-                break;
-
-            case '{}':
-                $condition = $this->conditionContains($field, $value);
-
-                break;
-            case '!{}':
-                $condition = $this->conditionDoesNotContain($field, $value);
-                break;
-
-            default:
-                throw new \Exception("Undefined operator: {$operator}");
-        }
-
-        return $condition;
-    }
-
-    /**
-     * @param  string $field
-     * @param  string  $value
-     *
-     * @return string
-     */
-    private function conditionEQ($field, $value)
-    {
-        return $this->connection->quoteInto("${field} = ?", $value);
-    }
-
-    /**
-     * @param  string $field
-     * @param  string $value
-     *
-     * @return string
-     */
-    private function conditionNEQ($field, $value)
+    private function conditionNEQ(string $field, string $value): string
     {
         return $this->connection->quoteInto("${field} NOT IN (?)", $value);
     }
 
-    /**
-     * @param  string $field
-     * @param  string $value
-     *
-     * @return string
-     */
-    private function conditionGt($field, $value)
+    private function conditionGt(string $field, string $value): string
     {
         return $this->connection->quoteInto("${field} > ?", $value);
     }
 
-    /**
-     * @param  string $field
-     * @param  string $value
-     *
-     * @return string
-     */
-    private function conditionGtEq($field, $value)
+    private function conditionGtEq(string $field, string $value): string
     {
         return $this->connection->quoteInto("${field} >= ?", $value);
     }
 
-    /**
-     * @param  string $field
-     * @param  string $value
-     *
-     * @return string
-     */
-    private function conditionLt($field, $value)
+    private function conditionLt(string $field, string $value): string
     {
         return $this->connection->quoteInto("${field} < ?", $value);
     }
 
-    /**
-     * @param  string $field
-     * @param  string $value
-     *
-     * @return string
-     */
-    private function conditionLtEq($field, $value)
+    private function conditionLtEq(string $field, string $value): string
     {
         return $this->connection->quoteInto("${field} <= ?", $value);
     }
 
-    /**
-     * @param  string $field
-     * @param  string $value
-     *
-     * @return string
-     */
-    private function conditionIsOneOf($field, $value)
+    private function conditionIsOneOf(string $field, array $value): string
     {
-        $value = array_filter($value);
-
         $parts = [];
         foreach ($value as $v) {
             $parts[] = $this->connection->quoteInto("FIND_IN_SET(?, {$field})", $v);
@@ -291,50 +202,28 @@ class QueryBuilder
         return implode(' OR ', $parts);
     }
 
-    /**
-     * @param  string $field
-     * @param  string $value
-     *
-     * @return string
-     */
-    private function conditionContains($field, $value)
+    private function conditionContains(string $field, array $value): string
     {
-        $value = array_filter($value);
         $parts = [];
         foreach ($value as $v) {
-            $parts[] = $this->connection->quoteInto("{$field} LIKE ?", '%'.$v.'%');
+            $parts[] = $this->connection->quoteInto("{$field} LIKE ?", '%' . $v . '%');
         }
 
         return implode(' OR ', $parts);
     }
 
-    /**
-     * @param  string $field
-     * @param  string $value
-     *
-     * @return string
-     */
-    private function conditionDoesNotContain($field, $value)
+    private function conditionDoesNotContain(string $field, array $value)
     {
-        $value = array_filter($value);
         $parts = [];
         foreach ($value as $v) {
-            $parts[] = $this->connection->quoteInto("{$field} NOT LIKE ?", '%'.$v.'%');
+            $parts[] = $this->connection->quoteInto("{$field} NOT LIKE ?", '%' . $v . '%');
         }
 
         return implode(' AND ', $parts);
     }
 
-    /**
-     * @param  string $field
-     * @param  string $value
-     *
-     * @return string
-     */
-    private function conditionNotIsOneOf($field, $value)
+    private function conditionNotIsOneOf(string $field, array $value): string
     {
-        $value = array_filter($value);
-
         $parts = [];
         foreach ($value as $v) {
             $parts[] = $this->connection->quoteInto("FIND_IN_SET(?, {$field}) = 0", $v);
@@ -343,12 +232,7 @@ class QueryBuilder
         return implode(' AND ', $parts);
     }
 
-    /**
-     * @param  string $field
-     *
-     * @return string
-     */
-    private function conditionIsUndefined($field)
+    private function conditionIsUndefined(string $field): string
     {
         $parts = [
             "{$field} IS NULL",
@@ -358,14 +242,8 @@ class QueryBuilder
         return implode(' OR ', $parts);
     }
 
-    /**
-     * @param Select $select
-     * @param string $field
-     *
-     * @return string
-     */
-    private function isJoined($select, $field)
+    private function isJoined(Select $select, string $field): bool
     {
-        return strpos($select, $field) !== false;
+        return strpos((string)$select, $field) !== false;
     }
 }

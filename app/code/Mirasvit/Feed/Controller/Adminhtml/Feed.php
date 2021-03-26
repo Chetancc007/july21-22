@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -73,6 +73,15 @@ abstract class Feed extends Action
         $resultPage->setActiveMenu('Magento_Catalog::catalog');
         $resultPage->getConfig()->getTitle()->prepend(__('Advanced Product Feeds'));
         $resultPage->getConfig()->getTitle()->prepend(__('Feeds'));
+
+        if (!class_exists('Zend_Reflection_Class')) {
+            $this->context->getMessageManager()->addError(__(
+                "Zend Reflection library wasn't installed." ."</br>".
+                "To display the feed edit pages correctly,
+                install this library on the server using the following SSH command:
+                composer require 'zf1/zend-reflection'"
+            ));
+        }
 
         return $resultPage;
     }

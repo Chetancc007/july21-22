@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -466,7 +466,7 @@ class InstallSchema implements InstallSchemaInterface
             'type',
             Table::TYPE_TEXT,
             255,
-            ['unsigned' => false, 'nullable' => false],
+            ['unsigned' => false, 'nullable' => true],
             'Type'
         )->addColumn(
             'conditions_serialized',
@@ -478,7 +478,7 @@ class InstallSchema implements InstallSchemaInterface
             'actions_serialized',
             Table::TYPE_TEXT,
             '64K',
-            ['unsigned' => false, 'nullable' => false],
+            ['unsigned' => false, 'nullable' => true],
             'Actions Serialized'
         )->addColumn(
             'is_active',

@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-core
- * @version   1.2.112
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.2.120
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -20,32 +20,20 @@ namespace Mirasvit\Core\Controller\Lc;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Mirasvit\Core\Model\LicenseFactory;
-use Mirasvit\Core\Model\ModuleFactory;
+use Mirasvit\Core\Service\PackageService;
 
 class Index extends Action
 {
-    /**
-     * @var ModuleFactory
-     */
-    private $moduleFactory;
+    private $packageService;
 
-    /**
-     * @var LicenseFactory
-     */
     private $licenseFactory;
 
-    /**
-     * Index constructor.
-     * @param ModuleFactory $moduleFactory
-     * @param LicenseFactory $licenseFactory
-     * @param Context $context
-     */
     public function __construct(
-        ModuleFactory $moduleFactory,
+        PackageService $packageService,
         LicenseFactory $licenseFactory,
         Context $context
     ) {
-        $this->moduleFactory  = $moduleFactory;
+        $this->packageService = $packageService;
         $this->licenseFactory = $licenseFactory;
 
         parent::__construct($context);
@@ -59,28 +47,50 @@ class Index extends Action
     {
         echo '<pre>';
 
-        $module = $this->moduleFactory->create();
-        foreach ($module->getInstalledModules() as $moduleName) {
-            $moduleName = str_replace('Mirasvit_', '', $moduleName);
+        foreach ($this->packageService->getPackageList() as $package) {
+            foreach ($package->getModuleList() as $moduleName) {
+                $license = $this->licenseFactory->create();
 
-            echo $moduleName;
+                list(, $name) = explode('_', $moduleName);
 
-            $info = $module->getComposerInformation('Mirasvit_' . $moduleName);
-            if ($info) {
-                echo ' ' . $info['version'];
+                $license->clear();
+
+                $data = [
+                    $moduleName,
+                    $package->getVersion(),
+                    $license->load('\\' . $name),
+                    $license->getStatus('\\' . $name),
+                    $package->getVersionTxt(),
+                ];
+
+                foreach ($data as $v) {
+                    echo $this->renderVal($v) . "\t";
+                }
+
+                echo PHP_EOL;
             }
-
-            $license = $this->licenseFactory->create();
-
-            echo ' ' . $license->load('\\' . $moduleName);
-
-            $license->clear();
-
-            echo ' = ' . $license->getStatus('\\' . $moduleName);
-
-            echo PHP_EOL;
         }
 
         exit;
+    }
+
+    /**
+     * @param string|bool $value
+     *
+     * @return string
+     */
+    private function renderVal($value)
+    {
+        if (is_bool($value)) {
+            $value = $value ? 'T' : 'F';
+        } else {
+            $value = $value ? $value : '_';
+        }
+        $l = 20 - strlen($value);
+        if ($l < 0) {
+            $l = 0;
+        }
+
+        return '[ ' . $value . ' ]' . str_repeat(' ', $l);
     }
 }

@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report
- * @version   1.3.96
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.3.108
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -54,11 +54,12 @@ class ReportDataProvider extends Template
 
     /**
      * ReportDataProvider constructor.
+     *
      * @param ReportRepositoryInterface $reportRepository
-     * @param ColumnServiceInterface $columnService
-     * @param StateService $stateService
-     * @param Registry $registry
-     * @param Template\Context $context
+     * @param ColumnServiceInterface    $columnService
+     * @param StateService              $stateService
+     * @param Registry                  $registry
+     * @param Template\Context          $context
      */
     public function __construct(
         ReportRepositoryInterface $reportRepository,
@@ -107,18 +108,18 @@ class ReportDataProvider extends Template
             $applicableColumns = $this->columnService->getApplicableColumns($report->getDimensions());
 
             $state = [
-                'identifier'  => $report->getIdentifier(),
-                'table'       => $report->getTable(),
-                'dimensions'  => $report->getDimensions(),
-                'columns'     => $report->getColumns(),
-                'filters'     => [],
-                'sortOrders'  => [],
-                'currentPage' => 1,
-                'pageSize'    => 20,
-
+                'identifier'   => $report->getIdentifier(),
+                'table'        => $report->getTable(),
+                'dimensions'   => $report->getDimensions(),
+                'columns'      => $report->getColumns(),
+                'filters'      => $report->getFilters(),
+                'sortOrders'   => [],
+                'currentPage'  => 1,
+                'pageSize'     => 20,
                 'chartType'    => $report->getChartConfig()->getType(),
                 'chartColumns' => $report->getChartConfig()->getDefaultColumns(),
             ];
+
             $state = $this->stateService->mergeState($report->getIdentifier(), $state);
 
             $schema = [
@@ -149,14 +150,6 @@ class ReportDataProvider extends Template
         Profiler::stop(__METHOD__);
 
         return $result;
-    }
-
-    /**
-     * @return ReportInterface
-     */
-    private function getReport()
-    {
-        return $this->registry->registry('current_report');
     }
 
     /**
@@ -195,5 +188,13 @@ class ReportDataProvider extends Template
         }
 
         return "<script>var reportDataProvider = $json</script>";
+    }
+
+    /**
+     * @return ReportInterface
+     */
+    private function getReport()
+    {
+        return $this->registry->registry('current_report');
     }
 }

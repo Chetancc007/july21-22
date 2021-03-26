@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -48,6 +48,12 @@ class ProductResolver extends AbstractResolver
      * @var \Magento\Eav\Model\ResourceModel\Entity\Attribute\Collection
      */
     private static $attributes;
+
+    /**
+     * Cache of loaded mapping
+     * @var array
+     */
+    private static $mappings = [];
 
     /**
      * @var StockRegistryInterface
@@ -368,6 +374,19 @@ class ProductResolver extends AbstractResolver
     }
 
     /**
+     * Return product description
+     * @param Product $product
+     * @return string
+     */
+    public function getDescription($product)
+    {
+        $description = $product->getDescription();
+        $description = html_entity_decode($description);
+
+        return $description;
+    }
+
+    /**
      * Return product stock status
      * @param Product $product
      * @return int
@@ -517,14 +536,28 @@ class ProductResolver extends AbstractResolver
      */
     public function getMapping($product, $args)
     {
+
         $mappingId = $args[0];
 
         /** @var \Mirasvit\Feed\Model\Dynamic\Category $mapping */
-        $mapping = $this->objectManager->create('\Mirasvit\Feed\Model\Dynamic\Category')->load($mappingId);
+        $mapping = $this->getMappingData($mappingId);
 
         $category = $this->getCategory($product);
 
         return $category ? $mapping->getMappingValue($category->getId()) : $mapping->getMappingValue(0);
+    }
+
+    /**
+     * Mapping model
+     * @param string $id
+     * @return object
+     */
+    private function getMappingData($id) {
+        if (!isset(self::$mappings[$id])) {
+            self::$mappings[$id] = $this->objectManager->create('\Mirasvit\Feed\Model\Dynamic\Category')->load($id);
+        }
+
+        return self::$mappings[$id];
     }
 
     /**

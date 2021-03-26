@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report-api
- * @version   1.0.39
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.0.43
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -148,20 +148,22 @@ class EavTable extends Table
             $attribute = $this->eavConfig->getAttribute($entityTypeId, $attributeCode);
 
             $options = null;
-            if ($attribute->getDefaultFrontendLabel()) {
-                if ($attribute->usesSource()) {
-                    if ($attribute->getSourceModel() && !class_exists($attribute->getSourceModel())) {
-                        continue;
-                    } else {
-                        if (method_exists($attribute->getSource(), 'toOptionArray')) {
-                            try {
+
+            // To prevent issue with incorrectly migrated attributes from M1
+            // (Type error occured when created the object: Magento\Eav\Model\Entity\Attribute\Source\Config)
+            try {
+                if ($attribute->getDefaultFrontendLabel()) {
+                    if ($attribute->usesSource()) {
+                        if ($attribute->getSourceModel() && !class_exists($attribute->getSourceModel())) {
+                            continue;
+                        } else {
+                            if (method_exists($attribute->getSource(), 'toOptionArray')) {
                                 $options = $attribute->getSource()->toOptionArray();
-                            } catch (\Exception $e) {
                             }
                         }
                     }
                 }
-            }
+            } catch (\Exception $e) {}
 
             $data[$attributeCode] = [
                 'name'    => $attributeCode,

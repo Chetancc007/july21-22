@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -28,20 +28,15 @@ class UpgradeSchema implements UpgradeSchemaInterface
      */
     private $pool;
 
-    /**
-     * UpgradeSchema constructor.
-     * @param UpgradeSchema\UpgradeSchema101 $upgrade101
-     * @param UpgradeSchema\UpgradeSchema102 $upgrade102
-     * @param UpgradeSchema\UpgradeSchema103 $upgrade103
-     * @param UpgradeSchema\UpgradeSchema104 $upgrade104
-     * @param UpgradeSchema\UpgradeSchema105 $upgrade105
-     */
     public function __construct(
         UpgradeSchema\UpgradeSchema101 $upgrade101,
         UpgradeSchema\UpgradeSchema102 $upgrade102,
         UpgradeSchema\UpgradeSchema103 $upgrade103,
         UpgradeSchema\UpgradeSchema104 $upgrade104,
-        UpgradeSchema\UpgradeSchema105 $upgrade105
+        UpgradeSchema\UpgradeSchema105 $upgrade105,
+        UpgradeSchema\UpgradeSchema106 $upgrade106,
+        UpgradeSchema\UpgradeSchema107 $upgrade107,
+        UpgradeSchema\UpgradeSchema108 $upgrade108
     ) {
         $this->pool = [
             '1.0.1' => $upgrade101,
@@ -49,6 +44,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
             '1.0.3' => $upgrade103,
             '1.0.4' => $upgrade104,
             '1.0.5' => $upgrade105,
+            '1.0.6' => $upgrade106,
+            '1.0.7' => $upgrade107,
+            '1.0.8' => $upgrade108
         ];
     }
 

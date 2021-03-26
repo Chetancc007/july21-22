@@ -9,7 +9,7 @@ $outputHelper = $this->helper('Mirasvit\Feed\Helper\Output');
     require([
         'jquery'
     ], function ($) {
-        $.attributes = <?php echo \Zend_Json_Encoder::encode($outputHelper->getAttributeOptions()) ?>;
+        $.attributes = <?php echo \Mirasvit\Core\Service\SerializeService::encode($outputHelper->getAttributeOptions()) ?>;
     });
 </script>
 

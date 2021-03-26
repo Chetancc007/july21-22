@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -54,6 +54,8 @@ use Mirasvit\Feed\Service\Serialize;
  * @method string getGaContent()
  * @method bool getReportEnabled()
  * @method string getNotificationEmails()
+ * @method bool getFbMetadataEnabled()
+ * @method bool getFilterFastmodeEnabled()
  */
 class Feed extends AbstractTemplate
 {
@@ -262,5 +264,23 @@ class Feed extends AbstractTemplate
         $this->addData($template->getData());
 
         return $this;
+    }
+
+    /**
+     * Enable facebook metadata tags
+     *
+     * @return bool
+     */
+    public function getFbMetadataEnabled() {
+        return $this->getData('fb_metadata_enabled');
+    }
+
+    /**
+     * Enable fast fitlering mode
+     *
+     * @return bool
+     */
+    public function getFilterFastmodeEnabled() {
+        return $this->getData('filter_fastmode_enabled');
     }
 }

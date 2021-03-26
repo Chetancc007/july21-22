@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report-api
- * @version   1.0.39
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.0.43
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -24,14 +24,7 @@ use Mirasvit\ReportApi\Api\Service\TableServiceInterface;
 
 class TableService implements TableServiceInterface
 {
-    /**
-     * @var ResourceConnection
-     */
     private $resource;
-
-    /**
-     * @var CacheInterface
-     */
     private $cache;
 
     /**
@@ -39,11 +32,6 @@ class TableService implements TableServiceInterface
      */
     private $storage = null;
 
-    /**
-     * TableService constructor.
-     * @param ResourceConnection $resource
-     * @param CacheInterface $cache
-     */
     public function __construct(
         ResourceConnection $resource,
         CacheInterface $cache

@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report
- * @version   1.3.96
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.3.108
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -22,6 +22,7 @@ use Magento\Ui\Model\Export\SearchResultIteratorFactory;
 use Mirasvit\Report\Service\XmlWriter;
 use Mirasvit\Report\Service\XmlWriterFactory;
 use Mirasvit\ReportApi\Api\ResponseInterface;
+use Mirasvit\ReportApi\Api\RequestInterface;
 
 class ConvertToXml extends ConvertToCsv
 {
@@ -66,12 +67,12 @@ class ConvertToXml extends ConvertToCsv
     }
 
     /**
-     * @param ResponseInterface $response
+     * @param RequestInterface $request
      *
      * @return array
      * @throws \Magento\Framework\Exception\FileSystemException
      */
-    public function getXmlFile(ResponseInterface $response)
+    public function getXmlFile(RequestInterface $request)
     {
         $name = hash('sha256', microtime());
         $file = 'export/' . $name . '.xml';
@@ -80,23 +81,35 @@ class ConvertToXml extends ConvertToCsv
         $stream = $this->directory->openFile($file, 'w+');
         $stream->lock();
 
-        /** @var XmlWriter $xmlWriter */
-        $xmlWriter = $this->xmlWriterFactory->create([
-            'iterator'    => $this->iteratorFactory->create(['items' => $response->getItems()]),
-            'rowCallback' => [$this, 'getItemData'],
-        ]);
-
-        $this->directory->create('export');
-        $stream = $this->directory->openFile($file, 'w+');
-        $stream->lock();
+        $request->setPageSize(1000);
 
         $header = [];
-        foreach ($response->getColumns() as $column) {
-            $header[] = $column->getLabel();
-        }
 
-        $xmlWriter->setDataHeader($header);
-        $xmlWriter->write($stream, $name . '.xml');
+        for ($i = 1; $i == $i; $i++) {
+            $r = clone $request;
+            $r->setCurrentPage($i);
+            $resp = $r->process();
+
+            if(!$resp->getItems()) {
+                break;
+            }
+
+            /** @var XmlWriter $xmlWriter */
+            $xmlWriter = $this->xmlWriterFactory->create([
+                'iterator' => $this->iteratorFactory->create(['items' => $resp->getItems()]),
+                'rowCallback' => [$this, 'getItemData'],
+            ]);
+
+            if($i === 1) {
+                foreach ($resp->getColumns() as $column) {
+                    $header[] = $column->getLabel();
+                }
+
+                $xmlWriter->setDataHeader($header);
+            }
+
+            $xmlWriter->write($stream, $name . '.xml');
+        }
 
         $stream->unlock();
         $stream->close();

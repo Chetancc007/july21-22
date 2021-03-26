@@ -9,33 +9,51 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
+
 
 
 namespace Mirasvit\Feed\Controller\Adminhtml\Rule;
 
-use Mirasvit\Feed\Controller\Adminhtml\Rule;
+use Magento\Backend\App\Action\Context;
+use Mirasvit\Feed\Controller\Adminhtml\AbstractRule;
+use Mirasvit\Feed\Controller\Registry;
+use Mirasvit\Feed\Repository\RuleRepository;
+use Mirasvit\Feed\Service\Rule\DuplicateService;
 
-class Duplicate extends Rule
+class Duplicate extends AbstractRule
 {
-    /**
-     * {@inheritdoc}
-     */
+    private $duplicateService;
+
+    public function __construct(
+        DuplicateService $duplicateService,
+        RuleRepository $ruleRepository,
+        Registry $registry,
+        Context $context
+    ) {
+        $this->duplicateService = $duplicateService;
+
+        parent::__construct($ruleRepository, $registry, $context);
+    }
+
     public function execute()
     {
         $resultRedirect = $this->resultRedirectFactory->create();
 
         try {
             $model = $this->initModel();
-            $model->duplicate();
+
+            $this->duplicateService->duplicate($model);
         } catch (\Exception $e) {
-            $this->messageManager->addError($e->getMessage());
+            $this->messageManager->addErrorMessage($e->getMessage());
+
             return $resultRedirect->setPath('*/*/');
         }
 
-        $this->messageManager->addSuccess(__('Rule was successfully duplicated'));
+        $this->messageManager->addSuccessMessage(__('Rule was successfully duplicated'));
+
         return $resultRedirect->setPath('*/*/');
     }
 }

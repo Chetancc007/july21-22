@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-core
- * @version   1.2.112
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.2.120
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -26,64 +26,31 @@ use Magento\Framework\Message\ManagerInterface as MessageManagerInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Mirasvit\Core\Api\Service\CronServiceInterface;
+use Magento\Framework\UrlInterface;
 
 class CronService implements CronServiceInterface
 {
     const LIMIT_HOURS   = 6;
     const LAST_JOBS_QTY = 5;
 
-    /**
-     * @var ScheduleCollectionFactory
-     */
     private $scheduleCollectionFactory;
 
-    /**
-     * @var DateTime
-     */
     private $dateTime;
 
-    /**
-     * @var MessageManagerInterface
-     */
     private $messageManager;
 
-    /**
-     * @var CronConfig
-     */
     private $cronConfig;
 
-    /**
-     * @var ScopeConfigInterface
-     */
     private $scopeConfig;
 
-    /**
-     * @var TimezoneInterface
-     */
     private $timezoneConverter;
 
-    /**
-     * @var Schedule
-     */
     private $schedule;
 
-    /**
-     * @var DateTimeFactory
-     */
     private $dateTimeFactory;
 
-    /**
-     * CronService constructor.
-     *
-     * @param ScheduleCollectionFactory $scheduleCollectionFactory
-     * @param DateTime                  $dateTime
-     * @param MessageManagerInterface   $messageManager
-     * @param CronConfig                $cronConfig
-     * @param ScopeConfigInterface      $scopeConfig
-     * @param TimezoneInterface         $timezoneConverter
-     * @param Schedule                  $schedule
-     * @param DateTimeFactory           $dateTimeFactory
-     */
+    protected $urlBuilder;
+
     public function __construct(
         ScheduleCollectionFactory $scheduleCollectionFactory,
         DateTime $dateTime,
@@ -92,6 +59,7 @@ class CronService implements CronServiceInterface
         ScopeConfigInterface $scopeConfig,
         TimezoneInterface $timezoneConverter,
         Schedule $schedule,
+        UrlInterface $urlBuilder,
         DateTimeFactory $dateTimeFactory
     ) {
         $this->scheduleCollectionFactory = $scheduleCollectionFactory;
@@ -101,6 +69,7 @@ class CronService implements CronServiceInterface
         $this->scopeConfig               = $scopeConfig;
         $this->timezoneConverter         = $timezoneConverter;
         $this->schedule                  = $schedule;
+        $this->urlBuilder                = $urlBuilder;
         $this->dateTimeFactory           = $dateTimeFactory;
     }
 
@@ -192,7 +161,7 @@ class CronService implements CronServiceInterface
 
             if (count($notRunningJobs) == count($jobCodes)) {
                 $message .= __(
-                    'Cron for magento is not running. To setup a cron job follow the link %1',
+                    'Cron for Magento is not running. To setup a cron job, follow the link %1',
                     'http://devdocs.magento.com/guides/v2.0/config-guide/cli/config-cli-subcommands-cron.html'
                 );
             } else {
@@ -204,7 +173,13 @@ class CronService implements CronServiceInterface
                 );
             }
 
-            $this->messageManager->addErrorMessage($message);
+            $this->messageManager->addComplexErrorMessage(
+                'mstCronMessage',
+                [
+                    'message' => $message,
+                    'url' => $this->urlBuilder->getUrl('mstcore/cron'),
+                ]
+            );
         }
     }
 

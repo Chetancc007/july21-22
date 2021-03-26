@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -20,46 +20,34 @@ namespace Mirasvit\Feed\Export\Step\Filtration;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
 use Mirasvit\Feed\Export\Context;
 use Mirasvit\Feed\Export\Step\AbstractStep;
-use Mirasvit\Feed\Model\RuleFactory;
-use Magento\Framework\App\ProductMetadataInterface as ProductMetadata;
+use Mirasvit\Feed\Repository\RuleRepository;
 
 class Rule extends AbstractStep
 {
-    private $ruleFactory;
+    private $ruleRepository;
 
     private $productCollectionFactory;
 
-    /**
-     * @var int
-     */
-    private $ruleId;
+    private $rule;
 
-    /**
-     * @var ProductMetadata
-     */
-    private $productMetadata;
+    private $ruleInstance;
 
-    /**
-     * Rule constructor.
-     * @param RuleFactory              $ruleFactory
-     * @param ProductCollectionFactory $productCollectionFactory
-     * @param ProductMetadata          $productMetadata
-     * @param Context                  $context
-     * @param array                    $data
-     */
     public function __construct(
-        RuleFactory              $ruleFactory,
+        RuleRepository $ruleRepository,
         ProductCollectionFactory $productCollectionFactory,
-        ProductMetadata          $productMetadata,
-        Context                  $context,
-        $data = []
+        Context $context,
+        array $data = []
     ) {
-        $this->ruleFactory              = $ruleFactory;
+        $this->ruleRepository           = $ruleRepository;
         $this->productCollectionFactory = $productCollectionFactory;
-        $this->productMetadata          = $productMetadata;
         $this->context                  = $context;
 
-        $this->ruleId = $data['rule_id'];
+        $ruleId = (int)$data['rule_id'];
+
+        $this->rule = $this->ruleRepository->get($ruleId);
+        if ($this->rule) {
+            $this->ruleInstance = $this->ruleRepository->getRuleInstance($this->rule);
+        }
 
         parent::__construct($context, $data);
     }
@@ -74,8 +62,7 @@ class Rule extends AbstractStep
         $this->index  = 0;
         $this->length = $this->getProductCollection()->getSize();
 
-        $this->ruleFactory->create()->load($this->ruleId)
-            ->clearProductIds();
+        $this->ruleRepository->clearProductIds($this->rule);
     }
 
     /**
@@ -87,8 +74,6 @@ class Rule extends AbstractStep
             $this->beforeExecute();
         }
 
-        $rule = $this->ruleFactory->create()->load($this->ruleId);
-
         $validIds = [];
 
         $lastId = 0;
@@ -96,7 +81,6 @@ class Rule extends AbstractStep
             $collection = $this->getProductCollection();
 
             $collection->getSelect()->group('e.entity_id');
-
 
             if ($lastId) {
                 $collection->getSelect()
@@ -109,12 +93,11 @@ class Rule extends AbstractStep
 
             $startIndex = $this->index;
 
-
             foreach ($collection as $product) {
-                $lastId = $product->getId();
+                $lastId = (int)$product->getId();
                 $this->index++;
 
-                if ($rule->getConditions()->validate($product)) {
+                if ($this->ruleInstance->getConditions()->validate($product)) {
                     $validIds[] = $product->getId();
                 }
 
@@ -122,13 +105,14 @@ class Rule extends AbstractStep
                     break 2;
                 }
             }
+
             #sometimes collection getSize not equal real number of items
             if ($startIndex == $this->index) {
                 $this->length = $this->index;
             }
         }
 
-        $rule->saveProductIds($validIds);
+        $this->ruleRepository->addProductIds($this->rule, $validIds);
 
         if ($this->isCompleted()) {
             $this->afterExecute();
@@ -139,7 +123,7 @@ class Rule extends AbstractStep
      * Product collection
      * @return \Magento\Catalog\Model\ResourceModel\Product\Collection
      */
-    protected function getProductCollection()
+    private function getProductCollection()
     {
         $collection = $this->productCollectionFactory->create()
             ->addStoreFilter($this->context->getFeed()->getStoreId())
@@ -152,15 +136,13 @@ class Rule extends AbstractStep
         $collection->addAttributeToSelect('status')
             ->addAttributeToSelect('visibility');
 
-        // fast mode filtering
-        if ($this->productMetadata->getEdition() == 'Community') {
-            $rule = $this->ruleFactory->create()->load($this->ruleId);
-            $rule->applyConditions($collection);
+        // fast filtering mode
+        if ($this->context->getFeed()->getFilterFastmodeEnabled()) {
+            $this->ruleInstance->getConditions()->applyConditions($collection);
         }
 
         // to avoid conflict with the module Sorting
         $collection->setFlag('NO_SORT', true);
-
 
         return $collection;
     }

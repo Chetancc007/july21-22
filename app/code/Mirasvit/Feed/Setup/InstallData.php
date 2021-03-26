@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -21,65 +21,32 @@ use Magento\Framework\Setup\InstallDataInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Mirasvit\Feed\Model\Config;
-use Mirasvit\Feed\Model\Config\Source\Rule as RuleSource;
-use Mirasvit\Feed\Model\Config\Source\Template as TemplateSource;
-use Mirasvit\Feed\Model\RuleFactory;
 use Mirasvit\Feed\Model\TemplateFactory;
+use Mirasvit\Feed\Repository\RuleRepository;
+use Mirasvit\Feed\Service\ImportService;
 
 class InstallData implements InstallDataInterface
 {
-    /**
-     * @var TemplateSource
-     */
-    private $templateSource;
-
-    /**
-     * @var RuleSource
-     */
-    private $ruleSource;
-
-    /**
-     * @var TemplateFactory
-     */
     private $templateFactory;
 
-    /**
-     * @var RuleFactory
-     */
-    private $ruleFactory;
+    private $importService;
 
-    /**
-     * @var Config
-     */
+    private $ruleRepository;
+
     private $config;
 
-    /**
-     * InstallData constructor.
-     * @param TemplateSource $templateSource
-     * @param RuleSource $ruleSource
-     * @param TemplateFactory $templateFactory
-     * @param RuleFactory $ruleFactory
-     * @param Config $config
-     */
     public function __construct(
-        TemplateSource $templateSource,
-        RuleSource $ruleSource,
         TemplateFactory $templateFactory,
-        RuleFactory $ruleFactory,
+        ImportService $importService,
+        RuleRepository $ruleRepository,
         Config $config
     ) {
-        $this->templateSource  = $templateSource;
-        $this->ruleSource      = $ruleSource;
         $this->templateFactory = $templateFactory;
-        $this->ruleFactory     = $ruleFactory;
+        $this->importService   = $importService;
+        $this->ruleRepository  = $ruleRepository;
         $this->config          = $config;
     }
 
-    /**
-     * {@inheritdoc}
-     * @param ModuleDataSetupInterface $setup
-     * @param ModuleContextInterface   $context
-     */
     public function install(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
         $templatesPath = dirname(__FILE__) . '/data/template/';
@@ -98,7 +65,10 @@ class InstallData implements InstallDataInterface
                 continue;
             }
 
-            $this->ruleFactory->create()->import('Setup/data/rule/' . $file);
+            $this->importService->import(
+                $this->ruleRepository->create(),
+                'Setup/data/rule/' . $file
+            );
         }
     }
 }

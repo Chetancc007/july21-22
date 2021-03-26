@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -245,18 +245,18 @@ class Output extends AbstractHelper
 
         if (in_array($code, $primary)) {
             $group = __('1. Primary Attributes');
+        } elseif (in_array($code, $price) || strpos($code, 'price') !== false) {
+            $group = __('2. Prices & Taxes');
+        } elseif (strpos($code, 'category') !== false) {
+            $group = __('3. Category');
+        } elseif (strpos($code, 'image') !== false || strpos($code, 'thumbnail') !== false) {
+            $group = __('4. Images');
         } elseif (in_array($code, $stock)) {
             $group = __('5. Stock Attributes');
         } elseif (strpos($code, 'msi_stock') !== false) {
             $group = __('6.1 Multi Source Inventory Stocks');
         } elseif (strpos($code, 'inventory') !== false) {
             $group = __('6.2 Multi Source Inventory Sources');
-        } elseif (in_array($code, $price) || strpos($code, 'price') !== false) {
-            $group = __('2. Prices & Taxes');
-        } elseif (strpos($code, 'image') !== false || strpos($code, 'thumbnail') !== false) {
-            $group = __('4. Images');
-        } elseif (strpos($code, 'category') !== false) {
-            $group = __('3. Category');
         } elseif (strpos($code, 'dynamic') !== false) {
             $group = __('7. Dynamic Attributes');
         } elseif (strpos($code, 'variable') !== false) {

@@ -4,5 +4,5 @@
 $css = $block->getCustomCss();
 ?>
 <?php if ($css): ?>
-    <style><?= $css; ?></style>
+    <style><?= strip_tags($css); ?></style>
 <?php endif; ?>

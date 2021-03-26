@@ -15,19 +15,19 @@ $libraryInit = [
     require([
         'jquery'
     ], function ($) {
-        $.attributes = <?php echo \Zend_Json_Encoder::encode($outputHelper->getAttributeOptions()) ?>;
-        $.modifiers = <?php echo \Zend_Json_Encoder::encode($outputHelper->getFilterOptions()) ?>;
-        $.patternTypes = <?php echo \Zend_Json_Encoder::encode($outputHelper->getPatternTypeOptions()) ?>;
+        $.attributes = <?php echo \Mirasvit\Core\Service\SerializeService::encode($outputHelper->getAttributeOptions()) ?>;
+        $.modifiers = <?php echo \Mirasvit\Core\Service\SerializeService::encode($outputHelper->getFilterOptions()) ?>;
+        $.patternTypes = <?php echo \Mirasvit\Core\Service\SerializeService::encode($outputHelper->getPatternTypeOptions()) ?>;
     });
 </script>
 
-<button data-mage-init='<?= \Zend_Json_Encoder::encode($libraryInit) ?>'
+<button data-mage-init='<?= \Mirasvit\Core\Service\SerializeService::encode($libraryInit) ?>'
         class="feed__library-button"
         onclick="return false;"><i class="fa fa-graduation-cap"></i> Library of patterns
 </button>
 
 <script type="text/x-magento-init">
-    <?php echo \Zend_Json_Encoder::encode($block->getJsConfig()) ?>
+    <?php echo \Mirasvit\Core\Service\SerializeService::encode($block->getJsConfig()) ?>
 
 </script>
 

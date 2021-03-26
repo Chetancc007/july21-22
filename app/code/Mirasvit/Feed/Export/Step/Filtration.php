@@ -9,55 +9,40 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
+
 
 
 namespace Mirasvit\Feed\Export\Step;
 
 use Magento\Framework\App\ResourceConnection;
 use Mirasvit\Feed\Export\Context;
-use Mirasvit\Feed\Model\RuleFactory;
+use Mirasvit\Feed\Repository\RuleRepository;
 
 class Filtration extends AbstractStep
 {
-    /**
-     * @var RuleFactory
-     */
-    protected $ruleFactory;
+    private $ruleRepository;
 
-    /**
-     * @var ResourceConnection
-     */
-    protected $resource;
+    private $resource;
 
-    /**
-     * @var StepFactory
-     */
-    protected $stepFactory;
+    private $stepFactory;
 
-    /**
-     * Filtration constructor.
-     * @param RuleFactory $ruleFactory
-     * @param ResourceConnection $resource
-     * @param Context $context
-     */
     public function __construct(
-        RuleFactory $ruleFactory,
+        RuleRepository $ruleRepository,
         ResourceConnection $resource,
         Context $context
     ) {
-        $this->ruleFactory = $ruleFactory;
-        $this->resource = $resource;
-        $this->stepFactory = $context->getStepFactory();
+        $this->ruleRepository = $ruleRepository;
+        $this->resource       = $resource;
+        $this->stepFactory    = $context->getStepFactory();
 
         parent::__construct($context);
     }
 
     /**
      * Add assigned rules as sub steps
-     * {@inheritdoc}
      */
     public function beforeExecute()
     {
@@ -66,9 +51,10 @@ class Filtration extends AbstractStep
         }
 
         foreach ($this->context->getFeed()->getRuleIds() as $ruleId) {
-            $rule = $this->ruleFactory->create()->load($ruleId);
+            $rule = $this->ruleRepository->get($ruleId);
+
             $this->addStep(
-                $this->stepFactory->create('Filtration\Rule', ['data' => ['rule_id' => $ruleId]])
+                $this->stepFactory->create(Filtration\Rule::class, ['data' => ['rule_id' => $ruleId]])
                     ->setName($rule->getName())
             );
         }
@@ -78,22 +64,20 @@ class Filtration extends AbstractStep
 
     /**
      * Merge rules
-     *
-     * {@inheritdoc}
      */
     public function afterExecute()
     {
         $feed = $this->context->getFeed();
 
         $connection = $this->resource->getConnection();
-        $feedId = intval($feed->getId());
+        $feedId     = (int)$feed->getId();
 
         $columns = [
             'product_id' => 'product_id',
             'feed_id'    => new \Zend_Db_Expr($feedId),
             'is_new'     => new \Zend_Db_Expr('1'),
         ];
-        $select = $connection->select();
+        $select  = $connection->select();
         /** @var \Magento\Framework\DB\Select $select */
         $select->from(['main_table' => $this->resource->getTableName('mst_feed_rule_product')], $columns)
             ->group(['main_table.product_id'])

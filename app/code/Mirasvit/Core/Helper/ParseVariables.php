@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-core
- * @version   1.2.112
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.2.120
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -162,6 +162,11 @@ class ParseVariables extends AbstractHelper implements ParseVariablesHelperInter
 
             $str = str_replace($k, $v, $str);
         }
+
+        $str = str_replace($bAOpen, '[', $str);
+        $str = str_replace($bAClose, ']', $str);
+        $str = str_replace($bBOpen, '{', $str);
+        $str = str_replace($bBClose, '}', $str);
 
         return $str;
     }

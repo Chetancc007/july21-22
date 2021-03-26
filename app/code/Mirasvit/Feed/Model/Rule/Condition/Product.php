@@ -9,25 +9,25 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
+declare(strict_types=1);
 
 namespace Mirasvit\Feed\Model\Rule\Condition;
 
 use Magento\Catalog\Model\ResourceModel\Product\Collection;
+use Magento\Rule\Model\Condition\AbstractCondition;
 
 /**
  * @SuppressWarnings(PHPMD)
  * @codingStandardsIgnoreFile
  * @method string getAttribute()
  */
-class Product extends \Magento\Rule\Model\Condition\AbstractCondition
+class Product extends AbstractCondition
 {
-    private $queryBuilder;
-
     /**
      * @var \Magento\Config\Model\Config\Source\Yesno
      */
@@ -134,6 +134,13 @@ class Product extends \Magento\Rule\Model\Condition\AbstractCondition
     protected $moduleManager;
 
     /**
+     * @var null
+     */
+    protected $_entityAttributeValues = null;
+
+    private   $queryBuilder;
+
+    /**
      * @var \Magento\Framework\ObjectManagerInterface
      */
     private $objectManager;
@@ -216,77 +223,29 @@ class Product extends \Magento\Rule\Model\Condition\AbstractCondition
     }
 
     /**
-     * @var null
-     */
-    protected $_entityAttributeValues = null;
-
-    /**
-     * @return \Magento\Eav\Model\Entity\Attribute\AbstractAttribute|\Magento\Framework\DataObject
+     * @return \Magento\Eav\Model\Entity\Attribute\AbstractAttribute|null
      */
     public function getAttributeObject()
     {
-        try {
-            $obj = $this->eavConfig
-                ->getAttribute('catalog_product', $this->getAttribute());
-        } catch (\Exception $e) {
-            $obj = new \Magento\Framework\DataObject();
-            $obj->setEntity($this->productFactory->create())
-                ->setFrontendInput('text');
-        }
+        $attribute = $this->eavConfig->getAttribute('catalog_product', $this->getAttribute());
 
-        return $obj;
+        return $attribute->getId() ? $attribute : null;
     }
-
 
     public function getSqlCondition(Collection $collection)
     {
-        $select    = $collection->getSelect();
-        /** @var \Magento\Catalog\Model\ResourceModel\Eav\Attribute $attribute */
-        $attribute = $this->getAttributeObject();
-        $field = $this->queryBuilder->joinAttribute($select, $attribute);
+        $value = is_array($this->getValue()) ? implode(',', $this->getValue()) : (string)$this->getValue();
 
-        if ($field) {
-            return $this->queryBuilder->buildCondition($field, $this->getOperator(), $this->getValueParsed());
-        }
-
-        return false;
+        return $this->queryBuilder->buildCondition(
+            $collection->getSelect(),
+            $this->getAttribute(),
+            $this->getOperator(),
+            $value
+        );
     }
 
     /**
-     * @param array $attributes
-     */
-    protected function _addSpecialAttributes(array &$attributes)
-    {
-        $attributes = array_merge($attributes, [
-            'entity_id'              => __('Product ID'),
-            'attribute_set_id'       => __('Attribute Set'),
-            'category_ids'           => __('Category'),
-            'qty'                    => __('Quantity'),
-            'qty_inventory'          => __('Quantity (Multi Source Inventory)'),
-            'children_count'         => __('Amount of Children In Stock'),
-            'type_id'                => __('Product Type'),
-            'image'                  => __('Base Image'),
-            'thumbnail'              => __('Thumbnail'),
-            'small_image'            => __('Small Image'),
-            'image_size'             => __('Base Image Size (bytes)'),
-            'thumbnail_size'         => __('Thumbnail Size (bytes)'),
-            'small_image_size'       => __('Small Image Size (bytes)'),
-            /** mp comment start **/
-            'php'                    => __('PHP Condition'),
-            /** mp comment end **/
-            'is_in_stock'            => __('Stock Availability'),
-            'manage_stock'           => __('Manage Stock'),
-            'manage_stock_inventory' => __('Manage Stock (Multi Source Inventory)'),
-            'status_parent'          => __('Status(Parent Product)'),
-            'is_salable'             => __('Is Salable'),
-            'final_price'            => __('Final Price'),
-            'created_at'             => __('Created At'),
-            'updated_at'             => __('Updated At'),
-        ]);
-    }
-
-    /**
-     * @return $this|\Magento\Rule\Model\Condition\AbstractCondition
+     * @return $this|AbstractCondition
      */
     public function loadAttributeOptions()
     {
@@ -299,89 +258,14 @@ class Product extends \Magento\Rule\Model\Condition\AbstractCondition
             if (!$attribute->isAllowedForRuleCondition()) {
                 continue;
             }
+
             $attributes[$attribute->getAttributeCode()] = $attribute->getFrontendLabel();
         }
 
-        $this->_addSpecialAttributes($attributes);
+        $this->addSpecialAttributes($attributes);
 
         asort($attributes);
         $this->setAttributeOption($attributes);
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    protected function _prepareValueOptions()
-    {
-        // Check that both keys exist. Maybe somehow only one was set not in this routine, but externally.
-        $selectReady = $this->getData('value_select_options');
-        $hashedReady = $this->getData('value_option');
-        if ($selectReady && $hashedReady) {
-            return $this;
-        }
-
-        // Get array of select options. It will be used as source for hashed options
-        $selectOptions = null;
-        if ($this->getAttribute() === 'attribute_set_id') {
-            $entityTypeId  = $this->eavConfig
-                ->getEntityType('catalog_product')->getId();
-            $selectOptions = $this->attributeSetCollectionFactory->create()
-                ->setEntityTypeFilter($entityTypeId)
-                ->load()
-                ->toOptionArray();
-        } elseif ($this->getAttribute() === 'is_in_stock') {
-            $selectOptions = [];
-            $options       = $this->sourceStock->toOptionArray();
-            foreach ($options as $option) {
-                $selectOptions[$option['value']] = $option;
-            }
-        } elseif ($this->getAttribute() === 'is_salable'
-            || $this->getAttribute() === 'manage_stock'
-            || $this->getAttribute() === 'manage_stock_inventory'
-        ) {
-            $selectOptions = $this->sourceYesNo->toOptionArray();
-        } elseif ($this->getAttribute() === 'type_id') {
-            $selectOptions = $this->productType->getAllOptions();
-        } elseif ($this->getAttribute() === 'status_parent') {
-            $selectOptions = $this->sourceStatus->getAllOptions();
-        } elseif ($this->getAttribute() === 'status') {
-            $selectOptions = $this->sourceStatus->getAllOptions();
-        } elseif (is_object($this->getAttributeObject())) {
-            $attributeObject = $this->getAttributeObject();
-            if ($attributeObject->usesSource()) {
-                if ($attributeObject->getFrontendInput() == 'multiselect') {
-                    $addEmptyOption = false;
-                } else {
-                    $addEmptyOption = true;
-                }
-                $selectOptions = $attributeObject->getSource()->getAllOptions($addEmptyOption);
-            } elseif ($attributeObject->getFrontendInput() == "boolean") {
-                $selectOptions = $this->sourceYesNo->toOptionArray();
-            }
-        }
-
-        // Set new values only if we really got them
-        if ($selectOptions !== null) {
-            // Overwrite only not already existing values
-            if (!$selectReady) {
-                $this->setData('value_select_options', $selectOptions);
-            }
-            if (!$hashedReady) {
-                $hashedOptions = [];
-                foreach ($selectOptions as $o) {
-                    if (is_array($o)) {
-                        if (is_array($o['value'])) {
-                            continue; // We cannot use array as index
-                        }
-                        $hashedOptions[$o['value']] = $o['label'];
-                    }
-                }
-                $this->setData('value_option', $hashedOptions);
-            }
-        }
 
         return $this;
     }
@@ -437,7 +321,7 @@ class Product extends \Magento\Rule\Model\Condition\AbstractCondition
     }
 
     /**
-     * @return \Magento\Rule\Model\Condition\AbstractCondition
+     * @return AbstractCondition
      */
     public function getAttributeElement()
     {
@@ -547,7 +431,7 @@ class Product extends \Magento\Rule\Model\Condition\AbstractCondition
     }
 
     /**
-     * @return \Magento\Rule\Model\Condition\AbstractCondition
+     * @return AbstractCondition
      */
     public function getValueElement()
     {
@@ -606,7 +490,7 @@ class Product extends \Magento\Rule\Model\Condition\AbstractCondition
     /**
      * @param array $arr
      *
-     * @return \Magento\Rule\Model\Condition\AbstractCondition
+     * @return AbstractCondition
      */
     public function loadArray($arr)
     {
@@ -624,7 +508,7 @@ class Product extends \Magento\Rule\Model\Condition\AbstractCondition
                         $tmp[] = $this->localeFormat->getNumber($value);
                     }
                     $arr['value'] = implode(',', $tmp);
-                } else {
+                } elseif (!empty($arr['value'])) {
                     $arr['value'] = $this->localeFormat->getNumber($arr['value']);
                 }
             } else {
@@ -662,6 +546,34 @@ class Product extends \Magento\Rule\Model\Condition\AbstractCondition
     }
 
     /**
+     * Multi Source Inventory stock quantity
+     *
+     * @param \Magento\Catalog\Model\Product $object
+     * @param string                         $attrCode
+     *
+     * @return int
+     */
+    public function getMsiStock($object, $attrCode)
+    {
+        if ($this->moduleManager->isEnabled('Magento_InventoryApi')) {
+            $value = 0;
+            // retrieve stock id from attribute pattern
+            $attrCodeArr = explode(':', $attrCode);
+            $stockId     = (int)$attrCodeArr[1];
+
+            if ($object->getTypeId() == \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE) {
+                /** @var \Magento\InventorySalesApi\Api\GetProductSalableQtyInterface $quantity */
+                $quantity = $this->objectManager->get('\Magento\InventorySalesApi\Api\GetProductSalableQtyInterface')
+                    ->execute($object->getSku(), $stockId);
+            } else {
+                return true;
+            }
+
+            return $quantity;
+        }
+    }
+
+    /**
      * Validate product attrbute value for condition.
      *
      * @param \Magento\Framework\Model\AbstractModel $object
@@ -678,7 +590,6 @@ class Product extends \Magento\Rule\Model\Condition\AbstractCondition
                 $value = $object->getEntityId();
 
                 return $this->validateAttribute($value);
-                break;
 
             case 'is_salable':
                 $object = $this->productRepository->getById($object->getId());
@@ -695,13 +606,11 @@ class Product extends \Magento\Rule\Model\Condition\AbstractCondition
                 $object->setIsSalable($value);
 
                 return $this->validateAttribute($value);
-                break;
 
             case 'status_parent':
                 $status = $this->productResolver->getParent($object)->getStatus();
 
                 return $this->validateAttribute($status);
-                break;
 
             case 'image':
             case 'small_image':
@@ -715,14 +624,12 @@ class Product extends \Magento\Rule\Model\Condition\AbstractCondition
                 }
 
                 return $this->validateAttribute($value);
-                break;
 
             case 'category_ids':
                 $catIds   = array_merge($object->getAvailableInCategories(), $object->getCategoryIds());
                 $catIds[] = 0; //required for validate products without category at all
 
                 return $this->validateAttribute($catIds);
-                break;
 
             case 'qty_inventory':
                 $qty = 0;
@@ -741,7 +648,6 @@ class Product extends \Magento\Rule\Model\Condition\AbstractCondition
                 } else {
                     return true;
                 }
-                break;
 
             case 'qty':
                 if ($object->getTypeId() == 'configurable') {
@@ -760,15 +666,12 @@ class Product extends \Magento\Rule\Model\Condition\AbstractCondition
 
                     return $this->validateAttribute($stockItem->getQty());
                 }
-                break;
 
             case 'final_price':
                 $object = $this->productRepository->getById($object->getId());
                 $value  = $object->getPriceInfo()->getPrice('final_price')->getAmount()->getValue();
 
                 return $this->validateAttribute($value);
-
-                break;
 
             case 'children_count':
                 $parent = $this->productResolver->getParent($object);
@@ -790,8 +693,6 @@ class Product extends \Magento\Rule\Model\Condition\AbstractCondition
                     return true;
                 }
 
-                break;
-
             case 'is_in_stock':
                 $stockItem   = $this->stockItemFactory->create()->load($object->getId(), 'product_id');
                 $stockStatus = 0;
@@ -800,7 +701,6 @@ class Product extends \Magento\Rule\Model\Condition\AbstractCondition
                 }
 
                 return $this->validateAttribute($stockStatus);
-                break;
 
             case 'manage_stock':
                 $stockItem = $this->stockItemFactory->create()->load($object->getId(), 'product_id');
@@ -810,7 +710,6 @@ class Product extends \Magento\Rule\Model\Condition\AbstractCondition
                 }
 
                 return $this->validateAttribute($m);
-                break;
 
             case 'manage_stock_inventory':
                 if ($this->moduleManager->isEnabled('Magento_InventoryApi')) {
@@ -843,7 +742,6 @@ class Product extends \Magento\Rule\Model\Condition\AbstractCondition
                 }
 
                 return $this->validateAttribute($size);
-                break;
 
             /** mp comment start **/
             case 'php':
@@ -859,12 +757,14 @@ class Product extends \Magento\Rule\Model\Condition\AbstractCondition
                 } else {
                     return !$value;
                 }
-
-                break;
             /** mp comment end **/
 
             default:
-                if (!isset($this->_entityAttributeValues[$object->getId()])) {
+                if (strpos($attrCode, 'msi_stock') !== false) {
+                    $value = $this->getMsiStock($object, $attrCode);
+
+                    return $this->validateAttribute($value);
+                } elseif (!isset($this->_entityAttributeValues[$object->getId()])) {
                     $attr = $object->getResource()->getAttribute($attrCode);
 
                     if ($attr && $attr->getBackendType() == 'datetime' && !is_int($this->getValue())) {
@@ -915,8 +815,6 @@ class Product extends \Magento\Rule\Model\Condition\AbstractCondition
 
                     return (bool)$result;
                 }
-
-                break;
         }
     }
 
@@ -926,5 +824,121 @@ class Product extends \Magento\Rule\Model\Condition\AbstractCondition
     public function getJsFormObject()
     {
         return 'rule_conditions_fieldset';
+    }
+
+    /**
+     * @return $this
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    protected function _prepareValueOptions()
+    {
+        // Check that both keys exist. Maybe somehow only one was set not in this routine, but externally.
+        $selectReady = $this->getData('value_select_options');
+        $hashedReady = $this->getData('value_option');
+        if ($selectReady && $hashedReady) {
+            return $this;
+        }
+
+        // Get array of select options. It will be used as source for hashed options
+        $selectOptions = null;
+        if ($this->getAttribute() === 'attribute_set_id') {
+            $entityTypeId  = $this->eavConfig
+                ->getEntityType('catalog_product')->getId();
+            $selectOptions = $this->attributeSetCollectionFactory->create()
+                ->setEntityTypeFilter($entityTypeId)
+                ->load()
+                ->toOptionArray();
+        } elseif ($this->getAttribute() === 'is_in_stock') {
+            $selectOptions = [];
+            $options       = $this->sourceStock->toOptionArray();
+            foreach ($options as $option) {
+                $selectOptions[$option['value']] = $option;
+            }
+        } elseif ($this->getAttribute() === 'is_salable'
+            || $this->getAttribute() === 'manage_stock'
+            || $this->getAttribute() === 'manage_stock_inventory'
+        ) {
+            $selectOptions = $this->sourceYesNo->toOptionArray();
+        } elseif ($this->getAttribute() === 'type_id') {
+            $selectOptions = $this->productType->getAllOptions();
+        } elseif ($this->getAttribute() === 'status_parent') {
+            $selectOptions = $this->sourceStatus->getAllOptions();
+        } elseif ($this->getAttribute() === 'status') {
+            $selectOptions = $this->sourceStatus->getAllOptions();
+        } elseif (is_object($this->getAttributeObject())) {
+            $attributeObject = $this->getAttributeObject();
+            if ($attributeObject->usesSource()) {
+                if ($attributeObject->getFrontendInput() == 'multiselect') {
+                    $addEmptyOption = false;
+                } else {
+                    $addEmptyOption = true;
+                }
+                $selectOptions = $attributeObject->getSource()->getAllOptions($addEmptyOption);
+            } elseif ($attributeObject->getFrontendInput() == "boolean") {
+                $selectOptions = $this->sourceYesNo->toOptionArray();
+            }
+        }
+
+        // Set new values only if we really got them
+        if ($selectOptions !== null) {
+            // Overwrite only not already existing values
+            if (!$selectReady) {
+                $this->setData('value_select_options', $selectOptions);
+            }
+            if (!$hashedReady) {
+                $hashedOptions = [];
+                foreach ($selectOptions as $o) {
+                    if (is_array($o)) {
+                        if (is_array($o['value'])) {
+                            continue; // We cannot use array as index
+                        }
+                        $hashedOptions[$o['value']] = $o['label'];
+                    }
+                }
+                $this->setData('value_option', $hashedOptions);
+            }
+        }
+
+        return $this;
+    }
+
+    private function addSpecialAttributes(array &$attributes)
+    {
+        $attributes = array_merge($attributes, [
+            'entity_id'              => __('Product ID'),
+            'attribute_set_id'       => __('Attribute Set'),
+            'category_ids'           => __('Category'),
+            'qty'                    => __('Quantity'),
+            'qty_inventory'          => __('Quantity (Multi Source Inventory)'),
+            'children_count'         => __('Amount of Children In Stock'),
+            'type_id'                => __('Product Type'),
+            'image'                  => __('Base Image'),
+            'thumbnail'              => __('Thumbnail'),
+            'small_image'            => __('Small Image'),
+            'image_size'             => __('Base Image Size (bytes)'),
+            'thumbnail_size'         => __('Thumbnail Size (bytes)'),
+            'small_image_size'       => __('Small Image Size (bytes)'),
+            /** mp comment start **/
+            'php'                    => __('PHP Condition'),
+            /** mp comment end **/
+            'is_in_stock'            => __('Stock Availability'),
+            'manage_stock'           => __('Manage Stock'),
+            'manage_stock_inventory' => __('Manage Stock (Multi Source Inventory)'),
+            'status_parent'          => __('Status (Parent Product)'),
+            'is_salable'             => __('Is Salable'),
+            'final_price'            => __('Final Price'),
+            'created_at'             => __('Created At'),
+            'updated_at'             => __('Updated At'),
+        ]);
+
+        if ($this->moduleManager->isEnabled('Magento_InventoryApi')) {
+            $inventoryStockCollection = $this->objectManager->get('\Magento\Inventory\Model\ResourceModel\Stock\CollectionFactory');
+
+            /** @var \Magento\Inventory\Model\Stock $stock */
+            foreach ($inventoryStockCollection->create() as $stock) {
+                $label                                           = $stock->getName();
+                $attributes['msi_stock:' . $stock->getStockId()] = $label;
+            }
+        }
     }
 }

@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-core
- * @version   1.2.112
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.2.120
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -23,35 +23,24 @@ use Magento\Framework\Setup\UpgradeSchemaInterface;
 
 class UpgradeSchema implements UpgradeSchemaInterface
 {
-    /**
-     * @var Upgrade101
-     */
     private $upgrade101;
 
-    /**
-     * @var Upgrade102
-     */
     private $upgrade102;
 
-    /**
-     * @var Upgrade103
-     */
     private $upgrade103;
 
-    /**
-     * UpgradeSchema constructor.
-     * @param Upgrade101 $upgrade101
-     * @param Upgrade102 $upgrade102
-     * @param Upgrade103 $upgrade103
-     */
+    private $upgrade104;
+
     public function __construct(
         Upgrade101 $upgrade101,
         Upgrade102 $upgrade102,
-        Upgrade103 $upgrade103
+        Upgrade103 $upgrade103,
+        Upgrade104 $upgrade104
     ) {
         $this->upgrade101 = $upgrade101;
         $this->upgrade102 = $upgrade102;
         $this->upgrade103 = $upgrade103;
+        $this->upgrade104 = $upgrade104;
     }
 
     /**
@@ -71,6 +60,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
         if (version_compare($context->getVersion(), '1.0.3') < 0) {
             $this->upgrade103->upgrade($installer, $context);
+        }
+
+        if (version_compare($context->getVersion(), '1.0.4') < 0) {
+            $this->upgrade104->upgrade($installer, $context);
         }
     }
 }

@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-feed
- * @version   1.1.19
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.1.30
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -39,12 +39,6 @@ class ImportService implements ImportServiceInterface
      */
     protected $messageManager;
 
-    /**
-     * ImportService constructor.
-     * @param YamlService $yaml
-     * @param Config $config
-     * @param MessageManagerInterface $messageManager
-     */
     public function __construct(
         YamlService $yaml,
         Config $config,
@@ -65,8 +59,10 @@ class ImportService implements ImportServiceInterface
         if (is_readable($filePath)) {
             $content = file_get_contents($filePath);
             $data    = $this->yaml->parse($content);
+
             $object->setData($data);
-            $object->setIsActive(1)->save();
+            $object->setIsActive(1);
+            $object->save();
 
             return $object;
         } else {

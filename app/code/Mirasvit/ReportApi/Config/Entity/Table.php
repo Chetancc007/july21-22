@@ -9,8 +9,8 @@
  *
  * @category  Mirasvit
  * @package   mirasvit/module-report-api
- * @version   1.0.39
- * @copyright Copyright (C) 2020 Mirasvit (https://mirasvit.com/)
+ * @version   1.0.43
+ * @copyright Copyright (C) 2021 Mirasvit (https://mirasvit.com/)
  */
 
 
@@ -231,7 +231,7 @@ class Table implements TableInterface
             return $this->fieldsPool[$name];
         }
 
-        throw new \Exception(__("Field %1 not exists in table %2", $name, $this->getName()));
+        throw new \Exception(__("Field %1 does not exist in table %2", $name, $this->getName()));
     }
 
     /**
