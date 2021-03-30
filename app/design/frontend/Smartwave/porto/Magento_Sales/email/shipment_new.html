@@ -4,7 +4,7 @@
  * See COPYING.txt for license details.
  */
 -->
-<!--@subject {{trans "Your %store_name order has shipped" store_name=$store.getFrontendName()}} @-->
+<!--@subject {{trans "Your Cascade Rack In Store Pickup Order is Ready"}} @-->
 <!--@vars {
 "var formattedBillingAddress|raw":"Billing Address",
 "var this.getUrl($store, 'customer/account/')":"Customer Account URL",
@@ -32,7 +32,7 @@
             <p>
                 {{trans 'If you have questions about your order, you can email us at <a href="mailto:%store_email">%store_email</a>.' store_email=$store_email |raw}}
             </p>
-            <p>{{trans "Your shipping confirmation is below. Thank you again for your business."}}</p>
+            <p>{{trans "Your store pick up confirmation is below. Thank you again for your business."}}</p>
         </td>
     </tr>
     <tr class="email-summary">
