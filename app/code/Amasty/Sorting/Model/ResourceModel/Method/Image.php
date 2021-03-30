@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Sorting
  */
 
@@ -58,7 +58,7 @@ class Image extends AbstractMethod
      */
     private function isMethodActive($collection)
     {
-        $show = $this->helper->getScopeValue('general/no_image_last');
+        $show = $this->helper->getNonImageLast();
 
         if (!$show || ($show == ImageSource::SHOW_LAST_FOR_CATALOG && $this->isSearchModule())) {
             return false;

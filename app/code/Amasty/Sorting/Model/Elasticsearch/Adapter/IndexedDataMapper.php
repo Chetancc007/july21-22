@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Sorting
  */
 
@@ -83,11 +83,11 @@ abstract class IndexedDataMapper implements DataMapperInterface
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
-    public function isAllowed()
+    public function isAllowed($storeId)
     {
-        return !$this->helper->isMethodDisabled($this->resourceMethod->getMethodCode());
+        return !$this->helper->isMethodDisabled($this->resourceMethod->getMethodCode(), $storeId);
     }
 
     /**

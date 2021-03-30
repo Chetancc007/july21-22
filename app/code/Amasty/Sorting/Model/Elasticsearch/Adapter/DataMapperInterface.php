@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Sorting
  */
 
@@ -25,7 +25,8 @@ interface DataMapperInterface
     public function map($entityId, array $entityIndexData, $storeId, $context = []);
 
     /**
+     * @param int $storeId
      * @return bool
      */
-    public function isAllowed();
+    public function isAllowed($storeId);
 }

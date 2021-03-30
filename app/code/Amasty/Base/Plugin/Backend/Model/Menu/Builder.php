@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Base
  */
 
@@ -207,6 +207,7 @@ class Builder
 
             if ($itemsToAdd) {
                 $itemId = $installedModule . '::container';
+                $moduleConfigResource = $configItems[$installedModule]['resource'] ?? $installedModule . '::config';
                 /** @var \Magento\Backend\Model\Menu\Item $module */
                 $module = $this->itemFactory->create(
                     [
@@ -214,7 +215,7 @@ class Builder
                             'id'       => $itemId,
                             'title'    => $this->normalizeTitle($title),
                             'module'   => $installedModule,
-                            'resource' => $this->getValidResource($installedModule, $parentNodeResource)
+                            'resource' => $parentNodeResource ?: $moduleConfigResource
                         ]
                     ]
                 );
@@ -242,20 +243,6 @@ class Builder
         }
 
         return $title;
-    }
-
-    /**
-     * @param $installedModule
-     * @param $parentNode
-     *
-     * @return string
-     */
-    private function getValidResource($installedModule, $parentNodeResource)
-    {
-        if (!empty($parentNodeResource)) {
-            return $parentNodeResource;
-        }
-        return $installedModule . "::config";
     }
 
     /**

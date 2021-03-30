@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Sorting
  */
 
@@ -12,6 +12,7 @@ use Amasty\Base\Model\Serializer;
 use Magento\CatalogInventory\Model\Configuration;
 use Magento\CatalogSearch\Model\ResourceModel\EngineInterface;
 use Magento\Framework\Registry;
+use Magento\Store\Model\ScopeInterface;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
@@ -74,14 +75,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      * Is Sorting Method Disabled
      *
      * @param string $methodCode
-     *
+     * @param int|null $storeId
      * @return bool
      */
-    public function isMethodDisabled($methodCode)
+    public function isMethodDisabled($methodCode, $storeId = null)
     {
         $result = false;
         if (!$this->registry->registry('sorting_all_attributes')) {
-            $disabledMethods = $this->getScopeValue('general/disable_methods');
+            $disabledMethods = $this->getScopeValue('general/disable_methods', $storeId);
             if ($disabledMethods && !empty($disabledMethods)) {
                 $disabledMethods = explode(',', $disabledMethods);
                 foreach ($disabledMethods as $disabledCode) {
@@ -124,11 +125,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * @param null|int $storeId
      * @return int
      */
-    public function getQtyOutStock()
+    public function getQtyOutStock($storeId = null)
     {
-        return (int)$this->scopeConfig->getValue(Configuration::XML_PATH_MIN_QTY);
+        return (int)$this->scopeConfig->getValue(
+            Configuration::XML_PATH_MIN_QTY,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
     }
 
     /**
@@ -188,5 +194,32 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         ];
 
         return array_filter($result);
+    }
+
+    /**
+     * @param null|int $storeId
+     * @return int
+     */
+    public function getNonImageLast($storeId = null)
+    {
+        return (int) $this->getScopeValue('general/no_image_last', $storeId);
+    }
+
+    /**
+     * @param null|int $storeId
+     * @return int
+     */
+    public function getOutOfStockLast($storeId = null)
+    {
+        return (int) $this->getScopeValue('general/out_of_stock_last', $storeId);
+    }
+
+    /**
+     * @param null|int $storeId
+     * @return bool
+     */
+    public function isOutOfStockByQty($storeId = null)
+    {
+        return (bool) $this->getScopeValue('general/out_of_stock_qty', $storeId);
     }
 }

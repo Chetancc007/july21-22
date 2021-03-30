@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Sorting
  */
 
@@ -11,9 +11,6 @@ namespace Amasty\Sorting\Plugin\Elasticsearch\Model\Adapter\BatchDataMapper;
 use Amasty\Sorting\Model\Elasticsearch\Adapter\DataMapperInterface;
 use Magento\Elasticsearch\Model\Adapter\BatchDataMapper\ProductDataMapper;
 
-/**
- * Class AdditionalProductDataMapper
- */
 class AdditionalProductDataMapper
 {
     /**
@@ -48,7 +45,8 @@ class AdditionalProductDataMapper
         foreach ($documentData as $productId => $document) {
             $context['document'] = $document;
             foreach ($this->dataMappers as $mapper) {
-                if ($mapper instanceof DataMapperInterface && $mapper->isAllowed()) {
+                if ($mapper instanceof DataMapperInterface && $mapper->isAllowed($storeId)) {
+                    //@codingStandardsIgnoreLine
                     $document = array_merge($document, $mapper->map($productId, $document, $storeId, $context));
                 }
             }

@@ -2,7 +2,7 @@
 <!--
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Sorting
  */
 -->
@@ -13,6 +13,18 @@
             <argument name="data" xsi:type="array">
                 <item name="escaper" xsi:type="object">Magento\Framework\Escaper</item>
             </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="RelevanceRuleCollection" type="Amasty\Sorting\Model\Di\Wrapper">
+        <arguments>
+            <argument name="name" xsi:type="string">Amasty\ElasticSearch\Model\ResourceModel\RelevanceRule\Collection</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Amasty\Sorting\Block\Adminhtml\System\Config\SortingNotice">
+        <arguments>
+            <argument name="ruleCollection" xsi:type="object">RelevanceRuleCollection</argument>
         </arguments>
     </type>
 </config>

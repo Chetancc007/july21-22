@@ -1,14 +1,14 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Sorting
  */
 
 
 namespace Amasty\Sorting\Model\ResourceModel\Method;
 
-use \Zend\Db\Sql\Select;
+use Magento\Framework\Db\Select;
 
 /**
  * Class Bestselling

@@ -1,6 +1,7 @@
 "Please update Amasty Base module. Re-upload it and replace all the files.","Please update Amasty Base module. Re-upload it and replace all the files."
 "Enable improved-sorting-graphql module to activate GraphQl and Sorting. Please, run the following command in the SSH: composer require amasty/improved-sorting-graphql","Enable improved-sorting-graphql module to activate GraphQl and Sorting. Please, run the following command in the SSH: composer require amasty/improved-sorting-graphql"
 "Enable amasty/yotpo module to activate Yotpo and Sorting. Please, run the following command in the SSH: composer require amasty/yotpo","Enable amasty/yotpo module to activate Yotpo and Sorting. Please, run the following command in the SSH: composer require amasty/yotpo"
+"Please kindly note: if products on a search results page match the conditions of  Amasty Elastic Search Relevance Rules, the settings listed below will be ignored and products will get sorted by relevance","Please kindly note: if products on a search results page match the conditions of  Amasty Elastic Search Relevance Rules, the settings listed below will be ignored and products will get sorted by relevance"
 "Could not rebuild index for empty products array","Could not rebuild index for empty products array"
 "We can't rebuild the index for an undefined product.","We can't rebuild the index for an undefined product."
 "Method object ' . . ' must be implemented by Amasty\Sorting\Api\MethodInterface","Method object ' . . ' must be implemented by Amasty\Sorting\Api\MethodInterface"

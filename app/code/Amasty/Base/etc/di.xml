@@ -2,7 +2,7 @@
 <!--
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Base
  */
 -->
@@ -19,5 +19,8 @@
 
     <type name="Magento\Framework\View\TemplateEngine\Php">
         <plugin name="Amasty_Base::AddEscaperToPhpRenderer" type="Amasty\Base\Plugin\Framework\View\TemplateEngine\Php" sortOrder="10"/>
+    </type>
+    <type name="Magento\Framework\Setup\Declaration\Schema\Diff\Diff">
+        <plugin name="Amasty_Base::AllowDropReference" type="Amasty\Base\Plugin\Framework\Setup\Declaration\Schema\Diff\Diff\RestrictDropTables"/>
     </type>
 </config>

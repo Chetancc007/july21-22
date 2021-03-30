@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Sorting
  */
 
@@ -98,7 +98,7 @@ class Instock extends AbstractMethod
          * join in @see \Magento\CatalogInventory\Model\AddStockStatusToCollection
          * so we don't need to process join, only add sorting
          */
-        if ($this->helper->getScopeValue('general/out_of_stock_qty')) {
+        if ($this->helper->isOutOfStockByQty()) {
             $ignoreTypes = [
                 '\'grouped\'',
                 '\'bundle\''
@@ -150,7 +150,7 @@ class Instock extends AbstractMethod
             return false;
         }
 
-        $show = $this->helper->getScopeValue('general/out_of_stock_last');
+        $show = $this->helper->getOutOfStockLast();
 
         if (!$show || ($show == StockSource::SHOW_LAST_FOR_CATALOG && $this->isSearchModule())) {
             return false;

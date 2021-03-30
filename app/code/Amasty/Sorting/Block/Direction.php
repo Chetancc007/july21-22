@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Sorting
  */
 
@@ -13,7 +13,7 @@ namespace Amasty\Sorting\Block;
 use Amasty\Sorting\Helper\Data;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
-use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
+use Amasty\Base\Model\Serializer as JsonSerializer;
 
 class Direction extends Template
 {

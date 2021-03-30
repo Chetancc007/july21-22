@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Sorting
  */
 
@@ -144,9 +144,14 @@ class Collection
     private function applyHighPriorityOrders($collection, $dir)
     {
         if (!$collection->getFlag($this->getFlagName('high'))) {
-            $this->stockMethod->apply($collection, $dir);
-            $this->imageMethod->apply($collection, $dir);
             $collection->setFlag($this->getFlagName('high'), true);
+            if ($this->helper->isElasticSort()) {
+                $collection->setOrder('non_images_last', Select::SQL_DESC);
+                $collection->setOrder('out_of_stock_last', Select::SQL_DESC);
+            } else {
+                $this->stockMethod->apply($collection, $dir);
+                $this->imageMethod->apply($collection, $dir);
+            }
         }
     }
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Base
  */
 
@@ -25,6 +25,11 @@ class AdsProvider
      * @var Ads
      */
     private $adsFeed;
+
+    /**
+     * @var array
+     */
+    private $upsellModuleAds = [];
 
     public function __construct(
         FullModuleList $moduleList,
@@ -92,6 +97,22 @@ class AdsProvider
      */
     private function getUpsell($adsData, $moduleCode)
     {
+        if (isset($this->upsellModuleAds[$moduleCode])) {
+            return $this->upsellModuleAds[$moduleCode];
+        }
+// If you need to return information sorted by priority, uncomment the following line
+//        return $this->upsellModuleAds[$moduleCode] = $this->getUpsellSortedByPriority($adsData, $moduleCode);
+        return $this->upsellModuleAds[$moduleCode] = $this->getUpsellRandom($adsData, $moduleCode);
+    }
+
+    /**
+     * @param array $adsData
+     * @param string $moduleCode
+     *
+     * @return array
+     */
+    private function getUpsellSortedByPriority($adsData, $moduleCode)
+    {
         $sortAds = [];
         $emptyPriority = [];
 
@@ -127,6 +148,20 @@ class AdsProvider
                 $lastKeySortAds++;
             }
         }
+
+        return $sortAds;
+    }
+
+    /**
+     * @param array $adsData
+     * @param string $moduleCode
+     *
+     * @return array
+     */
+    private function getUpsellRandom($adsData, $moduleCode)
+    {
+        $sortAds = $this->getUpsellSortedByPriority($adsData, $moduleCode);
+        shuffle($sortAds);
 
         return $sortAds;
     }

@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Sorting
  */
 
@@ -37,7 +37,7 @@ class Collection
             $conditions = array_pop($parts);
             $newCondition = $result->getConnection()->quoteInto(
                 'main_table.attribute_code IN (?)',
-                $this->helper->getAmastyAttributesCodes()
+                array_merge($this->helper->getAmastyAttributesCodes(), ['small_image'])
             );
             $conditions = str_replace(
                 'additional_table.is_searchable',

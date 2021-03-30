@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Sorting
  */
 
@@ -10,9 +10,9 @@ declare(strict_types=1);
 
 namespace Amasty\Sorting\Plugin\InventoryReservations\Model;
 
+use Amasty\Base\Model\Serializer;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Framework\ObjectManagerInterface;
-use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Framework\Validation\ValidationException;
 use Magento\InventoryReservationsApi\Model\ReservationInterface;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -22,7 +22,7 @@ use Psr\Log\LoggerInterface;
 class AppendReservationsPlugin
 {
     /**
-     * @var SerializerInterface
+     * @var Serializer
      */
     private $serializer;
 
@@ -42,7 +42,7 @@ class AppendReservationsPlugin
     private $logger;
 
     public function __construct(
-        SerializerInterface $serializer,
+        Serializer $serializer,
         OrderRepositoryInterface $orderRepository,
         ObjectManagerInterface $objectManager,
         LoggerInterface $logger
@@ -66,7 +66,7 @@ class AppendReservationsPlugin
             try {
                 $metadata = $this->unserialize($reservation->getMetadata());
                 if (isset($metadata['object_type'])
-                    && isset($metadata['object_id'])
+                    && !empty($metadata['object_id'])
                     && $metadata['object_type'] == 'order'
                 ) {
                     $order = $this->orderRepository->get($metadata['object_id']);

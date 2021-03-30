@@ -2,7 +2,7 @@
 <!--
 /**
  * @author Amasty Team
- * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @copyright Copyright (c) 2021 Amasty (https://www.amasty.com)
  * @package Amasty_Sorting
  */
 -->
@@ -243,6 +243,10 @@
                       xsi:type="object">Amasty\Sorting\Model\Elasticsearch\Adapter\DataMapper\Commented</item>
                 <item name="saving"
                       xsi:type="object">Amasty\Sorting\Model\Elasticsearch\Adapter\DataMapper\Saving</item>
+                <item name="non_images_last"
+                      xsi:type="object">Amasty\Sorting\Model\Elasticsearch\Adapter\DataMapper\Image</item>
+                <item name="out_of_stock_last"
+                      xsi:type="object">Amasty\Sorting\Model\Elasticsearch\Adapter\DataMapper\Stock</item>
             </argument>
         </arguments>
     </type>
@@ -256,6 +260,8 @@
                 <item name="wished" xsi:type="string">integer</item>
                 <item name="reviews_count" xsi:type="string">integer</item>
                 <item name="saving" xsi:type="string">float</item>
+                <item name="non_images_last" xsi:type="string">integer</item>
+                <item name="out_of_stock_last" xsi:type="string">integer</item>
             </argument>
         </arguments>
     </type>
@@ -333,5 +339,13 @@
         <arguments>
             <argument name="methodCode" xsi:type="string">image</argument>
         </arguments>
+    </type>
+
+    <type name="Magento\Elasticsearch\Model\ResourceModel\Fulltext\Collection\SearchResultApplier">
+        <plugin name="Amasty_Sorting::setApplierFlag" type="Amasty\Sorting\Plugin\Elasticsearch\Model\ResourceModel\Fulltext\Collection\SearchResultApplier\SetApplierFlag" />
+    </type>
+
+    <type name="Magento\Catalog\Model\ResourceModel\Product\Collection\ProductLimitation">
+        <plugin name="Amasty_Sorting::preventPriceSortingonMysql" type="Amasty\Sorting\Plugin\Catalog\Model\ResourceModel\Product\Collection\ProductLimitation\PreventPriceSortingOnMysql" />
     </type>
 </config>
