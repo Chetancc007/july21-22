@@ -12,6 +12,11 @@
  *
  * @var $block \Magefan\Blog\Block\Sidebar\Recent
  */
+
+$width = 400;
+$height = 600;
+$imageHelper = $this->helper(\Magefan\Blog\Helper\Image::class);
+
 ?>
 
 <?php
@@ -28,9 +33,10 @@
             <div class="row">
                 <div class="col-md-5">
                     <div class="post-image">
-                    <?php if($post_image = $_post->getFeaturedImage()): ?>
-                        <img src="<?php echo $post_image; ?>" alt=""/>
-                    <?php endif; ?>
+                    <!-- <?php if($post_image = $_post->getFeaturedImage()): ?>
+                        <img src="<?php echo $imageHelper->init($post_image)->resize($width, $height);?>" alt=""/>
+                    <?php endif; ?> -->
+                    <img src="<?php echo $imageHelper->init($_post->getFeaturedImg())->resize($width); ?>" alt="<?php echo $block->escapeHtml($_post->getTitle()) ?>" />
                     </div>
                 </div>
                 <div class="col-md-7">
