@@ -169,6 +169,7 @@ class MobRepository implements MobRepositoryInterface
                 $product->setSku($existingProduct->getSku());
             }
         }
+        $product->setData('is_in_stock', 1);
         $data = $this->_objectManager
                     ->create('\Magento\Catalog\Model\ProductRepository')
                     ->save($product, $saveOptions);
