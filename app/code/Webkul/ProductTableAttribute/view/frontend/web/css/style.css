@@ -1,0 +1,26 @@
+/**
+ * Webkul Software
+ *
+ * @category  Webkul
+ * @package   Webkul_ProductTableAttribute
+ * @author    Webkul
+ * @copyright Copyright (c) Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ */
+
+.wk-table {
+    border: 1px solid #cccccc;
+}
+
+.wk-table thead tr {
+    font-weight: bold;
+}
+
+.wk-table thead tr th {
+    border-left: 1px solid #cccccc;
+    background-color: #e8e8e8;
+}
+
+.wk-table tbody tr td {
+    border-left: 1px solid #cccccc;
+}

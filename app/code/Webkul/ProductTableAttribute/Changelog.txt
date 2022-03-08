@@ -1,0 +1,13 @@
+Legend
+
++ Features
+- Bugs
+
+-------------------------------- Version 3.0.0 --------------------------------------
+	+ Compatible for Magento 2.3.*
+
+-------------------------------- Version 2.1.0 --------------------------------------
+	+ Admin can create attributes of type table
+	+ Admin can enter values of the table type attributes for its products
+	+ The values will be displayed in frontend.
+	+ Compatible for Magento 2.2.*

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!-- 
+/**
+ * Webkul Software
+ *
+ * @category  Webkul
+ * @package   Webkul_ProductTableAttribute
+ * @author    Webkul
+ * @copyright Copyright (c) Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ */
+-->
+
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Webkul_ProductTableAttribute::css/style.css"/>
+    </head>
+    <body>
+        <referenceBlock name="product.info.details">
+            <block class="Webkul\ProductTableAttribute\Block\TableAttribute" name="sd.tab" template="Webkul_ProductTableAttribute::tableElements.phtml" group="detailed_info" >
+                <arguments>
+                    <argument translate="true" name="title" xsi:type="string">Charts</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

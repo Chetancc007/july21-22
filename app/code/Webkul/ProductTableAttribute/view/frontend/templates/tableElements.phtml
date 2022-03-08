@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * Webkul Software
+ *
+ * @category  Webkul
+ * @package   Webkul_ProductTableAttribute
+ * @author    Webkul
+ * @copyright Copyright (c) Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ */
+// @codingStandardsIgnoreFile
+$tableAttributes = $block->getTableAttributes();
+?>
+<div>
+    <?php if (empty($tableAttributes)) {
+        echo __('No charts available for this product');
+    } else {
+        foreach ($tableAttributes as $tableAttribute) { ?>
+
+            <h5><?= $tableAttribute['name'] ?></h5>
+
+            <table class="table wk-table">
+                <thead>
+                    <tr>
+                    <?php
+                    $head = $block->getTableHead($tableAttribute['id']);
+                    foreach ($head as $tableHead) { ?>
+                        <th><?= $tableHead['column_name'] ?></th>
+                    <?php } ?>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php 
+                    $rowCount = 0;
+                    $values = (array) json_decode($tableAttribute['values']);
+                    if (!empty($values)) { 
+
+                        end($values);
+                        $lastRow = key($values);
+                        $totalRows = explode('-',$lastRow);
+                        if (isset($totalRows[3])) {
+                            $rowCount = $totalRows[3];
+                        }
+                        $currentRow = 0;
+                        while ($currentRow < $totalRows[3]) {
+                            $i = 0; ?>
+                            <tr>
+                            <?php 
+                            foreach ($head as $tableHead) {
+                                $id = 'wkrow-'.$tableAttribute['id'].'-'.$tableHead['column_id'].'-'.($currentRow+1);
+                            ?>
+                                <td>
+                                    <?php if (isset($values[$id])) { ?>
+                                        <?= $values[$id] ?>
+                                    <?php } else { ?>
+                                        
+                                    <?php $i++; } ?> 
+                                </td>
+                            <?php } ?>
+                            </tr>
+                            <?php $currentRow++;
+                        }
+                    } ?>
+                </tbody>
+            </table>
+        <?php } ?>
+    <?php } ?>
+</div>

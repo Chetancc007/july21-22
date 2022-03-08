@@ -1,0 +1,202 @@
+<?php
+/**
+ * Webkul Software
+ *
+ * @category  Webkul
+ * @package   Webkul_ProductTableAttribute
+ * @author    Webkul
+ * @copyright Copyright (c) Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ */
+// @codingStandardsIgnoreFile
+$tableAttributes = $block->getAttributesData();
+$product = $block->getProduct();
+?>
+
+<div class="tableAttributes-list" type="custom-type">
+    <?php
+    if (empty($tableAttributes)) {
+        echo __('No table type attributes available');
+    } else {
+        $attributeCount = 0;
+        foreach ($tableAttributes as $attribute) { ?>
+            <h3 class="wk-table-heading"><?= $attribute['attribute_name'] ?></h3>
+            <?php $temp = $attribute['attribute_code'] ?>
+            <input type="hidden" name="product[wk_temp_<?= $temp ?>]" id="wk_temp_<?= $temp ?>" data-form-part='product_form' value='<?= $product->getData('wk_ta_'.$temp) ?>' class="wk-json" />
+
+            <table class="admin__dynamic-rows admin__control-table" id="attribute-table-<?= $attributeCount ?>">
+                <thead class="tableAttributes-list-head">
+                    <tr>
+                        <?php $columns = $block->getAttributeValues($attribute['attribute_id']) ?>
+                        <?php foreach ($columns as $column) { ?>
+                        <th><?= $column['column_name'] ?></th>
+                        <?php } ?>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr></tr>
+                <?php 
+                    $rowCount = 0;
+                    $values = (array) json_decode($attribute['values']);
+                    if (!empty($values)) { 
+
+                        end($values);
+                        $lastRow = key($values);
+                        $totalRows = explode('-',$lastRow);
+                        if (isset($totalRows[3])) {
+                            $rowCount = $totalRows[3];
+                        }
+                        $currentRow = 0;
+                        while ($currentRow < $totalRows[3]) {
+                            $i = 0; ?>
+                            <tr>
+                            <?php 
+                            foreach ($columns as $column) {
+                                $id = 'wkrow-'.$attribute['attribute_id'].'-'.$column['column_id'].'-'.($currentRow+1);
+                            ?>
+                                <td>
+                                    <?php if (isset($values[$id])) { ?>
+                                        <input type="text" value="<?= $values[$id] ?>" id="<?= $id ?>" class="input-text wk-row admin__control-text validate-no-html-tags validate-no-empty" data-form-part='product_form' name="product[<?= $attribute['attribute_id'] ?>][<?= $column['column_id'] ?>][<?= $currentRow ?>]" />
+                                    <?php } else { ?>
+                                        <input type="text" value="" id="<?= $id ?>" class="input-text wk-row admin__control-text validate-no-html-tags validate-no-empty" data-form-part='product_form' name="product[<?= $attribute['attribute_id'] ?>][<?= $column['column_id'] ?>][<?= $currentRow ?>]" />
+                                    <?php $i++; } ?> 
+                                </td>
+                            <?php } ?>
+                                <td>
+                                    <button class="button delete" title="Delete" type="button" data-attribute="<?= $attribute['attribute_id'] ?>" data-columns-count="<?= count($columns) ?>" >
+                                        <span><span></span><?= __("Delete") ?></span>
+                                    </button>
+                                </td>
+                            </tr>
+                            <?php $currentRow++;
+                        }
+                    } ?>
+                </tbody>
+            </table>
+            <script id="import-template-<?= $attributeCount ?>" type="text/x-magento-template">
+            <tr>
+            <?php foreach ($columns as $column) { ?>
+                <td><input type='text' class='input-text wk-row admin__control-text validate-no-html-tags validate-no-empty' data-form-part='product_form' id="wkrow-<?= $attribute['attribute_id'] ?>-<?= $column['column_id'] ?>-<%- data.index %>" name="product[<?= $attribute['attribute_id'] ?>][<?= $column['column_id'] ?>][<%- data.index %>]" /></td>
+            <?php } ?>
+                <td>
+                    <button class="button delete" title="Delete" type="button" data-attribute="<?= $attribute['attribute_id'] ?>" data-columns-count="<?= count($columns) ?>">
+                        <span>
+                            <span><%- data.button %></span>
+                        </span>
+                    </button>
+                </td>
+            </tr>
+            </script>
+            <input type="hidden" value="<?= $rowCount+1 ?>" />
+            <button type="button" class="add-new-row" id="add-row-btn-<?= $attributeCount ?>"><?= __("Add") ?></button>
+            <br /><br /><br />
+        <?php $attributeCount++;
+        } ?>
+    <?php } ?>
+</div>
+<script>
+    require([
+        "jquery",
+        'mage/translate',
+        "mage/template",
+        "mage/mage",
+    ], function ($, $t, mageTemplate, alert) {
+        var self = this;
+        var row = [];
+
+        // add new row
+        $('.add-new-row').on('click', function () {
+            var id = $(this).attr('id');
+            var count = $(this).prev().val();
+            $(this).prev().val(parseInt(count)+1);
+
+            var row = id.split("add-row-btn-");
+
+            var progressTmpl = mageTemplate('#import-template-'+row[1]),
+                tmpl;
+            tmpl = progressTmpl({
+                data: {
+                    button: $t('Delete'),
+                    index: count
+                }
+            });
+            $('body').find('#attribute-table-'+row[1]+' tbody').append(tmpl);
+        });
+
+        // delete row
+        $('body').on('click', '.delete', function() {
+            var tableId = $(this).closest('table').attr('id');
+            $(this).parent().parent().remove();
+            $('.wk-json').val('');
+
+            var attribute = $(this).attr('data-attribute');
+            var columnsCount = $(this).attr('data-columns-count');
+            var i = 1;
+            var next = 0;
+            var str = 'id^=wkrow-'+attribute+'-';
+            
+            // rearrange the ids of textboxes
+            $.each($("input["+str+"]"), function() { 
+                next++;
+                var id = $(this).attr('id');
+                var arr = id.split("-");
+                var newId = arr[0]+'-'+arr[1]+'-'+arr[2]+'-'+i
+                $(this).attr('id', newId);
+                if (next == columnsCount) {
+                    i++;
+                    next = 0;
+                }
+            });
+
+            // update row count
+            var tab = tableId.split('-');
+            var count = $('#add-row-btn-'+tab[2]).prev().val();
+            $('#add-row-btn-'+tab[2]).prev().val(parseInt(count)-1);
+
+            // update attribute value
+            $.each($("input[id^='wkrow-']"), function() { 
+                var row = []; 
+                var oldDel = {};
+                var newData = {};
+                row[this.id] = $(this).val();
+
+                var output = {...row};
+                var temp = $(this).closest('table').prev();
+                    
+                if (temp.val() != "") {
+                    oldDel = JSON.parse(temp.val());
+                    Object.assign(oldDel, output);
+                    newData = oldDel;
+                } else {
+                    newData = output;
+                }
+                $("body").find(temp).val(JSON.stringify(newData));
+            });
+
+        });
+
+        // on key up
+        $("body").on('keyup', '.wk-row', function() { 
+            $.each($("input[id^='wkrow-']"), function() {
+                var row = []; 
+                var old = {};
+                var newData = {};
+                row[this.id] = $(this).val();
+
+                var output = {...row};
+                var temp = $(this).closest('table').prev();
+
+                if (temp.val() != "") {
+                    old = JSON.parse(temp.val());
+                    Object.assign(old, output);
+                    newData = old;
+                } else {
+                    newData = output;
+                }
+                $("body").find(temp).val(JSON.stringify(newData));
+            });
+        });
+
+    });
+</script>

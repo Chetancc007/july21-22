@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Webkul Software
+ *
+ * @category  Webkul
+ * @package   Webkul_ProductTableAttribute
+ * @author    Webkul
+ * @copyright Copyright (c) Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Ui\Component\Form\Field">
+        <plugin name="custom_component_plugin"
+                type="Webkul\ProductTableAttribute\Plugin\Ui\Component\Form\FieldPlugin" />
+    </type>
+    <type name="Magento\Catalog\Controller\Adminhtml\Product\AddAttributeToTemplate">
+        <plugin name="product_add_selected_attribute_grid_plugin" type="Webkul\ProductTableAttribute\Plugin\Product\AddAttributeToTemplatePlugin" />
+    </type>
+    <type name="Magento\Catalog\Model\Product\Attribute\Source\Inputtype">
+        <plugin name="product_add_new_attribute_grid_plugin" type="Webkul\ProductTableAttribute\Plugin\Product\Attribute\Source\InputtypePlugin" />
+    </type>
+    <type name="Magento\Catalog\Controller\Adminhtml\Product\Set\Save">
+        <plugin name="save_attribute_set_plugin" type="Webkul\ProductTableAttribute\Plugin\Product\Set\SavePlugin" />
+    </type>
+</config>

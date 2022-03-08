@@ -1,0 +1,22 @@
+<?php
+/**
+ * Webkul Software
+ *
+ * @category  Webkul
+ * @package   Webkul_ProductTableAttribute
+ * @author    Webkul
+ * @copyright Copyright (c) Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ */
+
+// @codingStandardsIgnoreFile
+?>
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "tableProduct": {
+                "hiddenFields": <?= /* @escapeNotVerified */ json_encode($this->helper('Magento\Catalog\Helper\Data')->getAttributeHiddenFields()) ?>
+            }
+        }
+    }
+</script>
