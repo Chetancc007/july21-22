@@ -1,0 +1,6 @@
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+     <table name="catalog_product_entity_text" resource="default">
+        <column xsi:type="mediumtext" name="value" nullable="true" comment="Value"/>
+     </table>
+</schema>
