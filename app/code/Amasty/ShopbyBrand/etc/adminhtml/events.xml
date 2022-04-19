@@ -19,8 +19,8 @@
         <observer name="Amasty_ShopbyBrand::ChangeConfiguration"
                   instance="Amasty\ShopbyBrand\Observer\Admin\ConfigChanged"/>
     </event>
-    <event name="catalog_entity_attribute_save_after">
+   <!--  <event name="catalog_entity_attribute_save_after">
         <observer name="Amasty_ShopbyBrand::AttributeSave"
                   instance="Amasty\ShopbyBrand\Observer\Admin\AttributeSaveAfter"/>
-    </event>
+    </event> -->
 </config>
