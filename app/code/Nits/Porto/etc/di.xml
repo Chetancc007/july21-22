@@ -1,13 +1,5 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
-    <preference for="Lof\HelpDesk\Block\Ticket\Listing" type="Nits\HelpDesk\Block\Ticket\Listing" />
-    <preference for="Lof\HelpDesk\Block\Adminhtml\Ticket\Edit\Tab\Additional" type="Nits\HelpDesk\Block\Adminhtml\Ticket\Edit\Tab\Additional" />
-    <preference for="Lof\HelpDesk\Block\Adminhtml\Ticket\Edit\Tab\General" type="Nits\HelpDesk\Block\Adminhtml\Ticket\Edit\Tab\General" />
-    <preference for="Smartwave\Porto\Smartwave_Filterproducts\templates\owl_list" type="Nits\Porto\Smartwave_Filterproducts\templates\owl_list" />
-    <preference for="Smartwave\Porto\Smartwave_Filterproducts\templates\masonry_grid" type="Nits\Porto\Smartwave_Filterproducts\templates\masonry_grid" />
-    <preference for="Smartwave\Porto\Smartwave_Filterproducts\templates\grid" type="Nits\Porto\Smartwave_Filterproducts\templates\grid" />
-    <preference for="Smartwave\Porto\Smartwave_Filterproducts\templates\flex_grid" type="Nits\Porto\Smartwave_Filterproducts\templates\flex_grid" />
-    <preference for="Smartwave\Porto\Magento_Catalog\templates\product\list" type="Nits\Porto\Magento_Catalog\templates\product\list" />
     <preference for="Smartwave\Porto\Helper\Data" type="Nits\Porto\Helper\Data" />
 </config>
