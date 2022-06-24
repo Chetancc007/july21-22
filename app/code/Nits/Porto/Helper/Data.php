@@ -41,7 +41,7 @@ class Data extends \Smartwave\Porto\Helper\Data
     
     public function getPrepurchaseData($product){
         $current_product = $product->getId();
-        $prePurchaseAttributeList=['prepurchasestartdate','prepurchaseenddate','is_pre_purchase','is_pre_purchase_product','release_date'];
+        $prePurchaseAttributeList=['prepurchasestartdate','prepurchaseenddate','is_pre_purchase','is_pre_purchase_product','release_date','quantity_and_stock_status'];
         $product = $this->_productRepository->getById($current_product);
         $attributes = $product->getAttributes();
         $prePurchaseData=[];
@@ -49,7 +49,14 @@ class Data extends \Smartwave\Porto\Helper\Data
         {
             if(in_array($a->getName(),$prePurchaseAttributeList)){
                 if (($a->getFrontendInput() != 'boolean')) {
+                    if(! is_array($product->getData($a->getName()))){
                      $prePurchaseData[$a->getName()]=$product->getData($a->getName());
+                    }
+                    else{
+                        $arrVal=$product->getData($a->getName());
+                        $prePurchaseData[$a->getName()]=$arrVal[array_key_last($arrVal)];    
+
+                    }
                 }
                 else{	
                     $prePurchaseData[$a->getName()]=$product->getData($a->getName());

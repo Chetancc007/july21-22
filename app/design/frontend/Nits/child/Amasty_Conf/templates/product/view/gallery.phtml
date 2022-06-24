@@ -13,16 +13,19 @@ $product_label='';
 $_portohelper = $this->helper('Smartwave\Porto\Helper\Data');
 $_product = $block->getProduct();
 $prePurchaseData=$_portohelper->getPrepurchaseData($_product);
-if(isset($prePurchaseData['is_pre_purchase']) && $prePurchaseData['is_pre_purchase']==1) {
-    $now = date("Y-m-d");
-    $prePurchaseFrom= substr($prePurchaseData['prepurchasestartdate'],0,10);
-    $prePurchaseTo=  substr($prePurchaseData['prepurchaseenddate'],0,10);
-    $releaseDate=  date('d-m-Y',strtotime(substr($prePurchaseData['release_date'],0,10)));
-    if ($prePurchaseTo != '' || $prePurchaseFrom != ''){
 
-       if (($prePurchaseTo != '' && $prePurchaseFrom != '' && $now>=$prePurchaseFrom && $now<=$prePurchaseTo) || ($prePurchaseTo == '' && $now >=$prePurchaseFrom) || ($prePurchaseFrom == '' && $now<=$prePurchaseTo)) {
-            $product_label = 'Pre-Purchase';
-       }
+if(isset($prePurchaseData['is_pre_purchase']) && $prePurchaseData['is_pre_purchase']==1) {
+    if($prePurchaseData['quantity_and_stock_status']=="" || $prePurchaseData['quantity_and_stock_status']==0){
+        $now = date("Y-m-d");
+        $prePurchaseFrom= substr($prePurchaseData['prepurchasestartdate'],0,10);
+        $prePurchaseTo=  substr($prePurchaseData['prepurchaseenddate'],0,10);
+        $releaseDate=  date('d-m-Y',strtotime(substr($prePurchaseData['release_date'],0,10)));
+        if ($prePurchaseTo != '' || $prePurchaseFrom != ''){
+
+        if (($prePurchaseTo != '' && $prePurchaseFrom != '' && $now>=$prePurchaseFrom && $now<=$prePurchaseTo) || ($prePurchaseTo == '' && $now >=$prePurchaseFrom) || ($prePurchaseFrom == '' && $now<=$prePurchaseTo)) {
+                $product_label = 'Pre-Purchase';
+        }
+        }
     }
 }
 ?>
