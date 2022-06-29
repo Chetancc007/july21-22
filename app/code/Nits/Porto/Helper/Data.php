@@ -54,8 +54,8 @@ class Data extends \Smartwave\Porto\Helper\Data
                     }
                     else{
                         $arrVal=$product->getData($a->getName());
-                        $prePurchaseData[$a->getName()]=$arrVal[array_key_last($arrVal)];    
-
+                        $prePurchaseData['stock_status']=$arrVal[array_key_first($arrVal)];
+                        $prePurchaseData['quantity']=$arrVal[array_key_last($arrVal)];
                     }
                 }
                 else{	
