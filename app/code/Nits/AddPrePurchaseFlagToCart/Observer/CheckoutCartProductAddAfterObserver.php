@@ -6,15 +6,19 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\App\RequestInterface;
 use Nits\Porto\Helper\Data;
 use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+
 class CheckoutCartProductAddAfterObserver implements ObserverInterface {
 
     protected $_request;
     protected $productRepository;
+    protected $timezoneInterface;
 
-    public function __construct(RequestInterface $request, Data $helper, ProductRepositoryInterface $productRepository) {
+    public function __construct(RequestInterface $request, Data $helper, ProductRepositoryInterface $productRepository, TimezoneInterface $timezoneInterface) {
         $this->_request = $request;
         $this->_helper = $helper;
         $this->_productRepository =  $productRepository;
+        $this->timezoneInterface = $timezoneInterface;
     }
 
     public function execute(EventObserver $observer) {
@@ -33,7 +37,7 @@ class CheckoutCartProductAddAfterObserver implements ObserverInterface {
             if(in_array($a->getName(),$prePurchaseAttributeList)){
                 if (($a->getFrontendInput() != 'boolean')) {
                     if(! is_array($product->getData($a->getName()))){
-                     $prePurchaseData[$a->getName()]=$product->getData($a->getName());
+                        $prePurchaseData[$a->getName()]=$product->getData($a->getName());
                     }
                     else{
                         $arrVal=$product->getData($a->getName());
@@ -44,27 +48,23 @@ class CheckoutCartProductAddAfterObserver implements ObserverInterface {
                 else{	
                     $prePurchaseData[$a->getName()]=$product->getData($a->getName());
                 }
-            }
-            
-                
+            }     
         }
-        
         $product_label = "";  
         if(!empty($prePurchaseData)){                       
-        if(isset($prePurchaseData['is_pre_purchase']) && $prePurchaseData['is_pre_purchase']==1) {
-                $now = date("Y-m-d");
+            if(isset($prePurchaseData['is_pre_purchase']) && $prePurchaseData['is_pre_purchase']==1) {
+                $now = $this->timezoneInterface->date()->format('Y-m-d');
                 $prePurchaseFrom= substr($prePurchaseData['prepurchasestartdate'],0,10);
-                $prePurchaseTo=  substr($prePurchaseData['release_date'],0,10);
-                
-            if($prePurchaseData['stock_status']==1 && ($prePurchaseData['quantity']=="" || $prePurchaseData['quantity']<=0)){    
-                if ($prePurchaseTo != '' || $prePurchaseFrom != ''){
-                    if (($prePurchaseTo != '' && $prePurchaseFrom != '' && $now>=$prePurchaseFrom && $now<=$prePurchaseTo) || ($prePurchaseTo == '' && $now >=$prePurchaseFrom) || ($prePurchaseFrom == '' && $now<=$prePurchaseTo)) {
-                        $product_label = "pre_purchase";
+                $prePurchaseTo=  substr($prePurchaseData['release_date'],0,10);   
+                if($prePurchaseData['stock_status']==1 && ($prePurchaseData['quantity']=="" || $prePurchaseData['quantity']<=0)){    
+                    if ($prePurchaseTo != '' || $prePurchaseFrom != ''){
+                        if (($prePurchaseTo != '' && $prePurchaseFrom != '' && $now>=$prePurchaseFrom && $now<=$prePurchaseTo) || ($prePurchaseTo == '' && $now >=$prePurchaseFrom) || ($prePurchaseFrom == '' && $now<=$prePurchaseTo)) {
+                            $product_label = "pre_purchase";
+                        }
                     }
                 }
             }
         }
-    }
         if ($additionalOption = $item->getOptionByCode('additional_options')) {
             $additionalOptions = (array) unserialize($additionalOption->getValue());
         }

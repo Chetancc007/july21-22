@@ -6,10 +6,11 @@
 namespace Nits\Porto\Helper;
 
 use Magento\Framework\Registry;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 
 class Data extends \Smartwave\Porto\Helper\Data
 {
-
+    
     protected $_objectManager;
     private $_registry;
     protected $_filterProvider;
@@ -18,6 +19,7 @@ class Data extends \Smartwave\Porto\Helper\Data
     protected $_configFactory;
     protected $_productCollectionFactory;
     private $productRepository;
+    protected $timezoneInterface;
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
         \Magento\Framework\ObjectManagerInterface $objectManager,
@@ -26,7 +28,8 @@ class Data extends \Smartwave\Porto\Helper\Data
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\App\Config\ConfigResource\ConfigInterface $configFactory,
         Registry $registry,
-        \Magento\Catalog\Api\ProductRepositoryInterface $productRepository
+        \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
+        TimezoneInterface $timezoneInterface
 
     ) {
         $this->_storeManager = $storeManager;
@@ -36,6 +39,7 @@ class Data extends \Smartwave\Porto\Helper\Data
         $this->_messageManager = $messageManager;
         $this->_configFactory = $configFactory;
         $this->_productRepository = $productRepository;
+        $this->timezoneInterface = $timezoneInterface;
         parent::__construct($context,$objectManager,$storeManager,$filterProvider,$messageManager,$configFactory,$registry);
     }
     
@@ -53,7 +57,7 @@ class Data extends \Smartwave\Porto\Helper\Data
             if(in_array($a->getName(),$prePurchaseAttributeList)){
                 if (($a->getFrontendInput() != 'boolean')) {
                     if(! is_array($product->getData($a->getName()))){
-                     $prePurchaseData[$a->getName()]=$product->getData($a->getName());
+                        $prePurchaseData[$a->getName()]=$product->getData($a->getName());
                     }
                     else{
                         $arrVal=$product->getData($a->getName());
@@ -65,42 +69,39 @@ class Data extends \Smartwave\Porto\Helper\Data
                     $prePurchaseData[$a->getName()]=$product->getData($a->getName());
                 }
             }
-            
-                
         }
         
         $prePurchaseButton="";
         $product_label = "";  
         $button_title='';
         if(!empty($prePurchaseData)){                       
-        if(isset($prePurchaseData['is_pre_purchase']) && $prePurchaseData['is_pre_purchase']==1) {
-                $now = date("Y-m-d");
+            if(isset($prePurchaseData['is_pre_purchase']) && $prePurchaseData['is_pre_purchase']==1) {
+                $now = $this->timezoneInterface->date()->format('Y-m-d');
                 $prePurchaseFrom= substr($prePurchaseData['prepurchasestartdate'],0,10);
                 $prePurchaseTo=  substr($prePurchaseData['release_date'],0,10);
-                
-            if($prePurchaseData['stock_status']==1 && ($prePurchaseData['quantity']=="" || $prePurchaseData['quantity']<=0)){    
-                if ($prePurchaseTo != '' || $prePurchaseFrom != ''){
-                    if (($prePurchaseTo != '' && $prePurchaseFrom != '' && $now>=$prePurchaseFrom && $now<=$prePurchaseTo) || ($prePurchaseTo == '' && $now >=$prePurchaseFrom) || ($prePurchaseFrom == '' && $now<=$prePurchaseTo)) {
-                        $prePurchaseButton="Yes";
-                        $product_label = "pre_purchase";
-                        $button_title ='Pre-Purchase';
-                    }
-                    if (($prePurchaseTo != '' && $prePurchaseFrom != '' && $now>$prePurchaseFrom && $now>$prePurchaseTo) || ($prePurchaseTo == '' && $now >$prePurchaseFrom) || ($prePurchaseFrom == '' && $now>$prePurchaseTo)) {
-                        $prePurchaseButton="Special";
-                        $button_title = 'Special Order';
+                if($prePurchaseData['stock_status']==1 && ($prePurchaseData['quantity']=="" || $prePurchaseData['quantity']<=0)){    
+                    if ($prePurchaseTo != '' || $prePurchaseFrom != ''){
+                        if (($prePurchaseTo != '' && $prePurchaseFrom != '' && $now>=$prePurchaseFrom && $now<=$prePurchaseTo) || ($prePurchaseTo == '' && $now >=$prePurchaseFrom) || ($prePurchaseFrom == '' && $now<=$prePurchaseTo)) {
+                            $prePurchaseButton="Yes";
+                            $product_label = "pre_purchase";
+                            $button_title ='Pre-Purchase';
+                        }
+                        if (($prePurchaseTo != '' && $prePurchaseFrom != '' && $now>$prePurchaseFrom && $now>$prePurchaseTo) || ($prePurchaseTo == '' && $now >$prePurchaseFrom) || ($prePurchaseFrom == '' && $now>$prePurchaseTo)) {
+                            $prePurchaseButton="Special";
+                            $button_title = 'Special Order';
+                        }
                     }
                 }
-            }
-            if($prePurchaseData['stock_status']!=1 && ($prePurchaseData['quantity']=="" || $prePurchaseData['quantity']<=0)){
-                $prePurchaseButton="No";
-                $button_title = 'Add to Cart';
+                if($prePurchaseData['stock_status']!=1 && ($prePurchaseData['quantity']=="" || $prePurchaseData['quantity']<=0)){
+                    $prePurchaseButton="No";
+                    $button_title = 'Add to Cart';
+                }
             }
         }
-    }
-    $prePurchaseProductData['prePurchaseButton']=$prePurchaseButton;
-    $prePurchaseProductData['product_label']=$product_label;
-    $prePurchaseProductData['button_title']=$button_title;
-    return  $prePurchaseProductData;   
+        $prePurchaseProductData['prePurchaseButton']=$prePurchaseButton;
+        $prePurchaseProductData['product_label']=$product_label;
+        $prePurchaseProductData['button_title']=$button_title;
+        return  $prePurchaseProductData;   
 
     }
 }
