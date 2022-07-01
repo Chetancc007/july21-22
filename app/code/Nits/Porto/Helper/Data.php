@@ -45,6 +45,9 @@ class Data extends \Smartwave\Porto\Helper\Data
         $product = $this->_productRepository->getById($current_product);
         $attributes = $product->getAttributes();
         $prePurchaseData=[];
+        $prePurchaseProductData=[];   
+        $prePurchaseData['stock_status']='';
+        $prePurchaseData['quantity']='';
         foreach($attributes as $a)
         {
             if(in_array($a->getName(),$prePurchaseAttributeList)){
@@ -62,8 +65,42 @@ class Data extends \Smartwave\Porto\Helper\Data
                     $prePurchaseData[$a->getName()]=$product->getData($a->getName());
                 }
             }
+            
+                
         }
-        return  $prePurchaseData;   
+        
+        $prePurchaseButton="";
+        $product_label = "";  
+        $button_title='';
+        if(!empty($prePurchaseData)){                       
+        if(isset($prePurchaseData['is_pre_purchase']) && $prePurchaseData['is_pre_purchase']==1) {
+                $now = date("Y-m-d");
+                $prePurchaseFrom= substr($prePurchaseData['prepurchasestartdate'],0,10);
+                $prePurchaseTo=  substr($prePurchaseData['release_date'],0,10);
+                
+            if($prePurchaseData['stock_status']==1 && ($prePurchaseData['quantity']=="" || $prePurchaseData['quantity']<=0)){    
+                if ($prePurchaseTo != '' || $prePurchaseFrom != ''){
+                    if (($prePurchaseTo != '' && $prePurchaseFrom != '' && $now>=$prePurchaseFrom && $now<=$prePurchaseTo) || ($prePurchaseTo == '' && $now >=$prePurchaseFrom) || ($prePurchaseFrom == '' && $now<=$prePurchaseTo)) {
+                        $prePurchaseButton="Yes";
+                        $product_label = "pre_purchase";
+                        $button_title ='Pre-Purchase';
+                    }
+                    if (($prePurchaseTo != '' && $prePurchaseFrom != '' && $now>$prePurchaseFrom && $now>$prePurchaseTo) || ($prePurchaseTo == '' && $now >$prePurchaseFrom) || ($prePurchaseFrom == '' && $now>$prePurchaseTo)) {
+                        $prePurchaseButton="Special";
+                        $button_title = 'Special Order';
+                    }
+                }
+            }
+            if($prePurchaseData['stock_status']!=1 && ($prePurchaseData['quantity']=="" || $prePurchaseData['quantity']<=0)){
+                $prePurchaseButton="No";
+                $button_title = 'Add to Cart';
+            }
+        }
+    }
+    $prePurchaseProductData['prePurchaseButton']=$prePurchaseButton;
+    $prePurchaseProductData['product_label']=$product_label;
+    $prePurchaseProductData['button_title']=$button_title;
+    return  $prePurchaseProductData;   
 
     }
 }
