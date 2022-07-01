@@ -67,28 +67,11 @@ if($product_type == null) {
                 <?php echo($iterator++ == 1) ? '<div class="item product product-item">' : '</div><div class="item product product-item">' ?>
                 <div class="product-item-info type<?php echo $product_type; ?>" data-container="product-grid">
                     <?php 
-                    $product_label = "";
                     $prePurchaseData=$_portohelper->getPrepurchaseData($_product);
-                    $prePurchaseButton="";                         
-                    if(isset($prePurchaseData['is_pre_purchase']) && $prePurchaseData['is_pre_purchase']==1) {
-                            $now = date("Y-m-d");
-                            $prePurchaseFrom= substr($prePurchaseData['prepurchasestartdate'],0,10);
-                            $prePurchaseTo=  substr($prePurchaseData['release_date'],0,10);
-                            
-                        if($prePurchaseData['stock_status']==1 && ($prePurchaseData['quantity']=="" || $prePurchaseData['quantity']<=0)){    
-                            if ($prePurchaseTo != '' || $prePurchaseFrom != ''){
-                                if (($prePurchaseTo != '' && $prePurchaseFrom != '' && $now>=$prePurchaseFrom && $now<=$prePurchaseTo) || ($prePurchaseTo == '' && $now >=$prePurchaseFrom) || ($prePurchaseFrom == '' && $now<=$prePurchaseTo)) {
-                                    $prePurchaseButton="Yes";
-                                    $product_label = '<div class="product-label new-label pre-purchase-sub"><img src="'. $this->getViewFileUrl("images/coming_soon.png") .'" alt="auth"></div>';
-                                }
-                                if (($prePurchaseTo != '' && $prePurchaseFrom != '' && $now>$prePurchaseFrom && $now>$prePurchaseTo) || ($prePurchaseTo == '' && $now >$prePurchaseFrom) || ($prePurchaseFrom == '' && $now>$prePurchaseTo)) {
-                                    $prePurchaseButton="Special";
-                                }
-                            }
-                        }
-                        if($prePurchaseData['stock_status']!=1 && ($prePurchaseData['quantity']=="" || $prePurchaseData['quantity']<=0)){
-                            $prePurchaseButton="No";
-                        }
+                    $prePurchaseButton=$prePurchaseData['prePurchaseButton']; 
+                    $product_label = $prePurchaseData['product_label'];                         
+                    if($product_label=="pre_purchase"){
+                        $product_label = '<div class="product-label new-label pre-purchase-sub"><img src="'. $this->getViewFileUrl("images/coming_soon.png") .'" alt="auth"></div>';
                     }
                     // Product Image ?>
                     <div class="product photo product-item-photo <?php if($prePurchaseButton=="Yes"){ ?>pre-purchase-img<?php } ?>">
@@ -341,11 +324,25 @@ if($product_type == null) {
                                                 </div>
                                             <?php endif;?>
                                             <?php echo $block->getBlockHtml('formkey')?>
+                                            <?php if($prePurchaseButton=="Yes"){ ?>
                                             <button type="submit"
+                                                    title="<?php echo $block->escapeHtml(__('Pre-Purchase')); ?>"
+                                                    class="action tocart primary" <?php echo $prePurchaseButton ?>>
+                                                <span><?php echo __('Pre-Purchase') ?></span>
+                                            </button>
+                                            <?php } elseif($prePurchaseButton==""){?> 
+                                                <button type="submit"
                                                     title="<?php echo $block->escapeHtml(__('Add to Cart')); ?>"
-                                                    class="action tocart primary">
+                                                    class="action tocart primary" <?php echo $prePurchaseButton ?>>
                                                 <span><?php echo __('Add to Cart') ?></span>
                                             </button>
+                                            <?php } elseif($prePurchaseButton=="Special"){?> 
+                                                <button type="submit"
+                                                    title="<?php echo $block->escapeHtml(__('Special Order')); ?>"
+                                                    class="action tocart primary" <?php echo $prePurchaseButton ?>>
+                                                <span><?php echo __('Special Order') ?></span>
+                                            </button>
+                                            <?php } ?>
                                         </form>
                                     <?php else: ?>
                                         <?php if ($_product->getIsSalable()): ?>
