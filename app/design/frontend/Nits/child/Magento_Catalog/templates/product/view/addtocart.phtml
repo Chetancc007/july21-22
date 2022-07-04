@@ -18,10 +18,10 @@ $_product = $block->getProduct();
 $prePurchaseData=$_portohelper->getPrepurchaseData($_product);
 $prePurchaseButton=$prePurchaseData['prePurchaseButton'];
 $product_label=$prePurchaseData['product_label'];
-$buttonTitle = $prePurchaseData['button_title'];  
+$buttonTitle = $prePurchaseData['button_title'];
 if($product_label=="pre_purchase"){
     $product_label = '<div class="product-label new-label pre-purchase-sub"><img src="'. $this->getViewFileUrl("images/coming_soon.png") .'" alt="auth"></div>';
-}      
+}
 ?>
 <?php $dailydealhelper=$this->helper('Smartwave\Dailydeals\Helper\Data'); ?>
 <?php if ($_product->isSaleable()): ?>
@@ -34,7 +34,7 @@ if($product_label=="pre_purchase"){
     <div class="sw-dailydeal-wrapper">
       <div class="sw-dailydeal">
         <?php if($block->getRequest()->getParam('dailydealproduct')) :?>
-            <p id="expired"></p> 
+            <p id="expired"></p>
         <?php endif; ?>
         <div class="countdowncontainer" style="display:none;">
             <span class="dailydeal-label">
@@ -69,32 +69,36 @@ if($product_label=="pre_purchase"){
     <?php endif; ?>
     <div class="fieldset">
         <?php if ($block->shouldRenderQuantity()): ?>
-        <div class="field qty">
-            <label class="label" for="qty"><span><?php /* @escapeNotVerified */ echo __('Qty') ?>:</span></label>
-            <div class="control">
-                <input type="number"
-                       name="qty"
-                       id="qty"
-                       maxlength="12"
-                       value="<?php /* @escapeNotVerified */ echo $block->getProductDefaultQty() * 1 ?>"
-                       title="<?php /* @escapeNotVerified */ echo __('Qty') ?>" class="input-text qty"
-                       data-validate="<?php echo $block->escapeHtml(json_encode($block->getQuantityValidators())) ?>"
-                       />
-                <div class="qty-changer">
-                    <a href="javascript:void(0)" class="qty-inc"><i class="porto-icon-up-dir"></i></a>
-                    <a href="javascript:void(0)" class="qty-dec"><i class="porto-icon-down-dir"></i></a>
+            <?php if($buttonTitle!=""){ ?>
+                <div class="field qty">
+                    <label class="label" for="qty"><span><?php /* @escapeNotVerified */ echo __('Qty') ?>:</span></label>
+                    <div class="control">
+                        <input type="number"
+                            name="qty"
+                            id="qty"
+                            maxlength="12"
+                            value="<?php /* @escapeNotVerified */ echo $block->getProductDefaultQty() * 1 ?>"
+                            title="<?php /* @escapeNotVerified */ echo __('Qty') ?>" class="input-text qty"
+                            data-validate="<?php echo $block->escapeHtml(json_encode($block->getQuantityValidators())) ?>"
+                            />
+
+                        <div class="qty-changer">
+                            <a href="javascript:void(0)" class="qty-inc"><i class="porto-icon-up-dir"></i></a>
+                            <a href="javascript:void(0)" class="qty-dec"><i class="porto-icon-down-dir"></i></a>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
+            <?php } ?>
         <?php endif; ?>
         <div class="actions">
-            <button type="submit"
-                    title="<?php /* @escapeNotVerified */ echo $buttonTitle ?>"
-                    class="action primary tocart"
-                    id="product-addtocart-button">
-                <span><?php /* @escapeNotVerified */ echo $buttonTitle ?></span>
-            </button>
-            
+            <?php if($buttonTitle!=""){ ?>
+                <button type="submit"
+                        title="<?php /* @escapeNotVerified */ echo $buttonTitle ?>"
+                        class="action primary tocart"
+                        id="product-addtocart-button">
+                    <span><?php /* @escapeNotVerified */ echo $buttonTitle ?></span>
+                </button>
+            <?php } ?>
             <?php echo $block->getChildHtml('', true) ?>
         </div>
     </div>
