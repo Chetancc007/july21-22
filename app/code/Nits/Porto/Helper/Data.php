@@ -17,7 +17,6 @@ class Data extends \Smartwave\Porto\Helper\Data
     private $_checkedPurchaseCode;
     private $_messageManager;
     protected $_configFactory;
-    protected $_productCollectionFactory;
     private $productRepository;
     protected $timezoneInterface;
     public function __construct(
@@ -73,7 +72,7 @@ class Data extends \Smartwave\Porto\Helper\Data
         
         $prePurchaseButton="";
         $product_label = "";  
-        $button_title='';
+        $button_title='Add to Cart';
         if(!empty($prePurchaseData)){                       
             if(isset($prePurchaseData['is_pre_purchase']) && $prePurchaseData['is_pre_purchase']==1) {
                 $now = $this->timezoneInterface->date()->format('Y-m-d');
@@ -94,7 +93,7 @@ class Data extends \Smartwave\Porto\Helper\Data
                 }
                 if($prePurchaseData['stock_status']!=1 && ($prePurchaseData['quantity']=="" || $prePurchaseData['quantity']<=0)){
                     $prePurchaseButton="No";
-                    $button_title = 'Add to Cart';
+                    $button_title = '';
                 }
             }
         }
