@@ -1,0 +1,13 @@
+.grouped.products-detail-grouped .col.item {
+    width: 45%;
+}
+.grouped.products-detail-grouped .col.qty {
+    width: 35%;
+    min-width: 95px;
+}
+.grouped.products-detail-grouped .col.price{
+    width:20%; 
+}
+.product-qty-action {
+    display: flex;
+}

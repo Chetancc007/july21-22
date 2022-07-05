@@ -18,7 +18,7 @@
 <?php $_associatedProducts = $block->getAssociatedProducts(); ?>
 <?php $_hasAssociatedProducts = count($_associatedProducts) > 0; ?>
 
-<div class="table-wrapper grouped">
+<div class="table-wrapper grouped products-detail-grouped">
     <table class="table data grouped" id="super-product-table">
         <caption class="table-caption"><?php /* @escapeNotVerified */ echo __('Grouped product items') ?></caption>
         <thead>
@@ -27,6 +27,7 @@
             <?php if ($_product->isSaleable()): ?>
                 <th class="col qty" scope="col"><?php /* @escapeNotVerified */ echo __('Qty') ?></th>
             <?php endif; ?>
+            <th class="col price" scope="col"><?php /* @escapeNotVerified */ echo __('Price') ?></th>
         </tr>
         </thead>
 
@@ -36,28 +37,31 @@
             <tr>
                 <td data-th="<?php echo $block->escapeHtml(__('Product Name')); ?>" class="col item">
                     <strong class="product-item-name"><?php echo $block->escapeHtml($_item->getName()) ?></strong>
-                    <?php if ($block->getCanShowProductPrice($_product)): ?>
-                        <?php if ($block->getCanShowProductPrice($_item)): ?>
-                            <?php /* @escapeNotVerified */ echo $block->getProductPrice($_item) ?>
-                        <?php endif; ?>
-                     <?php endif; ?>
+                    
                 </td>
                 <?php if ($_product->isSaleable()): ?>
                 <td data-th="<?php echo $block->escapeHtml(__('Qty')); ?>" class="col qty">
                 <?php if ($_item->isSaleable()) : ?>
-                    <div class="control qty">
-                        <input type="number" name="super_group[<?php /* @escapeNotVerified */ echo $_item->getId() ?>]"
-                               maxlength="12"
-                               value="<?php /* @escapeNotVerified */ echo $_item->getQty() * 1 ?>"
-                               title="<?php /* @escapeNotVerified */ echo __('Qty') ?>"
-                               class="input-text qty"
-                               data-validate="{'validate-grouped-qty':'#super-product-table'}"
-                               data-errors-message-box="#validation-message-box"/>
-                        <div class="qty-changer">
-                            <a href="javascript:void(0)" class="qty-inc"><i class="porto-icon-up-dir"></i></a>
-                            <a href="javascript:void(0)" class="qty-dec"><i class="porto-icon-down-dir"></i></a>
+                   <div class="product-qty-action"> 
+                        <div class="product-actionqty"> 
+                                <div class="control qty">
+                                    <input type="number" name="super_group[<?php /* @escapeNotVerified */ echo $_item->getId() ?>]"
+                                        maxlength="12"
+                                        value="<?php /* @escapeNotVerified */ echo $_item->getQty() * 1 ?>"
+                                        title="<?php /* @escapeNotVerified */ echo __('Qty') ?>"
+                                        class="input-text qty"
+                                        data-validate="{'validate-grouped-qty':'#super-product-table'}"
+                                        data-errors-message-box="#validation-message-box"/>
+                                    <div class="qty-changer">
+                                        <a href="javascript:void(0)" class="qty-inc"><i class="porto-icon-up-dir"></i></a>
+                                        <a href="javascript:void(0)" class="qty-dec"><i class="porto-icon-down-dir"></i></a>
+                                    </div>
+                                </div>
                         </div>
-                    </div><div class="moved-add-to-links"></div>
+                        <div class="product-actionwish">
+                            <div class="moved-add-to-links"></div>
+                        </div>    
+                    </div>
                 <?php else: ?>
                     <div class="stock unavailable" title="<?php /* @escapeNotVerified */ echo __('Availability') ?>">
                         <span><?php /* @escapeNotVerified */ echo __('Out of stock') ?></span>
@@ -66,6 +70,13 @@
                
                 </td>
                 <?php endif; ?>
+                <td class="col price">
+                    <?php if ($block->getCanShowProductPrice($_product)): ?>
+                        <?php if ($block->getCanShowProductPrice($_item)): ?>
+                            <?php /* @escapeNotVerified */ echo $block->getProductPrice($_item) ?>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </td>
             </tr>
             <?php if ($block->getCanShowProductPrice($_product)
                 && $block->getCanShowProductPrice($_item)
