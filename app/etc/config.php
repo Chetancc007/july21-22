@@ -234,7 +234,7 @@
             'Amasty_Conditions' => 1,
             'Amasty_Conf' => 1,
             'Amasty_CronScheduleList' => 1,
-            'Amasty_ElasticSearch' => 0,
+            'Amasty_ElasticSearch' => 1,
             'Amasty_Finder' => 1,
             'Amasty_Mage24Fix' => 1,
             'Amasty_ProductAttachment' => 1,
