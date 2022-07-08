@@ -38,5 +38,12 @@
         <referenceContainer name="columns">
             <block class="Smartwave\Porto\Block\Template" name="side_popup" after="-" template="Magento_Catalog::product/view/side_popup.phtml"/>
         </referenceContainer>
+        <!--<referenceContainer name="product.info.details" remove="true"/>-->
+        <!--<move element="product.info.stock.sku" destination="product.info.main" before="product.info.addtocart"/>-->
+        <!--<move element="product.info.details" destination="product.info.media" after="-"/>
+        <move element="product.info.description" destination="product.info.media" after="product.info.details"/>
+        <move element="product.attributes" destination="product.info.media" after="product.info.description"/>
+        <move element="sd.tab" destination="product.info.media" after="product.attributes"/>
+        <move element="reviews.tab" destination="product.info.media" after="sd.tab"/>-->
     </body>
 </page>
