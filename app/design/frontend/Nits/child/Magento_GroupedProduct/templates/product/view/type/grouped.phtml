@@ -17,27 +17,33 @@
 <?php $_product = $block->getProduct(); ?>
 <?php $_associatedProducts = $block->getAssociatedProducts(); ?>
 <?php $_hasAssociatedProducts = count($_associatedProducts) > 0; ?>
-
+<?php $priceHelper = $this->helper(\Magento\Framework\Pricing\Helper\Data::class); ?>
 <div class="table-wrapper grouped products-detail-grouped">
     <table class="table data grouped" id="super-product-table">
         <caption class="table-caption"><?php /* @escapeNotVerified */ echo __('Grouped product items') ?></caption>
         <thead>
         <tr>
-            <th class="col item" scope="col"><?php /* @escapeNotVerified */ echo __('Product Name') ?></th>
+            <th colspan="2" class="col item" scope="col"><?php /* @escapeNotVerified */ echo __('Product Name') ?></th>
             <?php if ($_product->isSaleable()): ?>
                 <th class="col qty" scope="col"><?php /* @escapeNotVerified */ echo __('Qty') ?></th>
+                <th class="col qty" scope="col"></th>
             <?php endif; ?>
             <th class="col price" scope="col"><?php /* @escapeNotVerified */ echo __('Price') ?></th>
         </tr>
         </thead>
 
-        <?php if ($_hasAssociatedProducts): ?>
+        <?php if ($_hasAssociatedProducts): 
+            $finalPrice=0;
+        ?>
         <?php foreach ($_associatedProducts as $_item): ?>
         <tbody>
             <tr>
+                <td data-th="<?php echo $block->escapeHtml(__('Image')); ?>" class="col image">
+                    <?php $productImage = $block->getImage($_item, 'product_base_image'); ?>
+                    <img src="<?= $productImage->getImageUrl(); ?>" />
+                </td>
                 <td data-th="<?php echo $block->escapeHtml(__('Product Name')); ?>" class="col item">
-                    <strong class="product-item-name"><?php echo $block->escapeHtml($_item->getName()) ?></strong>
-                    
+                    <strong class="product-item-name"><?php echo $block->escapeHtml($_item->getName()) ?></strong> 
                 </td>
                 <?php if ($_product->isSaleable()): ?>
                 <td data-th="<?php echo $block->escapeHtml(__('Qty')); ?>" class="col qty">
@@ -57,23 +63,26 @@
                                         <a href="javascript:void(0)" class="qty-dec"><i class="porto-icon-down-dir"></i></a>
                                     </div>
                                 </div>
-                        </div>
-                        <div class="product-actionwish">
-                            <div class="moved-add-to-links"></div>
-                        </div>    
+                        </div>  
                     </div>
+                       
                 <?php else: ?>
                     <div class="stock unavailable" title="<?php /* @escapeNotVerified */ echo __('Availability') ?>">
                         <span><?php /* @escapeNotVerified */ echo __('Out of stock') ?></span>
                     </div>
                 <?php endif; ?>
-               
                 </td>
+                <td>
+                    <div class="product-actionwish">
+                        <div class="moved-add-to-links"></div>
+                    </div> 
+                </td>               
                 <?php endif; ?>
                 <td class="col price">
                     <?php if ($block->getCanShowProductPrice($_product)): ?>
                         <?php if ($block->getCanShowProductPrice($_item)): ?>
                             <?php /* @escapeNotVerified */ echo $block->getProductPrice($_item) ?>
+                            <?php $finalPrice +=$_item->getPrice(); ?>
                         <?php endif; ?>
                     <?php endif; ?>
                 </td>
@@ -95,6 +104,7 @@
             <?php endif; ?>
         </tbody>
         <?php endforeach; ?>
+
         <?php else: ?>
         <tbody>
             <tr>
@@ -105,6 +115,22 @@
             </tr>
         </tbody>
         <?php endif; ?>
+        <tbody>
+            <tr>
+                <td colspan="4" align="right">
+                    <div class="grouped_product_lable">
+                        Total Price:
+                    </div>          
+                </td>
+                <td>
+                    <div class="grouped_product_price">
+                        <div class="grouped_product_final_price">
+                            <?= $formattedPrice = $priceHelper->currency($finalPrice, true, false); ?>
+                        </div>        
+                    </div>
+                <td>
+            </tr>
+        </tbody>
     </table>
 </div>
 <div id="validation-message-box"></div>
