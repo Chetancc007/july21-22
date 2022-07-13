@@ -1,0 +1,12 @@
+<page layout="2columns-right" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="product.info.media">
+            <container name="product.info.detailstabs" htmlTag="div" htmlClass="product column-1" after="-" >
+            </container>
+        </referenceContainer>
+        <referenceBlock name="page.main.title">
+            <block class="Magento\Catalog\Block\Product\View\Gallery" name="theme.miniprepurchaselogo" template="Magento_Catalog::html/prepurchase.phtml" />
+        </referenceBlock>
+        <move element="product.info.details" destination="product.info.detailstabs" before="-" />
+    </body>
+</page>

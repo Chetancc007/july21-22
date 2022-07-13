@@ -1,0 +1,17 @@
+<?php
+  use Magento\Framework\App\Action\Action;
+?>
+<?php /** @var \Amasty\Conf\Block\Product\View\Gallery $block */ ?>
+
+<?php
+$_portohelper = $this->helper('Smartwave\Porto\Helper\Data');
+$_product = $block->getProduct();
+
+$prePurchaseData=$_portohelper->getPrepurchaseData($_product);
+$prePurchaseButton=$prePurchaseData['prePurchaseButton'];
+$product_label=$prePurchaseData['product_label'];
+if($product_label=="pre_purchase")
+{
+?>
+    <div class="pre-purchase-pdpimg"><img src="<?= $block->escapeUrl($block->getViewFileUrl('images/pre_purchase.png'));?>" alt="pre-purchase"><div>
+<?php } ?>
