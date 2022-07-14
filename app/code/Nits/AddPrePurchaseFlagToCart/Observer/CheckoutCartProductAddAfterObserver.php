@@ -25,8 +25,8 @@ class CheckoutCartProductAddAfterObserver implements ObserverInterface {
         $item = $observer->getQuoteItem();
         $additionalOptions = array();
         $prePurchaseAttributeList=['prepurchasestartdate','prepurchaseenddate','is_pre_purchase','is_pre_purchase_product','release_date','quantity_and_stock_status'];
-        $current_product=$item->getProductId();    
-        $product = $this->_productRepository->getById($current_product);
+        $current_product=$item->getProductId(); 
+        $product = $this->_productRepository->getById($current_product); 
         $attributes = $product->getAttributes();
         $prePurchaseData=[];
         $prePurchaseProductData=[];   

@@ -5,8 +5,17 @@
             </container>
         </referenceContainer>
         <referenceBlock name="page.main.title">
-            <block class="Magento\Catalog\Block\Product\View\Gallery" name="theme.miniprepurchaselogo" template="Magento_Catalog::html/prepurchase.phtml" />
+            <container name="div.pre-purchase-logo" htmlTag="div" htmlClass="pre-purchase-logo-blk">
+                <block class="Magento\Framework\View\Element\Text">
+                    <arguments>
+                        <argument name="text" xsi:type="string"><![CDATA[&nbsp;]]></argument>
+                    </arguments>
+                </block>
+            </container>
         </referenceBlock>
+        <block class="Magento\Catalog\Block\Product\View\Gallery" name="theme.miniprepurchaselogo" template="Magento_Catalog::html/prepurchase.phtml" />
         <move element="product.info.details" destination="product.info.detailstabs" before="-" />
+        <move element="theme.miniprepurchaselogo" destination="page.main.title" before="-" />
+
     </body>
 </page>
