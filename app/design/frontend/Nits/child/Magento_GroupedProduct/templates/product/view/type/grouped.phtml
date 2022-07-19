@@ -23,7 +23,8 @@
         <caption class="table-caption"><?php /* @escapeNotVerified */ echo __('Grouped product items') ?></caption>
         <thead>
         <tr>
-            <th colspan="2" class="col item" scope="col"><?php /* @escapeNotVerified */ echo __('Product Name') ?></th>
+            <th class="col image" scope="col"><?php /* @escapeNotVerified */ echo __(' ') ?></th>
+            <th class="col item" scope="col"><?php /* @escapeNotVerified */ echo __('Product Name') ?></th>
             <?php if ($_product->isSaleable()): ?>
                 <th class="col qty" scope="col"><?php /* @escapeNotVerified */ echo __('Qty') ?></th>
                 <th class="col qty" scope="col"></th>

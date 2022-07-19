@@ -15,3 +15,111 @@
     width: 100px;
     display: block;
 }
+.advance-news-cnt {
+    display: flex;
+    flex-wrap: wrap;
+    border: 1px solid #E8E8E8;
+}
+
+.advance-news-cnt .news-cnt-blk .newsletter-section {
+    border: 0px !important;
+    padding: 10px 10px 0 0 !important;
+    margin-top: 13px;
+    margin-bottom: 15px !important;
+}
+
+.advance-news-cnt .news-cnt-blk {
+    width: 57%;
+    border-right: 1px solid #E8E8E8;
+}
+
+.advance-news-cnt .advance-cnt-blk {
+    width: 43%;
+    padding: 0 10px;
+    margin-top: 8px;
+}
+
+.advance-news-cnt .col-md-5 {
+    padding-left: 0px;
+}
+
+.advance-news-cnt .row {
+    padding-top: 15px;
+}
+
+.advance-news-cnt .blk-advance-title {
+    font-size: 14px;
+    font-style: italic;
+}
+
+.advance-news-cnt .blk-advance-cnt {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+}
+
+
+.advance-news-cnt .advance-cnt-sel {
+    width: 25%;
+}
+
+.advance-news-cnt .advance-cnt-sel select {
+    box-shadow: 0px 3px 6px #00000029;
+    border: 1px solid #E8E8E8;
+    height: 48px;
+    border-radius: 24px;
+    font-style: italic;
+    font-size: 12px;
+    background-color: #fff;
+    color: #777;
+    border-color: rgba(0,0,0,0.09);
+}
+
+.advance-news-cnt .advance-cnt-sel.advance-cnt-btn {
+    width: 20%;
+}
+
+.advance-news-cnt .advance-cnt-sel.advance-cnt-btn button {
+    border-radius: 24px;
+    height: 48px;
+    width: 100%;
+    color: #ffffff;
+    background-color: #323232;
+    border-color: #323232 #323232 #191919;
+    box-shadow: 0px 3px 6px #00000029;
+}
+
+.vehiclefitment-cnt .vehiclefitment-table {
+    border: 0.5px solid #c8c8c8;
+    margin-bottom: 30px;
+}
+
+.vehiclefitment-cnt .vehiclefitment-row {
+    display: table;
+    width: 100%;
+}
+
+.vehiclefitment-cnt .vehiclefitment-cell.titles {
+    text-align: center;
+    font-size: 16px;
+    letter-spacing: 0px;
+    color: #373737;
+}
+
+.vehiclefitment-cnt .vehiclefitment-cell {
+    display: table-cell;
+    padding: 10px;
+    width: 11%;
+}
+
+.vehiclefitment-cnt .vehiclefitment-cell.cnt {
+    text-align: center;
+}
+
+.vehiclefitment-cnt .vehiclefitment-row:nth-child(odd) {
+    background: #fff;
+}
+
+.vehiclefitment-cnt .vehiclefitment-row:nth-child(even) {
+    background: #e8e8e8;
+}

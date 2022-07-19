@@ -1,9 +1,5 @@
 <page layout="2columns-right" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
-        <referenceContainer name="product.info.media">
-            <container name="product.info.detailstabs" htmlTag="div" htmlClass="product column-1" after="-" >
-            </container>
-        </referenceContainer>
         <referenceBlock name="page.main.title">
             <container name="div.pre-purchase-logo" htmlTag="div" htmlClass="pre-purchase-logo-blk">
                 <block class="Magento\Framework\View\Element\Text">
@@ -13,9 +9,17 @@
                 </block>
             </container>
         </referenceBlock>
+
+        <referenceBlock name="product.info.details">
+            <block class="Magento\Catalog\Block\Product\View" name="test.tab" template="Magento_Catalog::html/vehiclefitment.phtml" group="detailed_info" >
+                <arguments>
+                <argument translate="true" name="title" xsi:type="string">Vehicle Fitment Data</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
         <block class="Magento\Catalog\Block\Product\View\Gallery" name="theme.miniprepurchaselogo" template="Magento_Catalog::html/prepurchase.phtml" />
-        <move element="product.info.details" destination="product.info.detailstabs" before="-" />
         <move element="theme.miniprepurchaselogo" destination="page.main.title" before="-" />
+        <move element="vehiclefitment.tab" destination="product.info.detailstabs" after="-" />
 
     </body>
 </page>
