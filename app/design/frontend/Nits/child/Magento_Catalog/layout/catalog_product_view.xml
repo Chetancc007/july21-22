@@ -9,17 +9,16 @@
                 </block>
             </container>
         </referenceBlock>
-
         <referenceBlock name="product.info.details">
-            <block class="Magento\Catalog\Block\Product\View" name="test.tab" template="Magento_Catalog::html/vehiclefitment.phtml" group="detailed_info" >
+            <block class="Webkul\ProductTableAttribute\Block\TableAttribute" name="vehiclefitmentdata.tab" template="Magento_Catalog::html/vehiclefitment.phtml" group="detailed_info" >
                 <arguments>
-                <argument translate="true" name="title" xsi:type="string">Vehicle Fitment Data</argument>
+                    <argument translate="true" name="title" xsi:type="string">Vehicle Fitment Data</argument>
                 </arguments>
             </block>
         </referenceBlock>
         <block class="Magento\Catalog\Block\Product\View\Gallery" name="theme.miniprepurchaselogo" template="Magento_Catalog::html/prepurchase.phtml" />
         <move element="theme.miniprepurchaselogo" destination="page.main.title" before="-" />
         <move element="vehiclefitment.tab" destination="product.info.detailstabs" after="-" />
-
+        <referenceBlock name="sd.tab" remove="true" />
     </body>
 </page>
