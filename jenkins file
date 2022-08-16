@@ -35,7 +35,7 @@ stages{
         steps{
             sh '/var/www/html/project-community-edition'
             //sh 'php ./bin/magento maintenance:enable || true'
-            sh 'php /var/www/html/magento maintenance:enable || true'
+            sh 'php /var/www/html/project-community-edition maintenance:enable || true'
         }
     }
 
