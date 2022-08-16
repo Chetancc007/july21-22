@@ -33,7 +33,7 @@ stages{
     
     stage('Enabling maintainence mode'){
         steps{
-            sh 'cd /var/www/html/magento'
+            sh '/var/www/html/project-community-edition'
             //sh 'php ./bin/magento maintenance:enable || true'
             sh 'php /var/www/html/magento maintenance:enable || true'
         }
@@ -49,7 +49,7 @@ stages{
 
         steps{
            // sh 'apt get update'
-            sh 'cd /var/www/html/magento'
+            sh '/var/www/html/project-community-edition'
             sh 'composer install'
         }
     } 
@@ -57,9 +57,9 @@ stages{
     stage(' Setup Upgrade'){
 
         steps{
-            sh 'cd /var/www/html/magento'
+            sh '/var/www/html/project-community-edition'
             sh 'composer update'
-            sh 'php /var/www/html/magento setup:upgrade'
+            sh 'php /var/www/html/project-community-edition setup:upgrade'
         }
     }
 
@@ -67,7 +67,7 @@ stages{
 
         steps{
            
-            sh 'php /var/www/html/magento setup:di:compile'
+            sh 'php /var/www/html/project-community-edition setup:di:compile'
             
         }
     }
@@ -76,7 +76,7 @@ stages{
 
         steps{
             
-            sh 'php /var/www/html/magento setup:static-content:deploy'
+            sh 'php /var/www/html/project-community-edition setup:static-content:deploy'
             
         }
     }
@@ -85,7 +85,7 @@ stages{
 
         steps{
             
-            sh 'php /var/www/html/magento clean:flush'
+            sh 'php /var/www/html/project-community-edition clean:flush'
             
         }
     }
@@ -94,7 +94,7 @@ stages{
 
         steps{
             
-            sh 'php /var/www/html/magento maintenance:disable'
+            sh 'php /var/www/html/project-community-edition maintenance:disable'
             
         }
     }
