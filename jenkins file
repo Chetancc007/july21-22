@@ -100,39 +100,4 @@ stages{
     }
     
 
-
-    // Docker build and push to docker-hub //
-
-    stage(' Docker Build and Push To Docker-Hub '){
-        steps{
-            echo 'Building Started'
-            script{
-                dockerImage = docker.build imagename
-                docker.withRegistry('', 'docker-creds') {
-                dockerImage.push("latest")
-                dockerImage.push('latest')    
-
-                }
-
-
-            }
-
-
-        }
-    }
-    // Pulling docker images from hub and deploying using docker-compose method//
-   stage('Deploying Image to Container'){
-       
-       steps{
-                    sh """
-                        cd /var/www/html/magento
-                        docker-compose -f docker-compose.yml pull
-                        docker-compose -f docker-compose.yml up -d
-                    """
-             
-       }
-   }
-    
-    
-}
 }
