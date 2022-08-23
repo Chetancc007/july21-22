@@ -9,11 +9,7 @@ options {
     disableResume()
     }
     
- environment {
-    imagename = "chetancc023/magento"
-    dockerImage = ''
-    
-  }   
+
 parameters {
 
     string(name: 'imagename', defaultValue: '1.0', description: 'tagname')
