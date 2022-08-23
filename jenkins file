@@ -29,7 +29,7 @@ stages{
     
     stage('Enabling maintainence mode'){
         steps{
-            sh '/var/www/html/project-community-edition'
+            sh '/var/lib/jenkins/workspace/project-community-edition'
             //sh 'php ./bin/magento maintenance:enable || true'
             sh ' php maintenance:enable || true'
         }
@@ -45,7 +45,7 @@ stages{
 
         steps{
            // sh 'apt get update'
-            sh '/var/www/html/project-community-edition'
+            sh '/var/lib/jenkins/workspace/project-community-edition'
             sh 'composer install'
         }
     } 
@@ -53,9 +53,9 @@ stages{
     stage(' Setup Upgrade'){
 
         steps{
-            sh '/var/www/html/project-community-edition'
+            sh '/var/lib/jenkins/workspace/project-community-edition'
             sh 'composer update'
-            sh 'php /var/www/html/project-community-edition setup:upgrade'
+            sh 'php /var/lib/jenkins/workspace/project-community-edition setup:upgrade'
         }
     }
 
@@ -63,7 +63,7 @@ stages{
 
         steps{
            
-            sh 'php /var/www/html/project-community-edition setup:di:compile'
+            sh 'php /var/lib/jenkins/workspace/project-community-edition setup:di:compile'
             
         }
     }
@@ -72,7 +72,7 @@ stages{
 
         steps{
             
-            sh 'php /var/www/html/project-community-edition setup:static-content:deploy'
+            sh 'php /var/lib/jenkins/workspace/project-community-edition setup:static-content:deploy'
             
         }
     }
@@ -81,7 +81,7 @@ stages{
 
         steps{
             
-            sh 'php /var/www/html/project-community-edition clean:flush'
+            sh 'php /var/lib/jenkins/workspace/project-community-edition clean:flush'
             
         }
     }
@@ -90,7 +90,7 @@ stages{
 
         steps{
             
-            sh 'php /var/www/html/project-community-edition maintenance:disable'
+            sh 'php /var/lib/jenkins/workspace/project-community-edition maintenance:disable'
             
         }
     }
